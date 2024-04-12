@@ -7,11 +7,9 @@ execute:
 format:
   html:
     toc: true
-    comments:
-      hypothesis: true
-  docx: default
-  jats: default
-  agu-pdf: default
 
-
+manuscript:
+  notebooks:
+    - notebook: notebooks/temp.qmd
+      title: Temporary Test 
 

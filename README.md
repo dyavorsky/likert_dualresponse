@@ -1,5 +1,5 @@
-## A Quarto Manuscript Template
+## Likert Scale Dual Response for Conjoint Analysis
 
-This is a template repo for generating a manuscript from Quarto that accompanies the tutorial at: [Quarto Manuscripts: VS Code](https://quarto.org/docs/manuscripts/authoring/vscode.html)
+_todo: copy abstract here_
 
 
