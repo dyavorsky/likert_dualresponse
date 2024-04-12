@@ -29,10 +29,10 @@ author:
       - ref: gbk
 
 keywords:
-  - choice-based conjoint analysis, 
-  - stated preference elicitation, 
+  - choice-based conjoint analysis
+  - stated preference elicitation
   - discrete choice methods
-  - 
+
 abstract: |
   Write the abstract here ...
 
