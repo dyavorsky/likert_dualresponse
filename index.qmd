@@ -17,6 +17,7 @@ author:
     affiliations: 
       - ref: gbk
   - name: Eric Bradlow
+    orcid: 0000-0002-4776-2323
     corresponding: false
     email: ebradlow@wharton.upenn.edu
     affiliations: 
@@ -28,10 +29,7 @@ author:
     affiliations: 
       - ref: gbk
 
-keywords:
-  - choice-based conjoint analysis
-  - stated preference elicitation
-  - discrete choice methods
+keywords: choice-based conjoint analysis, stated preference elicitation, discrete choice methods
 
 abstract: |
   Write the abstract here ...
@@ -40,8 +38,8 @@ plain-language-summary: |
   Add the plain language summary here ...
 
 key-points:
-  - A web scraping script was developed to pull data from the Instituto Geogràphico Nacional into a machine-readable form for analysis
-  - Earthquake events on La Palma are consistent with the presence of both mantle and crustal reservoirs.
+  - add a sentence
+  - maybe two
   
 bibliography: references.bib
 citation: true
