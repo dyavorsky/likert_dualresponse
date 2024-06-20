@@ -2,15 +2,15 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.5.29">
+<meta name="generator" content="quarto-1.5.45">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Prachi Bhalerao">
 <meta name="author" content="Eric Bradlow">
 <meta name="author" content="Dan Yavorsky">
-<meta name="dcterms.date" content="2024-04-12">
-<meta name="keywords" content="choice-based conjoint analysis,, stated preference elicitation,, discrete choice methods, ">
+<meta name="dcterms.date" content="2024-06-20">
+<meta name="keywords" content="choice-based conjoint analysis, stated preference elicitation, discrete choice methods">
 
 <title>Likert Scale Dual Response in Conjoint Analysis</title>
 <style>
@@ -62,14 +62,14 @@ div.csl-indent {
 <meta name="citation_title" content="Likert Scale Dual Response in Conjoint Analysis">
 <meta name="citation_abstract" content="Write the abstract here ...
 ">
-<meta name="citation_keywords" content="choice-based conjoint analysis,,stated preference elicitation,,discrete choice methods,">
+<meta name="citation_keywords" content="choice-based conjoint analysis, stated preference elicitation, discrete choice methods">
 <meta name="citation_author" content="Prachi Bhalerao">
 <meta name="citation_author" content="Eric Bradlow">
 <meta name="citation_author" content="Dan Yavorsky">
-<meta name="citation_publication_date" content="2024-04-12">
-<meta name="citation_cover_date" content="2024-04-12">
+<meta name="citation_publication_date" content="2024-06-20">
+<meta name="citation_cover_date" content="2024-06-20">
 <meta name="citation_year" content="2024">
-<meta name="citation_online_date" content="2024-04-12">
+<meta name="citation_online_date" content="2024-06-20">
 <meta name="citation_language" content="en">
 <meta name="citation_reference" content="citation_title=Strategies for the development of volcanic hazard maps in monogenetic volcanic fields: The example of La Palma (Canary Islands);,citation_author=José Marrero;,citation_author=Alicia García;,citation_author=Manuel Berrocoso;,citation_author=Ángeles Llinares;,citation_author=Antonio Rodríguez-Losada;,citation_author=R. Ortiz;,citation_publication_date=2019-07;,citation_cover_date=2019-07;,citation_year=2019;,citation_doi=10.1186/s13617-019-0085-5;,citation_volume=8;,citation_journal_title=Journal of Applied Volcanology;">
 </head>
@@ -98,7 +98,7 @@ div.csl-indent {
                       </p>
                   </div>
                       <div class="quarto-title-meta-contents">
-            <p class="author">Eric Bradlow <a href="mailto:ebradlow@wharton.upenn.edu" class="quarto-title-author-email"><i class="bi bi-envelope"></i></a> </p>
+            <p class="author">Eric Bradlow <a href="mailto:ebradlow@wharton.upenn.edu" class="quarto-title-author-email"><i class="bi bi-envelope"></i></a> <a href="https://orcid.org/0000-0002-4776-2323" class="quarto-title-author-orcid"> <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAA2ZpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYwIDYxLjEzNDc3NywgMjAxMC8wMi8xMi0xNzozMjowMCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0UmVmPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VSZWYjIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD0ieG1wLmRpZDo1N0NEMjA4MDI1MjA2ODExOTk0QzkzNTEzRjZEQTg1NyIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDozM0NDOEJGNEZGNTcxMUUxODdBOEVCODg2RjdCQ0QwOSIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDozM0NDOEJGM0ZGNTcxMUUxODdBOEVCODg2RjdCQ0QwOSIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgQ1M1IE1hY2ludG9zaCI+IDx4bXBNTTpEZXJpdmVkRnJvbSBzdFJlZjppbnN0YW5jZUlEPSJ4bXAuaWlkOkZDN0YxMTc0MDcyMDY4MTE5NUZFRDc5MUM2MUUwNEREIiBzdFJlZjpkb2N1bWVudElEPSJ4bXAuZGlkOjU3Q0QyMDgwMjUyMDY4MTE5OTRDOTM1MTNGNkRBODU3Ii8+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+84NovQAAAR1JREFUeNpiZEADy85ZJgCpeCB2QJM6AMQLo4yOL0AWZETSqACk1gOxAQN+cAGIA4EGPQBxmJA0nwdpjjQ8xqArmczw5tMHXAaALDgP1QMxAGqzAAPxQACqh4ER6uf5MBlkm0X4EGayMfMw/Pr7Bd2gRBZogMFBrv01hisv5jLsv9nLAPIOMnjy8RDDyYctyAbFM2EJbRQw+aAWw/LzVgx7b+cwCHKqMhjJFCBLOzAR6+lXX84xnHjYyqAo5IUizkRCwIENQQckGSDGY4TVgAPEaraQr2a4/24bSuoExcJCfAEJihXkWDj3ZAKy9EJGaEo8T0QSxkjSwORsCAuDQCD+QILmD1A9kECEZgxDaEZhICIzGcIyEyOl2RkgwAAhkmC+eAm0TAAAAABJRU5ErkJggg=="></a></p>
           </div>
                 <div class="quarto-title-meta-contents">
                     <p class="affiliation">
@@ -121,7 +121,7 @@ div.csl-indent {
                 <div>
             <div class="quarto-title-meta-heading">Published</div>
             <div class="quarto-title-meta-contents">
-              <p class="date">April 12, 2024</p>
+              <p class="date">June 20, 2024</p>
             </div>
           </div>
           
@@ -142,7 +142,7 @@ div.csl-indent {
     <div>
       <div class="keywords">
         <div class="block-title">Keywords</div>
-        <p>choice-based conjoint analysis,, stated preference elicitation,, discrete choice methods, </p>
+        <p>choice-based conjoint analysis, stated preference elicitation, discrete choice methods</p>
       </div>
     </div>
 
@@ -211,13 +211,13 @@ div.csl-indent {
 <div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" id="quarto-citation"><h2 class="anchored quarto-appendix-heading">Citation</h2><div><div class="quarto-appendix-secondary-label">BibTeX citation:</div><pre class="sourceCode code-with-copy quarto-appendix-bibtex"><code class="sourceCode bibtex">@online{bhalerao2024,
   author = {Bhalerao, Prachi and Bradlow, Eric and Yavorsky, Dan},
   title = {Likert {Scale} {Dual} {Response} in {Conjoint} {Analysis}},
-  date = {2024-04-12},
+  date = {2024-06-20},
   langid = {en},
   abstract = {Write the abstract here ...}
 }
 </code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre><div class="quarto-appendix-secondary-label">For attribution, please cite this work as:</div><div id="ref-bhalerao2024" class="csl-entry quarto-appendix-citeas" role="listitem">
 Bhalerao, Prachi, Eric Bradlow, and Dan Yavorsky. 2024. <span>“Likert
-Scale Dual Response in Conjoint Analysis.”</span> April 12, 2024.
+Scale Dual Response in Conjoint Analysis.”</span> June 20, 2024.
 </div></div></section></div></main>
 <!-- /main column -->
 <script id="quarto-html-after-body" type="application/javascript">
