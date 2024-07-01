@@ -7,6 +7,10 @@ execute:
 format:
   html:
     toc: true
+  pdf:
+    include-in-header:
+      - draft/preamble.tex
+    cite-method: biblatex
 
 manuscript:
   notebooks:
