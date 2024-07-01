@@ -14,8 +14,8 @@ format:
   #     - draft/preamble.tex
   #   cite-method: biblatex
 
-manuscript:
-  notebooks:
-    - notebook: notebooks/temp.qmd
-      title: Temporary Test 
+# manuscript:
+#   notebooks:
+#     - notebook: notebooks/temp.qmd
+#       title: Temporary Test 
 
