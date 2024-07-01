@@ -8,6 +8,8 @@ format:
   html:
     toc: true
   pdf:
+    documentclass: article
+    colorlinks: true
     include-in-header:
       - draft/preamble.tex
     cite-method: biblatex
