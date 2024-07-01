@@ -15,3 +15,4 @@ jobs:
         with:
           name: PDF
           path: draft/main.pdf
+          latexmk_use_xelatex: true
