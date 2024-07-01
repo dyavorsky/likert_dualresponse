@@ -1,0 +1,249 @@
+\documentclass{article}
+\input{preamble}
+
+\addbibresource{refs.bib}
+\begin{document}
+
+{\centering \LARGE \textit{A Discrete Choice Model with Residual Uncertainty}\par}
+
+\section{Framework}
+
+\begin{comment}
+\section{Framework Setup}
+
+Consumers are indexed by $i=1,2,\ldots\,I$. Goods are indexed by $j=1,2,\ldots\,J$ and each good is characterized by a vector of characteristics $x_j$. Each consumer has: (i) taste parameters $\beta_i$, (ii) a good-specific taste shock $\varepsilon_{ij}$, and (iii) a good-specific taste shock $\nu_{ij}$. The outside good is indexed with $j=0$ and $x_j = \mathbf{0}$.        
+Consumer $i$ derives utility $U_{ij}$ from good $j$, where
+\begin{equation}
+    U_{ij} = \exp\left\lbrace {x_j}' \beta_{i} + \nu_{ij} + \varepsilon_{ij} \right\rbrace.
+\end{equation}
+For each consumer $i$, the econometrician observes:
+\begin{itemize}
+    \item The most preferred good $j \in \left\lbrace 1, 2, \ldots\,J\right\rbrace$, denoted $j_i^{(1)}$. Let $t_i = e_{j^{(1)}}$ represent the ``one-hot'' encoding of consumer $i$'s choice of good $j^{(1)}$;
+    \item A signal related to the probability that the consumer prefers the outside good $j=0$. This signal takes the form of an ordinal scale $w\in{}\left\lbrace1,2,\ldots\,W\right\rbrace$. Higher $w_i$ corresponds to increased probability of choosing $j_i^{(1)}$ over the outside good 0.
+\end{itemize}
+In addition, the econometrician observes the matrix of good characteristics $\symbfit{x}$.
+
+\section{Special Case of the Log Likelihood}
+
+Assume
+\begin{itemize}
+    \item The $\nu$ taste shocks are independent and identically distributed Gumbel-distributed with location parameter 0 and scale parameter 1,
+    \item The $\varepsilon$ taste shocks are all zero, and
+    \item $W=2$.\footnote{As will be explained, this is without loss of generality, as the intermediate partitions would all be empty.}
+\end{itemize}
+Given these assumptions, it is well-known that the probability that $t_i = e_j$ (meaning consumer $i$ prefers good $j$ over all other goods in $\mathcal{J}$) is given by
+\begin{equation}
+    p\mleft(t \mid \beta_i,x_j\mright) = \frac{\prod_{j\in{}\mathcal{J}} U\mleft(x_j;\;\beta_i\mright)^{t_j}}{\sum_{j\in{}\mathcal{J}} U\mleft(x_j;\;\beta_i\mright) }
+\end{equation}
+where
+\begin{equation}
+    U\mleft(x;\;\beta\mright) = \exp\left\lbrace x'\beta\right\rbrace.
+\end{equation}
+Conditional on $\symbfit{\beta}$, a $I\times{}J$ matrix of consumer taste parameters, the likelihood function is
+\begin{equation}
+    p\mleft(\left(\symbfit{t},\symbfit{w}\right)\mid \symbfit{x},\symbfit{\beta}\mright) = \prod_{i\in{}\mathcal{I}} p\mleft(\left(t_i,w_i\right) \mid \beta_i,x_j\mright)
+\end{equation}
+where
+\begin{align}
+    \prod_{i\in{}\mathcal{I}} p\mleft(\left(t_i,w_i\right) \mid \beta_i,x_j\mright) &= \prod_{i\in\mathcal{I}} p\mleft(t_i\mid\beta_i,x_j\mright) p\mleft(w_i\mid\beta_i,x_j,t_i\mright) \\
+    &= \prod_{i\in\mathcal{I}} p\mleft(t_i\mid\beta_i,x_j\mright) \int_{\mathbb{R}^J} p\mleft({t_i}'\left(\symbfit{x}'\beta_i+\nu_i\right)\in \mathcal{W}_i \mid \beta_i,x_j,t_i\mright) \mathrm{d}F_\nu\mleft(\nu_{i}\mright) \\
+    &= \prod_{i\in\mathcal{I}} p\mleft(t_i\mid\beta_i,x_j\mright) \int_{\mathbb{R}^J} p\mleft({t_i}'\left(\symbfit{x}'\beta_i+\nu_i\right)\in \mathcal{W}_i \mid \beta_i,x_j,t_i\mright) \mathrm{d}F_\nu\mleft(\nu_{i}\mright)
+    %\prod_{i\in{}\mathcal{I}} \frac{\prod_{j\in{}\mathcal{J}} U\mleft(x_j;\;\beta_i\mright)^{t_j}}{1 + \sum_{j\in{}\mathcal{J}} U\mleft(x_j;\;\beta_i\mright) } \\
+    %&= \prod_{i\in{}\mathcal{I}} \frac{\prod_{j\in{}\mathcal{J}} U\mleft(x_j;\;\beta_i\mright)^{t_j}}{\sum_{j\in{}\mathcal{J}} U\mleft(x_j;\;\beta_i\mright) } \, \frac{\sum_{j\in{}\mathcal{J}} U\mleft(x_j;\;\beta_i\mright) }{1 + \sum_{j\in{}\mathcal{J}} U\mleft(x_j;\;\beta_i\mright) } \\
+    %&= \prod_{i\in{}\mathcal{I}} p\mleft(t_i \mid \beta_i,x_j\mright) \, \left(1 - F\mleft(-t_i \cdot \left({x_j}'\beta_i\right)\mright)\right)
+\end{align}
+where $F$ is a Gumbel distribution that depends on the number of goods $J$. Note that, when $\varepsilon = \symbfit{0}$, $w$ can only be interpreted as ``buy'' and ``not buy''.\footnote{Here, the consumer has no uncertainty regarding whether or not she prefers to buy or not buy, so $\mathcal{W}_1$ contains the ``not buy'' responses and $\mathcal{W}_W$ contains the ``buy'' responses. All intermediate bins ought to be empty. Hence, without loss of generality, we can consider $W=2$.} Here, $\mathcal{W}_i$ denotes the $i$-th partition of $\mathbb{R}$. Since $\nu=0$, this becomes 
+\begin{align}
+    p\mleft({t_i}'\left(\symbfit{x}'\beta_i+\nu_i\right)\in{}\mathcal{W}_1 \mid \beta_i,x_j,t_i\mright) &= \mathbf{1}_{{t_i}'\left(\symbfit{x}'\beta_i+\nu_i\right) \le 0}\\
+    p\mleft({t_i}'\left(\symbfit{x}'\beta_i+\nu_i\right)\in \mathcal{W}_2 \mid \beta_i,x_j,t_i\mright) &= \mathbf{1}_{{t_i}'\left(\symbfit{x}'\beta_i+\nu_i\right) > 0}.
+\end{align}
+Integrating over the latent $\nu_{i}$ recovers the classic discrete choice model
+\begin{equation}
+    F_\nu\mleft({t_i}'\left(\symbfit{x}'\beta_i+\nu_i\right)\mright)
+\end{equation}
+\section{General Case}
+
+In general, let $F_\nu$ denote the distribution of the taste shocks known to the consumer and unknown to the econometrician, and let $F_\varepsilon$ denote the distribution of the taste shocks unknown to both the consumer and the econometrician.
+
+\bigskip
+\GXZa{To get closed form expressions, you need a special choice of distributions for $\nu$ and $\varepsilon$ such that the consumer, who knows $\nu$ but not $\varepsilon$, still chooses like described in Equations~(2) and (3). I don't think such a $\varepsilon$-distribution exists.%
+}
+
+Based on \textcite{Cardell_1997}, this requires that $\nu \sim \text{Gumbel}\mleft(0, 1-\sigma\mright)$ and $\varepsilon \sim C\mleft(1-\sigma, 1-\sigma\mright)$, so that $\nu + \varepsilon \sim \text{Gumbel}\mleft(0, 1\mright)$. The probability density function of $C\mleft(\lambda\mright)$ is given by
+\begin{equation}
+    f_{C\mleft(\lambda\mright)}\mleft(x\mright) = \frac{1}{\lambda} \sum_{n=0}^\infty \left(-1\right)^n \frac{e^{-n x}}{n!\,\Gamma\mleft(-\lambda n\mright)},\quad 0 \le \lambda \le 1,
+\end{equation}
+and the density function of the generalized version with scale parameter $\delta$ is obtained by a simple change of variables
+\begin{equation}
+    f_{C\mleft(\lambda, \delta\mright)}\mleft(x\mright) = \frac{1}{\lambda} \sum_{n=0}^\infty \left(-1\right)^n \frac{e^{-n \left(x-\delta\right)}}{n!\,\Gamma\mleft(-\lambda n\mright)},\quad 0 \le \lambda \le 1,
+\end{equation}
+
+Thus, the probability density function of $C\mleft(1-\sigma,1-\sigma\mright)$ is ``barely'' exact, and the cumulative density function is not available in closed form. Thus, it is challenging to estimate latent thresholds $\symbfit{\alpha}$ in $\varepsilon$-space. Nor it is it sufficient to directly estimate ordered probability bins $\symbfit{\pi}$. Conditional on $\symbfit{\pi}$, the likelihood is
+\begin{equation}
+    p\mleft(w_i \in \mathcal{W}_i \mid u_{ij}, \symbfit{\alpha}, \symbfit{\pi}\mright) = \frac{f_{C\mleft(1-\sigma, 1-\sigma\mright)}\mleft(-u_{ij}\mright)}{\symbfit\pi_i} \mathbb{1}_{\left[\alpha_{i-1}, \alpha_i\right)}\mleft(-\delta_{ij}\mright),
+\end{equation}
+where $\int_{\alpha_{i-1}}^{\alpha_i} \mathrm{d}F_{1-\sigma}\mleft(\varepsilon\mright) = \pi_i$
+
+
+\section{Another Perspective}
+\end{comment}
+Assume some universal partitioning of the unit interval into $W$ disjoint intervals with cutoffs denoted by the $\left(W+1\right)$-dimensional vector $\symbfit{\pi} \in \Delta^{W-1}$. Let $\symbfit{\alpha}$ denote the partial sums of $\symbfit{\pi}$, so that
+\begin{gather}
+    \begin{array}{*9{c}}
+       \symbfit{\alpha}  = \big\lbrace 0, & \pi_1, & \pi_1 + \pi_2, & \ldots, & \underbrace{\sum_{i=1}^{w} \pi_{i}}, & \ldots, & 1\big\rbrace \\
+         & & & & \alpha_w 
+    \end{array} \\
+    \vphantom{\bigcup_{w=1}^W} \mathcal{W}_w = \left[\alpha_{w-1}, \alpha_w\right) \\
+    \bigcup_{w=1}^W \mathcal{W}_i = \left[0, 1\right)
+\end{gather}
+
+Consumer $i$'s utility for good $j$ is given by
+\begin{equation}
+    U_{ij} = {X_j}'\beta_i + \eta_{ij},\quad \eta_{ij} \sim \text{Gumbel}\mleft(0,1\mright)
+\end{equation}
+where $X$ is the design matrix of good characteristics and $X^j$ denotes the \textit{j}\textsuperscript{th} row of $X$. The ``zero''-th good is special and is associated with a zero vector of good characteristics. Consumers observe $X$ and $\eta$ for all goods $j \in \mathcal{J}$, but they \emph{do not} observe $\eta_{i0}$.\footnote{This can be motivated by a framework in which $U_0 = 0$ and $U_{ij} = {X_j}'\beta_i + \eta_{ij} - \eta_0$ for $j \in \mathcal{J}$. Here, $\eta_0$ captures the consumer's uncertainty about their future tastes. Given that utilities are ordinal and $\eta_0$ is a common shock, it plays no role in the choice among the most preferred good $j^* \in \mathcal{J}$.}
+
+First, consumers report their preferred good in $\mathcal{J} = \left\lbrace 1, 2, \ldots\,, J\right\rbrace$, which is given by
+\begin{equation}
+    t_i = e_{j^*_i}\ \text{s.t.}\ j^*_i = \arg\max_{j\in\mathcal{J}} U_{ij}.
+\end{equation}
+Let $V_i$ denote the utility of good $j^*_i$ for consumer $i$.
+%The consumer observe $U_{ij}$ exactly, and thus faces no uncertainty when reporting $t_i$. 
+
+Second, consumers report the probability that they prefer good $j^*_i$ to the outside good 0. Consumers know $V_i$, but do not know their draw of $\eta_{i0}$, and thus this probability is given by
+\begin{equation}
+    p_i = \mathbb{P}\mleft(\eta_{i0} < V_i \mright).
+\end{equation}
+Each consumer reports the interval $\mathcal{W}_w$ into which $p_i$ falls
+\begin{equation}
+    w_i = w\ \text{s.t.}\ p_i \in \left[\alpha_{w-1},\alpha_w\right).
+\end{equation}
+
+\section{Deriving the Likelihood}
+As is well known,\footnote{For example, see \textcite{Mcfadden_1981} and \textcite{Cardell_1997}.} $V_i$ follows a Gumbel distribution with location parameter $\overline{\mu}_i$ and scale parameter 1, where
+\begin{equation}
+    \overline{\mu}_i = \ln\left( \sum_{j\in\mathcal{J}} \exp\left({X_j}'\beta_i\right)\right) \label{eqn:max_mu}.
+\end{equation}
+
+Under these assumptions, we have
+\begin{equation}
+    p_i = F_{\text{Gumbel}\mleft(0,1\mright)}\mleft(V_i\mright)
+\end{equation}
+The consumer's report of $w_i$ is therefore equivalent to reporting that
+\begin{equation}
+    V_i \in \left[
+        F^{-1}_{\text{Gumbel}\mleft(0\mright)}\mleft(\alpha_{w\mleft(i\mright)-1}\mright),
+        F^{-1}_{\text{Gumbel}\mleft(0\mright)}\mleft(\alpha_{w\mleft(i\mright)}\mright)
+    \right),
+\end{equation}
+where we omit the common scale parameter for brevity.
+
+This occurs with probability
+\begin{align}
+    \mathbb{P}\mleft(V_i \in \mathcal{W}_{w\mleft(i\mright)}\mright) &= F_{\text{Gumbel}\mleft(\overline{\mu}\mright)}\mleft(F^{-1}_{\text{Gumbel}\mleft(0\mright)}\mleft(\alpha_{w\mleft(i\mright)}\mright)\mright) - F_{\text{Gumbel}\mleft(\overline{\mu}\mright)}\mleft(F^{-1}_{\text{Gumbel}\mleft(0\mright)}\mleft(\alpha_{w\mleft(i\mright)-1}\mright)\mright) \\
+    &= \left({\alpha_{w\mleft(i\mright)}}\right)^{\exp\left(\overline{\mu}\right)} - \left({\alpha_{w\mleft(i\mright)-1}}\right)^{\exp\left(\overline{\mu}\right)}.
+\end{align}
+This is $p\mleft(w_i\mid \alpha, \beta\mright)$, the conditional likelihood of $w_i$.\footnote{While the parametrization of $\eta_0 \sim \text{Gumbel}\mleft(0,1\mright)$ preserves symmetry among the $J+1$ goods and is thus a natural choice, the framework can easily accommodate an alternative distribution for $\eta_0$. For example, one could use an affine function of individual characteristics to accommodate individual-level variation in the propensity to prefer the outside good.}
+\begin{comment}
+\footnote{Conditional on $w_i$ and $\symbfit{\alpha}$, the likelihood function of $\eta_{i0}$ is
+\begin{equation}
+    p\mleft(\eta_{i0} \mid w_i, \symbf{\alpha}\mright) = \frac{f_{\text{Gumbel}\mleft(\mu, 1\mright)}\mleft(\eta_{i0}\mright)}{\alpha_i - \alpha_{i-1}} \mathbb{1}_{\mathcal{W}_i}\mleft(\eta_{i0}\mright)
+\end{equation}
+where $\mu$ is the location parameter.}
+
+Condition on $\left(\alpha, \beta\right)$, the probability of $w_i$ is
+\begin{align}
+    p\mleft(w_i \mid \alpha, \beta, j^*\mright) = \mathbb{P}\mleft( \eta^{(1)}_i - \eta_{i0} \in \mathcal{W}_i \mid \alpha, \beta\mright)
+\end{align}
+where $\eta^{(1)}_i$ is the maximum of $J$ Gumbel-distributed random variables with different location parameters $\mu_{ij} = {X_j}'\beta_i$. As is well known, this follows a Gumbel distribution with location parameter
+\begin{equation}
+    \overline{\mu}_i = \ln\left( \sum_{j\in\mathcal{J}} \exp\left({X_j}'\beta_i\right)\right)
+\end{equation}
+The difference $\eta^{(1)}-\eta_0$ is Logistic distributed with location parameter $\overline{\mu}_i$.
+\end{comment}
+\begin{comment}
+\begin{equation}
+    p\mleft(w_i \mid j^*, \symbf{\alpha}, \symbf{\beta}\mright) \times p\mleft(j^* \mid \symbf{\beta} \mright) = \left(
+        F_{\mleft(\overline{\mu}, 1\mright)}\mleft(
+           F^{-1}_{\mleft(0,1\mright)}\mleft(\alpha_i\mright) - {X_{j^*}}'\beta_i
+        \mright)
+        -
+        F_{\mleft(\overline{\mu}, 1\mright)}\mleft(
+           F^{-1}_{\mleft(0,1\mright)}\mleft(\alpha_{i-1}\mright) - {X_{j^*}}'\beta_i
+        \mright)
+    \right)
+    \frac{\exp\left({X_{j^*}}'\beta_i\right)}{\sum_{\hat{j}} \exp\left({X_{\hat{j}}}'\beta_i\right)}
+\end{equation}
+where $F_{\mleft(\dot{\alpha}, \dot{\beta}\mright)}$ denotes the cumulative distribution function of a Gumbel distribution with location parameter $\dot{\alpha}$ and scale parameter $\dot{\beta}$. $F_{\mleft(\overline{\mu}, 1\mright)}$ denotes the cumulative distribution of the maximum of the $J$ Gumbel distributions. Given $X$ and $\beta$, each of the $J$ goods can be thought of as a Gumbel distribution with location parameter $\mu_j = {X_j}'\beta_i$ and scale parameter 1. As is well known, the maximum of these independent Gumbels follows a Gumbel distribution with location parameter
+\[
+    \overline{\mu} = \ln \left(\sum_{j\in\mathcal{J}} \exp\left({X_j}'\beta_i\right)\right).
+\]
+\end{comment}
+\begin{comment}
+the likelihood of $w_i$ is obtained via integration
+\begin{equation}
+    p\mleft(w_i \mid \symbf{\alpha}, \symbfit{U}_i\mright) = \int_{\mathbb{R}} \frac{f_\text{Gumbel}\mleft(\eta\mright)}{\alpha_i - \alpha_{i-1}} \mathbb{1}_{\mathcal{W}_i}\mleft(\eta\mright)\,\mathbb{1}_{\left(-\infty, U*\right)}\mleft(\eta\mright) \,\mathrm{d}\eta
+\end{equation}
+this simplifies to
+\begin{equation}
+    p\mleft(w_i \mid \symbf{\alpha}, \symbfit{U}_i\mright) = \frac{F^{-1}\mleft(U^*\mright) - F^{-1}\mleft(\alpha_{i-1}\mright)}{\alpha_i - \alpha_{i-1}} 
+\end{equation}
+\end{comment}
+\section{Sketch of Estimation}
+\begin{itemize}
+    \item Specify hyper-parameters governing the prior distribution of $\left(\symbf{\pi}, \symbf{\beta}\right)$. There is a relatively large amount of flexibility in the prior distribution over $\beta$. $\symbf{\pi} \sim \text{Dirichlet}$ deterministically maps to $\symbf{\alpha}$.
+    \item (First Branch) Given draws of $\left(\alpha, \beta\right)$, the probability that consumer $i$ reports $j^*_i$ is given by a softmax
+    \begin{equation}
+        p\mleft(j^*_i \mid \alpha, \beta\mright) = p\mleft(j^*_i \mid \beta\mright) = \frac{\exp\left({X_j}'\beta_i\right)}{\sum_{j'\in\mathcal{J}}\exp\left({X_{j'}}'\beta_i\right)}
+    \end{equation}
+    \item (Second Branch) Given $\left(\alpha, \beta\right)$, the probability that consumer $i$ reports $w_i$ is given by
+    \begin{equation}
+        p\mleft(w_i \mid \alpha,\beta, j^*_i\mright) = p\mleft(w_i\mid \alpha, \beta\mright) =  \left({\alpha_{w\mleft(i\mright)}}\right)^{\exp\left(\overline{\mu}\right)} - \left({\alpha_{w\mleft(i\mright)-1}}\right)^{\exp\left(\overline{\mu}\right)}
+    \end{equation}
+    where $\overline{\mu}_i\mleft(\beta_i\mright)$ is a function of consumer $i$'s tastes $\beta_i$ and the design matrix $X$ provided in Equation~\ref{eqn:max_mu}.\footnote{Note that the observed choice $j^*_i$ is irrelevant for this likelihood through ``Gumbel distribution magic''. Specifically, it is the ``memory-less'' property of the Gumbel that yields this property.}
+\end{itemize}
+
+Thus the overall likelihood (conditional on some draw of parameters) looks like
+\begin{equation}
+    p\mleft(\left(j^*_i, w_i\right) \mid \alpha, \beta \mright) = p\mleft(w_i \mid \alpha,\overline{\mu}_i\mleft(\beta\mright) \mright) \times p\mleft(j^* \mid \beta\mright).
+\end{equation}
+
+\begin{comment}
+\begin{itemize}
+    \item Specify hyper-parameters governing the prior distribution of $\left(\symbf{\alpha}, \symbf{\beta}\right)$
+    \item (First Branch) Given draws of $\left(\alpha, \beta\right)$, the probability that consumer $i$ reports $j^*_i$ is given by a softmax
+    \begin{equation}
+        p\mleft(j^*_i \mid \alpha, \beta\mright) = p\mleft(j^*_i \mid \beta\mright) = \frac{\exp\left({X_j}'\beta_i\right)}{\sum_{j'\in\mathcal{J}}\exp\left({X_{j'}}'\beta_i\right)}
+    \end{equation}
+    \item (Second Branch) Given $\left(\alpha, \beta\right)$, the probability that consumer $i$ reports $w_i$ is given by
+    \begin{equation}
+        p\mleft(w_i \mid \alpha, \beta\mright) = \mathbb{P}\mleft(\eta^{(1)}_i - \eta_{i0} \in \mathcal{W}_i\mright)
+    \end{equation}
+    This looks like an Ordered Logit Model with cutpoints
+    \begin{equation}
+        c = \left\lbrace -\infty, F^{-1}_{\text{Logistic}}\mleft(\alpha_1\mright) - \overline{\mu}_i, F^{-1}_{\text{Logistic}}\mleft(\alpha_2\mright) - \overline{\mu}_i, \ldots\,, F^{-1}_{\text{Logistic}}\mleft(\alpha_{W-1}\mright) - \overline{\mu}_i, \infty\right\rbrace
+    \end{equation}
+    and the probabilities are
+    \begin{equation}
+        p\mleft(w_i \mid \alpha,\beta\mright) = p\mleft(w_i \mid \alpha,\beta, j^*_i\mright) = F_{\text{Logistic}}\mleft(\alpha_i - \overline{\mu}_i\mright) - F_{\text{Logistic}}\mleft(\alpha_{i-1} - \overline{\mu}_i\mright)
+    \end{equation}
+    where $\overline{\mu}_i\mleft(\beta_i, X\mright)$ is a function of consumer $i$'s tastes $\beta_i$ and the design matrix $X$ of the form given above
+    . Note that the observed choice $j^*_i$ is irrelevant for this likelihood through ``Gumbel distribution magic''.
+\end{itemize}
+
+Thus the overall likelihood (conditional on some draw of parameters) looks like
+\begin{equation}
+    p\mleft(\left(j^*_i, w_i\right) \mid \alpha, \beta, X \mright) = p\mleft(w_i \mid \alpha,\overline{\mu}_i\mleft(\beta, X\mright) \mright) \times p\mleft(j^* \mid \beta, X\mright).
+\end{equation}
+\end{comment}
+
+\section*{Comment: Relation to the typical Dual Response setup}
+
+Another common framework when soliciting consumer preferences is to directly ask consumers if $V_i \ge 0$. This implicitly assumes that $\eta_{i0} = 0$, so that consumers deterministically know whether or not the ``inside'' good $j^*_i$ is preferred to the outside good. As we have already noted, our framework can nest that standard case by assuming that, rather than following a standard Gumbel distribution, $\eta_0$ is instead a degenerate distribution. In such a case, all but 2 of the $W$ partitions are empty, and the non-empty partitions are $\mathcal{W}_0 = \left\lbrace 0 \right\rbrace$ and $\mathcal{W}_W = \left\lbrace 1\right\rbrace$, as $p_i \in \left\lbrace 0, 1\right\rbrace$.
+
+We acknowledge that this requires a slight abuse of notation, as $\mathcal{W}_w$ was defined above using left-closed intervals. These have the advantage of being invertible under the inverse-CDF mapping. In the degenerate case, we instead have $p\mleft(w_i = W\mid\alpha,\beta\mright) = \mathbb{P}\mleft(\eta_{i0} < V_i\mright) = \mathbb{P}\mleft(V_i > 0\mright) = 1 - \exp\left(-\exp\left(\overline{\mu}\right)\right)$.
+
+
+\clearpage
+\printbibliography
+\end{document}
