@@ -27,17 +27,17 @@
 
 \usepackage[backend=biber,autolang=other,%
 bibencoding=inputenc,authordate,backref]{biblatex-chicago}
-\newcounter{BackrefHyperFootnoteCounter}
-\makeatletter
-\pretocmd{\footnote}    
-    {\refstepcounter{BackrefHyperFootnoteCounter}%
-     \edef\BackrefFootnoteTag{bhfn:\theBackrefHyperFootnoteCounter}%
-     \label{\BackrefFootnoteTag}}
-    {}{}
-\renewcommand\@makefntext[1]{% Provides in-line footnote marks
-  \setlength\parindent{1em}%
-  \noindent
-  \makebox[2.3em][r]{\hyperref[\BackrefFootnoteTag]{\@thefnmark}.\,\,}#1}
-\makeatother
+% \newcounter{BackrefHyperFootnoteCounter}
+% \makeatletter
+% \pretocmd{\footnote}    
+%     {\refstepcounter{BackrefHyperFootnoteCounter}%
+%      \edef\BackrefFootnoteTag{bhfn:\theBackrefHyperFootnoteCounter}%
+%      \label{\BackrefFootnoteTag}}
+%     {}{}
+% \renewcommand\@makefntext[1]{% Provides in-line footnote marks
+%   \setlength\parindent{1em}%
+%   \noindent
+%   \makebox[2.3em][r]{\hyperref[\BackrefFootnoteTag]{\@thefnmark}.\,\,}#1}
+% \makeatother
 
 \usepackage{comment}
