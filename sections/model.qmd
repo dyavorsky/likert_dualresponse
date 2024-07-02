@@ -90,4 +90,4 @@ We acknowledge that this requires a slight abuse of notation, as $\mathcal{W}_w$
 
 [^1]: For example, see [@Mcfadden_1981] and [@Cardell_1997].
 [^2]: While the parametrization of $\eta_0 \sim \text{Gumbel}\mleft(0,1\mright)$ preserves symmetry among the $J+1$ goods and is thus a natural choice, the framework can easily accommodate an alternative distribution for $\eta_0$. For example, one could use an affine function of individual characteristics to accommodate individual-level variation in the propensity to prefer the outside good.
-[^3]: \footnote{Note that the observed choice $j^*_i$ is irrelevant for this likelihood through ''Gumbel distribution magic''. Specifically, it is the ''memory-less'' property of the Gumbel that yields this property.
+[^3]: Note that the observed choice $j^*_i$ is irrelevant for this likelihood through ''Gumbel distribution magic''. Specifically, it is the ''memory-less'' property of the Gumbel that yields this property.
