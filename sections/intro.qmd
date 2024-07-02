@@ -1,8 +1,5 @@
 ## Introduction {#sec-intro}
 
-```{r}
-data(mtcars)
-cor(mtcars$mpg, mtcars$disp)
-```
+Lorem ipsum
 
 
