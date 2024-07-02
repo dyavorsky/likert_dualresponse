@@ -10,8 +10,8 @@ format:
   pdf: default
   #   documentclass: article
   #   colorlinks: true
-  #   include-in-header:
-  #     - draft/preamble.tex
+    include-in-header:
+      - draft/preamble.tex
   #   cite-method: biblatex
 
 # manuscript:
