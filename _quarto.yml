@@ -11,7 +11,7 @@ format:
     documentclass: article
     colorlinks: true
     include-in-header:
-      - draft/preamble.tex
+      - file: preamble.tex
   #   cite-method: biblatex
 
 # manuscript:

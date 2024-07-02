@@ -29,7 +29,7 @@ author:
     affiliations: 
       - ref: nyu
 
-keywords: choice-based conjoint analysis, stated preference elicitation, discrete choice methods
+keywords: choice-based conjoint analysis, stated preference elicitation, discrete choice methods, ordered choice
 
 abstract: |
   Write the abstract here ...
