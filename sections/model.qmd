@@ -8,4 +8,4 @@ $$
 For each consumer $i$, the econometrician observes:
 - The most preferred good $j \in \left\lbrace 1, 2, \ldots\,J\right\rbrace$, denoted $j_i^{(1)}$. Let $t_i = e_{j^{(1)}}$ represent the ``one-hot'' encoding of consumer $i$'s choice of good $j^{(1)}$;
 - A signal related to the probability that the consumer prefers the outside good $j=0$. This signal takes the form of an ordinal scale $w\in{}\left\lbrace1,2,\ldots\,W\right\rbrace$. Higher $w_i$ corresponds to increased probability of choosing $j_i^{(1)}$ over the outside good 0.
-In addition, the econometrician observes the matrix of good characteristics $\symbfit{x}$.
+In addition, the econometrician observes the matrix of good characteristics $\bm{x}$.
