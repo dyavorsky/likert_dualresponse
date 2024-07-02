@@ -243,6 +243,76 @@ Another common framework when soliciting consumer preferences is to directly ask
 
 We acknowledge that this requires a slight abuse of notation, as $\mathcal{W}_w$ was defined above using left-closed intervals. These have the advantage of being invertible under the inverse-CDF mapping. In the degenerate case, we instead have $p\mleft(w_i = W\mid\alpha,\beta\mright) = \mathbb{P}\mleft(\eta_{i0} < V_i\mright) = \mathbb{P}\mleft(V_i > 0\mright) = 1 - \exp\left(-\exp\left(\overline{\mu}\right)\right)$.
 
+\begin{comment}
+\begin{itemize}
+    \item Specify hyper-parameters governing the prior distribution of $\left(\symbf{\alpha}, \symbf{\beta}\right)$
+    \item (First Branch) Given draws of $\left(\alpha, \beta\right)$, the probability that consumer $i$ reports $j^*_i$ is given by a softmax
+    \begin{equation}
+        p\mleft(j^*_i \mid \alpha, \beta\mright) = p\mleft(j^*_i \mid \beta\mright) = \frac{\exp\left({X_j}'\beta_i\right)}{\sum_{j'\in\mathcal{J}}\exp\left({X_{j'}}'\beta_i\right)}
+    \end{equation}
+    \item (Second Branch) Given $\left(\alpha, \beta\right)$, the probability that consumer $i$ reports $w_i$ is given by
+    \begin{equation}
+        p\mleft(w_i \mid \alpha, \beta\mright) = \mathbb{P}\mleft(\eta^{(1)}_i - \eta_{i0} \in \mathcal{W}_i\mright)
+    \end{equation}
+    This looks like an Ordered Logit Model with cutpoints
+    \begin{equation}
+        c = \left\lbrace -\infty, F^{-1}_{\text{Logistic}}\mleft(\alpha_1\mright) - \overline{\mu}_i, F^{-1}_{\text{Logistic}}\mleft(\alpha_2\mright) - \overline{\mu}_i, \ldots\,, F^{-1}_{\text{Logistic}}\mleft(\alpha_{W-1}\mright) - \overline{\mu}_i, \infty\right\rbrace
+    \end{equation}
+    and the probabilities are
+    \begin{equation}
+        p\mleft(w_i \mid \alpha,\beta\mright) = p\mleft(w_i \mid \alpha,\beta, j^*_i\mright) = F_{\text{Logistic}}\mleft(\alpha_i - \overline{\mu}_i\mright) - F_{\text{Logistic}}\mleft(\alpha_{i-1} - \overline{\mu}_i\mright)
+    \end{equation}
+    where $\overline{\mu}_i\mleft(\beta_i, X\mright)$ is a function of consumer $i$'s tastes $\beta_i$ and the design matrix $X$ of the form given above
+    . Note that the observed choice $j^*_i$ is irrelevant for this likelihood through ``Gumbel distribution magic''.
+\end{itemize}
+
+Thus the overall likelihood (conditional on some draw of parameters) looks like
+\begin{equation}
+    p\mleft(\left(j^*_i, w_i\right) \mid \alpha, \beta, X \mright) = p\mleft(w_i \mid \alpha,\overline{\mu}_i\mleft(\beta, X\mright) \mright) \times p\mleft(j^* \mid \beta, X\mright).
+\end{equation}
+\end{comment}
+
+\section*{Comment: Relation to the \textcite{Brazell_2006} Dual Response Model}
+
+Another common framework when soliciting consumer preferences is to directly ask consumers if $V_i \ge 0$. This implicitly assumes that $\eta_{i0} = 0$, so that consumers deterministically know whether or not the ``inside'' good $j^*_i$ is preferred to the outside good. As we have already noted, our framework can nest that standard case by assuming that, rather than following a standard Gumbel distribution, $\eta_0$ is instead a degenerate distribution. In such a case, all but 2 of the $W$ partitions are empty, and the non-empty partitions are $\mathcal{W}_0 = \left\lbrace 0 \right\rbrace$ and $\mathcal{W}_W = \left\lbrace 1\right\rbrace$, as $p_i \in \left\lbrace 0, 1\right\rbrace$.
+
+We acknowledge that this requires a slight abuse of notation, as $\mathcal{W}_w$ was defined above using left-closed intervals. These have the advantage of being invertible under the inverse-CDF mapping. In the degenerate case, we instead have $p\mleft(w_i = W\mid\alpha,\beta\mright) = \mathbb{P}\mleft(\eta_{i0} < V_i\mright) = \mathbb{P}\mleft(V_i > 0\mright) = 1 - \exp\left(-\exp\left(\overline{\mu}\right)\right)$.
+
+\begin{comment}
+\begin{itemize}
+    \item Specify hyper-parameters governing the prior distribution of $\left(\symbf{\alpha}, \symbf{\beta}\right)$
+    \item (First Branch) Given draws of $\left(\alpha, \beta\right)$, the probability that consumer $i$ reports $j^*_i$ is given by a softmax
+    \begin{equation}
+        p\mleft(j^*_i \mid \alpha, \beta\mright) = p\mleft(j^*_i \mid \beta\mright) = \frac{\exp\left({X_j}'\beta_i\right)}{\sum_{j'\in\mathcal{J}}\exp\left({X_{j'}}'\beta_i\right)}
+    \end{equation}
+    \item (Second Branch) Given $\left(\alpha, \beta\right)$, the probability that consumer $i$ reports $w_i$ is given by
+    \begin{equation}
+        p\mleft(w_i \mid \alpha, \beta\mright) = \mathbb{P}\mleft(\eta^{(1)}_i - \eta_{i0} \in \mathcal{W}_i\mright)
+    \end{equation}
+    This looks like an Ordered Logit Model with cutpoints
+    \begin{equation}
+        c = \left\lbrace -\infty, F^{-1}_{\text{Logistic}}\mleft(\alpha_1\mright) - \overline{\mu}_i, F^{-1}_{\text{Logistic}}\mleft(\alpha_2\mright) - \overline{\mu}_i, \ldots\,, F^{-1}_{\text{Logistic}}\mleft(\alpha_{W-1}\mright) - \overline{\mu}_i, \infty\right\rbrace
+    \end{equation}
+    and the probabilities are
+    \begin{equation}
+        p\mleft(w_i \mid \alpha,\beta\mright) = p\mleft(w_i \mid \alpha,\beta, j^*_i\mright) = F_{\text{Logistic}}\mleft(\alpha_i - \overline{\mu}_i\mright) - F_{\text{Logistic}}\mleft(\alpha_{i-1} - \overline{\mu}_i\mright)
+    \end{equation}
+    where $\overline{\mu}_i\mleft(\beta_i, X\mright)$ is a function of consumer $i$'s tastes $\beta_i$ and the design matrix $X$ of the form given above
+    . Note that the observed choice $j^*_i$ is irrelevant for this likelihood through ``Gumbel distribution magic''.
+\end{itemize}
+
+Thus the overall likelihood (conditional on some draw of parameters) looks like
+\begin{equation}
+    p\mleft(\left(j^*_i, w_i\right) \mid \alpha, \beta, X \mright) = p\mleft(w_i \mid \alpha,\overline{\mu}_i\mleft(\beta, X\mright) \mright) \times p\mleft(j^* \mid \beta, X\mright).
+\end{equation}
+\end{comment}
+
+\section*{Comment: Relation to the \textcite{Brazell_2006} Dual Response Model}
+
+Another common framework when soliciting consumer preferences is to directly ask consumers if $V_i \ge 0$. This implicitly assumes that $\eta_{i0} = 0$, so that consumers deterministically know whether or not the ``inside'' good $j^*_i$ is preferred to the outside good. As we have already noted, our framework can nest that standard case by assuming that, rather than following a standard Gumbel distribution, $\eta_0$ is instead a degenerate distribution. In such a case, all but 2 of the $W$ partitions are empty, and the non-empty partitions are $\mathcal{W}_0 = \left\lbrace 0 \right\rbrace$ and $\mathcal{W}_W = \left\lbrace 1\right\rbrace$, as $p_i \in \left\lbrace 0, 1\right\rbrace$.
+
+We acknowledge that this requires a slight abuse of notation, as $\mathcal{W}_w$ was defined above using left-closed intervals. These have the advantage of being invertible under the inverse-CDF mapping. In the degenerate case, we instead have $p\mleft(w_i = W\mid\alpha,\beta\mright) = \mathbb{P}\mleft(\eta_{i0} < V_i\mright) = \mathbb{P}\mleft(V_i > 0\mright) = 1 - \exp\left(-\exp\left(\overline{\mu}\right)\right)$.
+
 
 \clearpage
 \printbibliography
