@@ -7,7 +7,7 @@ execute:
 format:
   html:
     toc: true
-  pdf: default
+  pdf:
     documentclass: article
     colorlinks: true
     include-in-header:
