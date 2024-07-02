@@ -123,49 +123,18 @@
 \newcommand{\CSLRightInline}[1]{\parbox[t]{\linewidth - \csllabelwidth}{\strut#1\strut}}
 \newcommand{\CSLIndent}[1]{\hspace{\cslhangindent}#1}
 
-\usepackage[margin=1in]{geometry}
-\usepackage{graphicx} % Required for inserting images
-\usepackage{mathtools,amsthm,mleftright}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{comment}
+
+\usepackage{mathtools,amsthm,bm}
 \usepackage{unicode-math}
-\usepackage{microtype}
-\usepackage{fnpct}
-% \usepackage{bm}
 
 \usepackage[usenames,dvipsnames]{xcolor}
-\definecolor{NYUviolet}{RGB}{87,6,140}
-
-\usepackage[]{mdframed}
 \usepackage{hyperref}
-% \usepackage{footnotebackref}
 
-% draw a frame around given text
-\newcommand{\framedtext}[1]{%
-\par%
-\noindent\fbox{%
-    \parbox{\dimexpr\linewidth-2\fboxsep-2\fboxrule}{#1}%
-}%
-}
-
-\newcommand{\GXZa}[1]{\framedtext{\small \color{NYUviolet}%
-#1
-}}
-
-% \usepackage[backend=biber,autolang=other,%
-% bibencoding=inputenc,authordate,backref]{biblatex-chicago}
-% \newcounter{BackrefHyperFootnoteCounter}
-% \makeatletter
-% \pretocmd{\footnote}    
-%     {\refstepcounter{BackrefHyperFootnoteCounter}%
-%      \edef\BackrefFootnoteTag{bhfn:\theBackrefHyperFootnoteCounter}%
-%      \label{\BackrefFootnoteTag}}
-%     {}{}
-% \renewcommand\@makefntext[1]{% Provides in-line footnote marks
-%   \setlength\parindent{1em}%
-%   \noindent
-%   \makebox[2.3em][r]{\hyperref[\BackrefFootnoteTag]{\@thefnmark}.\,\,}#1}
-% \makeatother
-
-\usepackage{comment}
+\newcommand\mleft{\mathopen{}\mathclose\bgroup\left}
+\newcommand\mright{\aftergroup\egroup\right}
 \makeatletter
 \@ifpackageloaded{caption}{}{\usepackage{caption}}
 \AtBeginDocument{%
@@ -217,9 +186,9 @@
 \urlstyle{same} % disable monospaced font for URLs
 \hypersetup{
   pdftitle={Likert Scale Dual Response in Conjoint Analysis},
-  pdfauthor={Prachi Bhalerao; Eric Bradlow; Dan Yavorsky},
+  pdfauthor={Prachi Bhalerao; Dan Yavorsky; Geoffery Zheng},
   pdfkeywords={choice-based conjoint analysis, stated preference
-elicitation, discrete choice methods},
+elicitation, discrete choice methods, ordered choice},
   colorlinks=true,
   linkcolor={blue},
   filecolor={Maroon},
@@ -229,7 +198,7 @@ elicitation, discrete choice methods},
 
 
 \title{Likert Scale Dual Response in Conjoint Analysis}
-\author{Prachi Bhalerao \and Eric Bradlow \and Dan Yavorsky}
+\author{Prachi Bhalerao \and Dan Yavorsky \and Geoffery Zheng}
 \date{2024-07-02}
 
 \begin{document}
@@ -245,97 +214,97 @@ Lorem ipsum
 
 \section{Model}\label{sec-model}
 
-Assume some universal partitioning of the unit interval into \(W\)
-disjoint intervals with cutoffs denoted by the
-\(\left(W+1\right)\)-dimensional vector
-\(\symbfit{\pi} \in \Delta^{W-1}\). Let \(\symbfit{\alpha}\) denote the
-partial sums of \(\symbfit{\pi}\), so that \[
-    \begin{array}{*9{c}}
-       \symbfit{\alpha}  = \big\lbrace 0, & \pi_1, & \pi_1 + \pi_2, & \ldots, & \underbrace{\sum_{i=1}^{w} \pi_{i}}, & \ldots, & 1\big\rbrace \\
-         & & & & \alpha_w 
-    \end{array}
-\] \[
-    \vphantom{\bigcup_{w=1}^W} \mathcal{W}_w = \left[\alpha_{w-1}, \alpha_w\right)
-\] \[
-    \bigcup_{w=1}^W \mathcal{W}_i = \left[0, 1\right)
+\subsection{General Specification}\label{general-specification}
+
+Consumer \(i=1,\ldots,N\) derives utility from good
+\(j \in \mathcal{J}_i =  \lbrace 0,\ldots,J_i \rbrace\) with utility
+\(u_{ij}\) given by \[
+u_{ij} = h(\symbfit{x}_j, \symbfit{\beta}_i) + \eta_{ij}.
 \]
 
-Consumer \(i\)'s utility for good \(j\) is given by \[
-    U_{ij} = {X_j}'\beta_i + \eta_{ij},\quad \eta_{ij} \sim \text{Gumbel}\mleft(0,1\mright)
-\] where \(X\) is the design matrix of good characteristics and \(X^j\)
-denotes the \textit{j}\textsuperscript{th} row of \(X\). The
-``zero'\,'-th good is special and is associated with a zero vector of
-good characteristics. Consumers observe \(X\) and \(\eta\) for all goods
-\(j \in \mathcal{J}\), but they \emph{do not} observe
-\(\eta_{i0}\).\footnote{This can be motivated by a framework in which $U_0 = 0$ and $U_{ij} = {X_j}'\beta_i + \eta_{ij} - \eta_0$ for $j \in \mathcal{J}$. Here, $\eta_0$ captures the consumer's uncertainty about their future tastes. Given that utilities are ordinal and $\eta_0$ is a common shock, it plays no role in the choice among the most preferred good $j^* \in \mathcal{J}$.}
+where \(\symbfit{x}_j\) is a vector of good characteristics,
+\(\symbfit{\beta}_i\) is a vector of consumer-specific taste parameters,
+and \(\eta_{ij}\) encapsulates factors known to the consumer but not to
+the researcher that affect the consumer's utility and are modeled as
+\(\eta_{ij} \sim \text{Gumbel} \left( 0,1 \right)\) with \(\eta_{ij}\)
+assumed to be indepedent of both \(x_j\) and \(\eta_{ij'}\) for
+\(j' \ne j\). We take
+\(h(\symbfit{x}_j, \symbfit{\beta}_i) = \symbfit{x}_j'\symbfit{\beta}_i\)
+but this specification is not required.
 
-First, consumers report their preferred good in
-\(\mathcal{J} = \left\lbrace 1, 2, \ldots\,, J\right\rbrace\), which is
-given by \[
-    t_i = e_{j^*_i}\ \text{s.t.}\ j^*_i = \arg\max_{j\in\mathcal{J}} U_{ij}.
-\] Let \(V_i\) denote the utility of good \(j^*_i\) for consumer \(i\).
+The ``zero''-th (or ``outside'') good is special and is associated with
+a zero vector of good characteristics (\(\symbfit{x}_0 = \mathbf{0}\))
+such that \(h(\symbfit{x}_0, \symbfit{\beta}_i)=0\). Consumers observe
+\(\symbfit{x}_j\) and \(\eta_{ij}\) for all ``inside'' goods
+(\(j>0; j \in \mathcal{J}_i\)), but they \emph{do not} observe
+\(\eta_{i0}\).\footnote{This can be motivated by a framework in which
+  \(u_0 = 0\) and \(u_{ij} = {x_j}'\beta_i + \eta_{ij} - \eta_0\) for
+  \(j>0; j \in \mathcal{J}_i\). Here, \(\eta_0\) captures the consumer's
+  uncertainty about their future tastes. Given that utilities are
+  ordinal and \(\eta_0\) is a common shock, it plays no role in the
+  choice among the most preferred inside good
+  \(j^* \in \mathcal{J}_i\).{]}}
 
-Second, consumers report the probability that they prefer good \(j^*_i\)
-to the outside good 0. Consumers know \(V_i\), but do not know their
-draw of \(\eta_{i0}\), and thus this probability is given by \[
-    p_i = \mathbb{P}\mleft(\eta_{i0} < V_i \mright).
-\] Each consumer reports the interval \(\mathcal{W}_w\) into which
-\(p_i\) falls \[
-    w_i = w\ \text{s.t.}\ p_i \in \left[\alpha_{w-1},\alpha_w\right).
+Consumers first report their preferred inside good among, which is given
+by \[
+j^*_i = \arg\max_{j>0; j \in \mathcal{J}_i} u_{ij}.
 \]
 
-\subsection{Deriving the Likelihood}\label{deriving-the-likelihood}
+Let \(u_i^*\) denote the utility of good \(j^*_i\) for consumer \(i\)
+and let \(t_i = e_{j_i^*}\) indicate the ``one-hot'' encoding of the
+most-preferred inside good (ie, \(t_i\) is a vector with \(J_i-1\) zeros
+and \(1\) one).
+
+Second, consumers report a value \(y_i\) on a discrete qualitative scale
+\(w \in \mathcal{W} = \lbrace 1, \ldots, W \rbrace\) to indicate the
+probability that they prefer good \(j^*_i\) to the outside good 0.
+Consumers know \(u_i^*\), but do not know \(\eta_{i0}\), and thus this
+probability is given by \[
+p_i = \Pr \left( \eta_{i0} < u_i^* \right).
+\]
+
+Each consumer reports the interval \(y_i=w\) into which \(p_i\) falls \[
+y_i = w \hspace{1ex} \text{s.t.} \hspace{1ex} p_i \in \left[\alpha_{w-1},\alpha_w\right).
+\]
 
 As is well known,\footnote{For example, see (McFadden 1981) and (Cardell
-  1997).} \(V_i\) follows a Gumbel distribution with location parameter
-\(\overline{\mu}_i\) and scale parameter 1, where
+  1997).} \(u_i\) follows a Gumbel distribution with location parameter
+\(\overline{\mu}_i\) and scale parameter \(1\), where
 \begin{equation}\phantomsection\label{eq-max-mu}{
-    \overline{\mu}_i = \ln\left( \sum_{j\in\mathcal{J}} \exp\left({X_j}'\beta_i\right)\right).
+\overline{\mu}_i = \ln\left( \sum_{j\in\mathcal{J}} \exp\left({X_j}'\beta_i\right)\right).
 }\end{equation}
 
-Under these assumptions, we have \[
-    p_i = F_{\text{Gumbel}\mleft(0,1\mright)}\mleft(V_i\mright)
-\] The consumer's report of \(w_i\) is therefore equivalent to reporting
+Under these assumptions, we have \(p_i = F\left( u_i^* \right)\) with
+\(F\) as the \(\text{Gumbel} \left( 0,1 \right)\) distribution.
+
+The consumer's report of \(y_i=w\) is therefore equivalent to reporting
 that \[
-    V_i \in \left[
-        F^{-1}_{\text{Gumbel}\mleft(0\mright)}\mleft(\alpha_{w\mleft(i\mright)-1}\mright),
-        F^{-1}_{\text{Gumbel}\mleft(0\mright)}\mleft(\alpha_{w\mleft(i\mright)}\mright)
+    u_i^* \in \left[
+        F^{-1}_{\text{Gumbel}\left(0\right)}\left(\alpha_{w\left(i\right)-1}\right),
+        F^{-1}_{\text{Gumbel}\left(0\right)}\left(\alpha_{w\left(i\right)}\right)
     \right),
 \] where we omit the common scale parameter for brevity.
 
-This occurs with probability \begin{align}
-    \mathbb{P}\mleft(V_i \in \mathcal{W}_{w\mleft(i\mright)}\mright) &= F_{\text{Gumbel}\mleft(\overline{\mu}\mright)}\mleft(F^{-1}_{\text{Gumbel}\mleft(0\mright)}\mleft(\alpha_{w\mleft(i\mright)}\mright)\mright) - F_{\text{Gumbel}\mleft(\overline{\mu}\mright)}\mleft(F^{-1}_{\text{Gumbel}\mleft(0\mright)}\mleft(\alpha_{w\mleft(i\mright)-1}\mright)\mright) \\
-    &= \left({\alpha_{w\mleft(i\mright)}}\right)^{\exp\left(\overline{\mu}\right)} - \left({\alpha_{w\mleft(i\mright)-1}}\right)^{\exp\left(\overline{\mu}\right)}.
-\end{align} This is \(p\mleft(w_i\mid \alpha, \beta\mright)\), the
-conditional likelihood of \(w_i\).\footnote{While the parametrization of
-  \(\eta_0 \sim \text{Gumbel}\mleft(0,1\mright)\) preserves symmetry
-  among the \(J+1\) goods and is thus a natural choice, the framework
-  can easily accommodate an alternative distribution for \(\eta_0\). For
+This occurs with probability \[
+\begin{aligned}
+    \Pr \left( u_i^* \in \mathcal{W}_{w\left( i \right)} \right) 
+    &= F_{\text{Gumbel} \left( \overline{ \mu } \right) } \left( F^{-1}_{\text{Gumbel} \left( 0 \right) } \left( \alpha_{w \left( i \right)} \right) \right) - 
+       F_{\text{Gumbel} \left( \overline{ \mu } \right) } \left( F^{-1}_{\text{Gumbel} \left( 0 \right) } \left( \alpha_{w \left( i \right) - 1} \right) \right) \\
+    &= \left( \alpha_{w \left( i \right)} \right)^{\exp \left( \overline{\mu} \right)} - 
+       \left({\alpha_{w \left( i \right)-1}} \right)^{\exp \left( \overline{\mu} \right)}.
+\end{aligned}
+\]
+
+This is \(p\left(w_i\mid \alpha, \beta\right)\), the conditional
+likelihood of \(w_i\).\footnote{While the parametrization of
+  \(\eta_0 \sim \text{Gumbel}\left(0,1\right)\) preserves symmetry among
+  the \(J+1\) goods and is thus a natural choice, the framework can
+  easily accommodate an alternative distribution for \(\eta_0\). For
   example, one could use an affine function of individual
   characteristics to accommodate individual-level variation in the
   propensity to prefer the outside good.}
 
-\section{Sketch of Estimation}\label{sketch-of-estimation}
-
-\begin{itemize}
-    \item Specify hyper-parameters governing the prior distribution of $\left(\symbf{\pi}, \symbf{\beta}\right)$. There is a relatively large amount of flexibility in the prior distribution over $\beta$. $\symbf{\pi} \sim \text{Dirichlet}$ deterministically maps to $\symbf{\alpha}$.
-    \item (First Branch) Given draws of $\left(\alpha, \beta\right)$, the probability that consumer $i$ reports $j^*_i$ is given by a softmax
-    \begin{equation}
-        p\mleft(j^*_i \mid \alpha, \beta\mright) = p\mleft(j^*_i \mid \beta\mright) = \frac{\exp\left({X_j}'\beta_i\right)}{\sum_{j'\in\mathcal{J}}\exp\left({X_{j'}}'\beta_i\right)}
-    \end{equation}
-    \item (Second Branch) Given $\left(\alpha, \beta\right)$, the probability that consumer $i$ reports $w_i$ is given by
-    \begin{equation}
-        p\mleft(w_i \mid \alpha,\beta, j^*_i\mright) = p\mleft(w_i\mid \alpha, \beta\mright) =  \left({\alpha_{w\mleft(i\mright)}}\right)^{\exp\left(\overline{\mu}\right)} - \left({\alpha_{w\mleft(i\mright)-1}}\right)^{\exp\left(\overline{\mu}\right)}
-    \end{equation}
-    where $\overline{\mu}_i\mleft(\beta_i\mright)$ is a function of consumer $i$'s tastes $\beta_i$ and the design matrix $X$ (@eq-max-mu). Note that the observed choice $j^*_i$ is irrelevant for this likelihood.
-\end{itemize}
-
-Thus the overall likelihood (conditional on some draw of parameters) is
-\begin{equation}
-    p\mleft(\left(j^*_i, w_i\right) \mid \alpha, \beta \mright) = p\mleft(w_i \mid \alpha,\overline{\mu}_i\mleft(\beta\mright) \mright) \times p\mleft(j^* \mid \beta\mright).
-\end{equation}
-
-\section{Comment: Relation to the (Brazell et al. 2006) Dual Response
+\subsection{Comment: Relation to the (Brazell et al. 2006) Dual Response
 Model}\label{comment-relation-to-the-brazell_2006-dual-response-model}
 
 Another common framework when soliciting consumer preferences is to
@@ -354,7 +323,105 @@ We acknowledge that this requires a slight abuse of notation, as
 \(\mathcal{W}_w\) was defined above using left-closed intervals. These
 have the advantage of being invertible under the inverse-CDF mapping. In
 the degenerate case, we instead have
-\(p\mleft(w_i = W\mid\alpha,\beta\mright) = \mathbb{P}\mleft(\eta_{i0} < V_i\mright) = \mathbb{P}\mleft(V_i > 0\mright) = 1 - \exp\left(-\exp\left(\overline{\mu}\right)\right)\).
+\(p\left(w_i = W\mid\alpha,\beta\right) = \mathbb{P}\left(\eta_{i0} < V_i\right) = \mathbb{P}\left(V_i > 0\right) = 1 - \exp\left(-\exp\left(\overline{\mu}\right)\right)\).
+
+\subsection{Comment: Nesting a Single-Good
+Specification}\label{comment-nesting-a-single-good-specification}
+
+Suppose there are two goods: good \(j\) and good \(0\). For example,
+suppose good \(j\) is Diet Coke and good 0 is the ``outside option'' of
+not purchasing the beverage.
+
+These goods provide utility of
+
+\begin{itemize}
+\tightlist
+\item
+  \(U_j = x_j'\beta + \eta_j\) and
+\item
+  \(U_0 = x_0'\beta + \eta_0\).
+\end{itemize}
+
+\(x\) is observed by both the consumer and the researcher (eg, the price
+\(x_j\) of the Diet Coke and the price of not making a purchase
+\(x_0=0\)); \(\beta\) are taste parameters known to the consumer, but
+not to the researcher that are to be estimated (eg, her price
+sensitivity).
+
+\(\eta\) encapsulates factors known to the consumer but not to the
+researcher that affect the consumer's utility (eg, the positive or
+negative ``status'' from being observed purchasing or consuming the Diet
+Coke, or from not purchasing and consuming a beverage). From the
+researcher's perspective, \(\eta_j\) and \(\eta_0\) are assumed to be
+independent of \(x\) and modeled as random variables with cumulative
+distribution functions \(F(\eta_j)\) and \(F(\eta_0)\).
+
+We define the difference in utility as
+\(U^* = U_j - U_0 = x_j'\beta + \eta^*\) where \(x_0 = 0\) and
+\(\eta^* = \eta_j - \eta_0\).
+
+The consumer does not report \(U^*\) but rather reports \(y\), a
+censoring of \(U^*\) into one of \(W\) discrete qualitative scale values
+\(w=1,2,\ldots,W\). Suppose, for example, that the consumer reports the
+middle level (\(y=2\)) out of three available (labeled, ``unlikely'' for
+\(w=1\), ``somewhat likely'' for \(w=2\), and ``very likely'' for
+\(w=3\)).
+
+The \(W\) levels of the qualitative scale are separated at values
+\(\mu_w\) such that \(-\infty < \mu_1, \mu_2, \ldots, \mu_W = \infty\),
+with \(\mu_w, w=1,2,\ldots,W\) as parameters to be estimated.
+
+Then we have that \[
+\begin{aligned}
+    \Pr \left( y=w \right) 
+    &= \Pr \left(\mu_{w-1} < U^* < \mu_w \right) \\
+    &= \Pr \left(\mu_{w-1} < x_j'\beta + \eta^* < \mu_w \right) \\
+    &= \Pr \left(\mu_{w-1} - x_j'\beta < \eta^* < \mu_w - x_j'\beta \right) \\
+    &= F(\mu_w - x_j'\beta) - F(\mu_{w-1} - x_j'\beta)
+\end{aligned}
+\]
+
+Define \(t_w \in \lbrace 0,1 \rbrace\) as indicators with \(t_w=1\) when
+\(y=w\). The individual likelihood is then
+
+\[
+\prod_{w=1}^W =  \left[ F(\mu_w - x_j'\beta) - F(\mu_{w-1} - x_j'\beta) \right]^{t_w}
+\]
+
+\subsection{Sketch of Estimation}\label{sketch-of-estimation}
+
+\begin{itemize}
+    \item Specify hyper-parameters governing the prior distribution of $\left(\symbf{\pi}, \symbf{\beta}\right)$. There is a relatively large amount of flexibility in the prior distribution over $\beta$. $\symbf{\pi} \sim \text{Dirichlet}$ deterministically maps to $\symbf{\alpha}$.
+    \item (First Branch) Given draws of $\left(\alpha, \beta\right)$, the probability that consumer $i$ reports $j^*_i$ is given by a softmax
+        $$
+        p\left(j^*_i \mid \alpha, \beta\right) = p\left(j^*_i \mid \beta\right) = \frac{\exp\left({X_j}'\beta_i\right)}{\sum_{j'\in\mathcal{J}}\exp\left({X_{j'}}'\beta_i\right)}
+        $$
+    \item (Second Branch) Given $\left(\alpha, \beta\right)$, the probability that consumer $i$ reports $w_i$ is given by
+    $$
+        p\left(w_i \mid \alpha,\beta, j^*_i\right) = p\left(w_i\mid \alpha, \beta\right) =  \left({\alpha_{w\left(i\right)}}\right)^{\exp\left(\overline{\mu}\right)} - \left({\alpha_{w\left(i\right)-1}}\right)^{\exp\left(\overline{\mu}\right)}
+    $$
+    where $\overline{\mu}_i\left(\beta_i\right)$ is a function of consumer $i$'s tastes $\beta_i$ and the design matrix $X$ (@eq-max-mu). Note that the observed choice $j^*_i$ is irrelevant for this likelihood.
+\end{itemize}
+
+Thus the overall likelihood (conditional on some draw of parameters) is
+\[
+    p\left(\left(j^*_i, w_i\right) \mid \alpha, \beta \right) = p\left(w_i \mid \alpha,\overline{\mu}_i\left(\beta\right) \right) \times p\left(j^* \mid \beta\right).
+\]
+
+Assume some universal partitioning of the unit interval into \(W\)
+disjoint intervals with cutoffs denoted by the
+\(\left(W+1\right)\)-dimensional vector
+\(\symbfit{\pi} \in \Delta^{W-1}\). Let \(\symbfit{\alpha}\) denote the
+partial sums of \(\symbfit{\pi}\), so that \[
+    \begin{array}{*9{c}}
+       \symbfit{\alpha}  = \big\lbrace 0, & \pi_1, & \pi_1 + \pi_2, & \ldots, & \underbrace{\sum_{i=1}^{w} \pi_{i}}, & \ldots, & 1\big\rbrace \\
+         & & & & \alpha_w 
+    \end{array}
+\] \[
+    \vphantom{\bigcup_{w=1}^W} \mathcal{W}_w = \left[\alpha_{w-1}, \alpha_w\right)
+\] \[
+    \bigcup_{w=1}^W \mathcal{W}_i = \left[0, 1\right)
+\]
 
 \section{Simulation Study}\label{sec-simstudy}
 
