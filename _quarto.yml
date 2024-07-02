@@ -7,11 +7,11 @@ execute:
 format:
   html:
     toc: true
-  pdf: 
+  pdf:
+    documentclass: article
+    colorlinks: true
     include-in-header:
-      - file: preamble.tex
-  #   documentclass: article
-  #   colorlinks: true
+      - draft/preamble.tex
   #   cite-method: biblatex
 
 # manuscript:
