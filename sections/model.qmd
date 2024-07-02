@@ -1,11 +1,155 @@
 ## Model {#sec-model}
 
-Consumers are indexed by $i=1,2,\ldots\,I$. Goods are indexed by $j=1,2,\ldots\,J$ and each good is characterized by a vector of characteristics $x_j$. Each consumer has: (i) taste parameters $\beta_i$, (ii) a good-specific taste shock $\varepsilon_{ij}$, and (iii) a good-specific taste shock $\nu_{ij}$. The outside good is indexed with $j=0$ and $x_j = \mathbf{0}$.        
+### Single-Good Formulation
+
+Suppose there are two goods: good $j$ and good $0$. For example, suppose good $j$ is Diet Coke and good 0 is the "outside option" of not purchasing the beverage.
+
+These goods provide utility of 
+
+- $U_j = x_j'\beta + \eta_j$ and 
+- $U_0 = x_0'\beta + \eta_0$. 
+
+$x$ is observed by both the consumer and the researcher (eg, the price $x_j$ of the Diet Coke and the price of not making a purchase $x_0=0$); $\beta$ are taste parameters known to the consumer, but not to the researcher that are to be estimated (eg, her price sensitivity). 
+
+$\eta$ encapsulates factors known to the consumer but not to the researcher that affect the consumer's utility (eg, the positive or negative "status" from being observed purchasing or consuming the Diet Coke, or from not purchasing and consuming a beverage). From the researcher's perspective, $\eta_j$ and $\eta_0$ are assumed to be independent of $x$ and modeled as random variables with cumulative distribution functions $F(\eta_j)$ and $F(\eta_0)$.
+
+We define the difference in utility as $U^* = U_j - U_0 = x_j'\beta + \eta^*$ where $x_0 = 0$ and $\eta^* = \eta_j - \eta_0$.
+
+The consumer does not report $U^*$ but rather reports $y$, a censoring of $U^*$ into one of $W$ discrete qualitative scale values $w=1,2,\ldots,W$. Suppose, for example, that the consumer reports the middle level ($y=2$) out of three available (labeled, "unlikely" for $w=1$, "somewhat likely" for $w=2$, and "very likely" for $w=3$).
+
+The $W$ levels of the qualitative scale are separated at values $\mu_w$ such that $-\infty < \mu_1, \mu_2, \ldots, \mu_W = \infty$, with $\mu_w, w=1,2,\ldots,W$ as parameters to be estimated. 
+
+Then we have that 
+$$
+\begin{align}
+    \Pr \left( y=w \right) 
+    &= \Pr \left(\mu_{w-1} < U^* < \mu_w \right) \\
+    &= \Pr \left(\mu_{w-1} < x_j'\beta + \eta^* < \mu_w \right) \\
+    &= \Pr \left(\mu_{w-1} - x_j'\beta < \eta^* < \mu_w - x_j'\beta \right) \\
+    &= F(\mu_w - x_j'\beta) - F(\mu_{w-1} - x_j'\beta)
+\end{align}
+$$
+
+Define $t_w \in \lbrace 0,1 \rbrace$ as indicators with $t_w=1$ when $y=w$. The individual likelihood is then 
+
+$$
+\prod_{w=1}^W =  \left[ F(\mu_w - x_j'\beta) - F(\mu_{w-1} - x_j'\beta) \right]^{t_w}
+$$
+ 
+
+
+
+
+### Behavioral Specification
+
 Consumer $i$ derives utility $U_{ij}$ from good $j$, where
+
 $$
-    U_{ij} = \exp\left\lbrace {x_j}' \beta_{i} + \nu_{ij} + \varepsilon_{ij} \right\rbrace.
+U_{ij} = f(x_j, \beta_i) + \eta_{ij}
 $$
-For each consumer $i$, the econometrician observes:
-- The most preferred good $j \in \left\lbrace 1, 2, \ldots\,J\right\rbrace$, denoted $j_i^{(1)}$. Let $t_i = e_{j^{(1)}}$ represent the ``one-hot'' encoding of consumer $i$'s choice of good $j^{(1)}$;
-- A signal related to the probability that the consumer prefers the outside good $j=0$. This signal takes the form of an ordinal scale $w\in{}\left\lbrace1,2,\ldots\,W\right\rbrace$. Higher $w_i$ corresponds to increased probability of choosing $j_i^{(1)}$ over the outside good 0.
-In addition, the econometrician observes the matrix of good characteristics $\symbfit{x}$.
+
+where $x_j$ is a vector of good characteristics, $\beta_i$ is a vector of consumer-specific taste parameters, and $\eta_{ij}$ captures the relevance of factors not in $x_j$ affecting consumer $i$'s preference for good $j$. 
+
+The set of available goods $\mathcal{J}_i$ to consumer $i$ includes one or more goods indexed with $j>0$ as well as the "zero"-th good $\left(j=0\right)$. Consumers observe $x_j$ and $\eta_{ij}$ for all goods excep $j=0$ (i.e., for all $j>0; j \in \mathcal{J}_i$). The "zero"-th good is special: it is associated with a zero vector of good characteristics $\left(\symbfit{x}_0=\mathbf{0}\right)$ and $\eta_{i0}$ is not observed by consumer $i$.
+
+Consumers report
+
+1. their preferred good $j^*_i = \arg\max_{j>0; j\in\mathcal{J}_i} U_{ij}$, and 
+2. a discrete qualitative scale value indicating how likely it is that consumer $i$ prefers $j^*_i$ over good $j=0$.
+
+Let $U^*_i$ denote the utility of good $j^*_i$ for consumer $i$ and construct the "one-hot" encoded vector $t_i$ of length $ left( \left\vert J_i \right\vert -1 \right)$. The consumer observes $U_{ij}$ exactly for all $j>0$, and thus faces no uncertainty when reporting $t_i$. 
+
+Second, consumers report the probability that they prefer good $j^*_i$ to the outside good 0. Consumers know $V_i$, but do not know their draw of $\eta_{i0}$, and thus this probability is given by
+
+$$
+p_i = \mathbb{P}\left(\eta_{i0} < V_i \right).
+$$
+
+Each consumer reports the interval $\mathcal{W}_w$ into which $p_i$ falls
+
+$$
+w_i = w\ \text{s.t.}\ p_i \in \left[\alpha_{w-1},\alpha_w\right).
+$$
+
+where we assume some universal partitioning of the unit interval into $W$ disjoint intervals with cutoffs denoted by the $\left(W+1\right)$-dimensional vector $\symbfit{\pi} \in \Delta^{W-1}$. Let $\symbfit{\alpha}$ denote the partial sums of $\symbfit{\pi}$, so that
+
+$$
+\begin{gather}
+    \begin{array}{*9{c}}
+       \symbfit{\alpha}  = \big\lbrace 0, & \pi_1, & \pi_1 + \pi_2, & \ldots, & \underbrace{\sum_{i=1}^{w} \pi_{i}}, & \ldots, & 1\big\rbrace \\
+         & & & & \alpha_w 
+    \end{array} \\
+    \vphantom{\bigcup_{w=1}^W} \mathcal{W}_w = \left[\alpha_{w-1}, \alpha_w\right) \\
+    \bigcup_{w=1}^W \mathcal{W}_i = \left[0, 1\right)
+\end{gather}
+$$
+
+
+### Deriving the Likelihood
+
+Consumers are indexed by $i=1,2,\ldots\,N$. Goods are indexed by $j=1,2,\ldots\,J_i$ and each good is characterized by a vector of characteristics $x_j$. Each consumer has: (i) taste parameters $\beta_i$, and (ii) a good-specific taste shock $\eta_{ij}$. The outside good is indexed with $j=0$ and $x_j = \mathbf{0}$.
+
+Let
+
+$$
+\eta_{ij} \sim \text{Gumbel}\left(0,1\right)
+$$
+
+As is well known,^[For example, see \textcite{Mcfadden_1981} and \textcite{Cardell_1997}.] $V_i$ follows a Gumbel distribution with location parameter $\overline{\mu}_i$ and scale parameter 1, where
+
+$$
+\overline{\mu}_i = \ln\left( \sum_{j\in\mathcal{J}} \exp\left({X_j}'\beta_i\right)\right) \label{eqn:max_mu}.
+$$
+
+Under these assumptions, we have
+
+$$
+p_i = F_{\text{Gumbel}\left(0,1\right)}\left(V_i\right)
+$$
+
+The consumer's report of $w_i$ is therefore equivalent to reporting that
+
+$$
+    V_i \in \left[
+        F^{-1}_{\text{Gumbel}\left(0\right)}\left(\alpha_{w\left(i\right)-1}\right),
+        F^{-1}_{\text{Gumbel}\left(0\right)}\left(\alpha_{w\left(i\right)}\right)
+    \right),
+$$
+
+where we omit the common scale parameter for brevity.
+
+This occurs with probability
+
+$$
+\begin{align}
+    \mathbb{P}\left(V_i \in \mathcal{W}_{w\left(i\right)}\right) &= F_{\text{Gumbel}\left(\overline{\mu}\right)}\left(F^{-1}_{\text{Gumbel}\left(0\right)}\left(\alpha_{w\left(i\right)}\right)\right) - F_{\text{Gumbel}\left(\overline{\mu}\right)}\left(F^{-1}_{\text{Gumbel}\left(0\right)}\left(\alpha_{w\left(i\right)-1}\right)\right) \\
+    &= \left({\alpha_{w\left(i\right)}}\right)^{\exp\left(\overline{\mu}\right)} - \left({\alpha_{w\left(i\right)-1}}\right)^{\exp\left(\overline{\mu}\right)}.
+\end{align}
+$$
+
+This is $p\left(w_i\mid \alpha, \beta\right)$, the conditional likelihood of $w_i$.^[While the parametrization of $\eta_0 \sim \text{Gumbel}\left(0,1\right)$ preserves symmetry among the $J+1$ goods and is thus a natural choice, the framework can easily accommodate an alternative distribution for $\eta_0$. For example, one could use an affine function of individual characteristics to accommodate individual-level variation in the propensity to prefer the outside good.]
+
+### Sketch of Estimation
+
+
+- Specify hyper-parameters governing the prior distribution of $\left(\symbf{\pi}, \symbf{\beta}\right)$. There is a relatively large amount of flexibility in the prior distribution over $\beta$. $\symbf{\pi} \sim \text{Dirichlet}$ deterministically maps to $\symbf{\alpha}$.
+  
+- (First Branch) Given draws of $\left(\alpha, \beta\right)$, the probability that consumer $i$ reports $j^*_i$ is given by a softmax
+    $$
+        p\left(j^*_i \mid \alpha, \beta\right) = p\left(j^*_i \mid \beta\right) = \frac{\exp\left({X_j}'\beta_i\right)}{\sum_{j'\in\mathcal{J}}\exp\left({X_{j'}}'\beta_i\right)}
+    $$
+
+- (Second Branch) Given $\left(\alpha, \beta\right)$, the probability that consumer $i$ reports $w_i$ is given by
+    $$
+        p\left(w_i \mid \alpha,\beta, j^*_i\right) = p\left(w_i\mid \alpha, \beta\right) =  \left({\alpha_{w\left(i\right)}}\right)^{\exp\left(\overline{\mu}\right)} - \left({\alpha_{w\left(i\right)-1}}\right)^{\exp\left(\overline{\mu}\right)}
+    $$
+    where $\overline{\mu}_i\left(\beta_i\right)$ is a function of consumer $i$'s tastes $\beta_i$ and the design matrix $X$ provided in Equation~\ref{eqn:max_mu}.^[Note that the observed choice $j^*_i$ is irrelevant for this likelihood through ``Gumbel distribution magic''. Specifically, it is the ``memory-less'' property of the Gumbel that yields this property.]
+
+
+Thus the overall likelihood (conditional on some draw of parameters) looks like
+
+$$
+p\left(\left(j^*_i, w_i\right) \mid \alpha, \beta \right) = p\left(w_i \mid \alpha,\overline{\mu}_i\left(\beta\right) \right) \times p\left(j^* \mid \beta\right).
+$$
+
+
