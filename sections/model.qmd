@@ -1,5 +1,8 @@
 ## Model {#sec-model}
 
+\newcommand\mleft{\mathopen{}\mathclose\bgroup\left}
+\newcommand\mright{\aftergroup\egroup\right}
+
 ### Single-Good Formulation
 
 Suppose there are two goods: good $j$ and good $0$. For example, suppose good $j$ is Diet Coke and good 0 is the "outside option" of not purchasing the beverage.
