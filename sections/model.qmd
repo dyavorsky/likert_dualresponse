@@ -39,8 +39,8 @@ $$
 
 As is well known,[^1] $V_i$ follows a Gumbel distribution with location parameter $\overline{\mu}_i$ and scale parameter 1, where
 $$
-    \overline{\mu}_i = \ln\left( \sum_{j\in\mathcal{J}} \exp\left({X_j}'\beta_i\right)\right) \label{#eq-max_mu}.
-$$
+    \overline{\mu}_i = \ln\left( \sum_{j\in\mathcal{J}} \exp\left({X_j}'\beta_i\right)\right).
+$$ {#eq-max-mu}
 
 Under these assumptions, we have
 $$
@@ -74,7 +74,7 @@ This is $p\mleft(w_i\mid \alpha, \beta\mright)$, the conditional likelihood of $
     \begin{equation}
         p\mleft(w_i \mid \alpha,\beta, j^*_i\mright) = p\mleft(w_i\mid \alpha, \beta\mright) =  \left({\alpha_{w\mleft(i\mright)}}\right)^{\exp\left(\overline{\mu}\right)} - \left({\alpha_{w\mleft(i\mright)-1}}\right)^{\exp\left(\overline{\mu}\right)}
     \end{equation}
-    where $\overline{\mu}_i\mleft(\beta_i\mright)$ is a function of consumer $i$'s tastes $\beta_i$ and the design matrix $X$ (@eq-max_mu).[^3]
+    where $\overline{\mu}_i\mleft(\beta_i\mright)$ is a function of consumer $i$'s tastes $\beta_i$ and the design matrix $X$ (@eq-max-mu).[^3]
 \end{itemize}
 
 Thus the overall likelihood (conditional on some draw of parameters) is
