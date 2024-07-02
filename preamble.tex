@@ -2,8 +2,11 @@
 \usepackage{graphicx}
 \usepackage{comment}
 
-\usepackage{mathtools,amsthm,mleftright,bm}
+\usepackage{mathtools,amsthm,bm}
 \usepackage{unicode-math}
 
 \usepackage[usenames,dvipsnames]{xcolor}
 \usepackage{hyperref}
+
+\newcommand\mleft{\mathopen{}\mathclose\bgroup\left}
+\newcommand\mright{\aftergroup\egroup\right}
