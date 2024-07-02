@@ -50,17 +50,18 @@ where we omit the common scale parameter for brevity.
 
 This occurs with probability
 $$
-\begin{align}
-    \Pr\left(u_i^* \in \mathcal{W}_{w\left(i\right)}\right) 
-    
-    &= F_{\text{Gumbel}\left(\overline{\mu}\right)}\left(F^{-1}_{\text{Gumbel}\left(0\right)}\left(\alpha_{w\left(i\right)}\right)\right) - F_{\text{Gumbel}\left(\overline{\mu}\right)}\left(F^{-1}_{\text{Gumbel}\left(0\right)}\left(\alpha_{w\left(i\right)-1}\right)\right) \\
-    
-    &= \left({\alpha_{w\left(i\right)}}\right)^{\exp\left(\overline{\mu}\right)} - \left({\alpha_{w\left(i\right)-1}}\right)^{\exp\left(\overline{\mu}\right)}.
-\end{align}
+\begin{aligned}
+    \Pr \left( u_i^* \in \mathcal{W}_{w\left( i \right)} \right) 
+    &= F_{\text{Gumbel} \left( \overline{ \mu } \right) } \left( F^{-1}_{\text{Gumbel} \left( 0 \right) } \left( \alpha_{w \left( i \right)} \right) \right) - 
+       F_{\text{Gumbel} \left( \overline{ \mu } \right) } \left( F^{-1}_{\text{Gumbel} \left( 0 \right) } \left( \alpha_{w \left( i \right) - 1} \right) \right) \\
+    &= \left( \alpha_{w \left( i \right)} \right)^{\exp \left( \overline{\mu} \right)} - 
+       \left({\alpha_{w \left( i \right)-1}} \right)^{\exp \left( \overline{\mu} \right)}.
+\end{aligned}
 $$
-This is $p\left(w_i\mid \alpha, \beta\right)$, the conditional likelihood of $w_i$.[^2]
 
-[^2]: While the parametrization of $\eta_0 \sim \text{Gumbel}\left(0,1\right)$ preserves symmetry among the $J+1$ goods and is thus a natural choice, the framework can easily accommodate an alternative distribution for $\eta_0$. For example, one could use an affine function of individual characteristics to accommodate individual-level variation in the propensity to prefer the outside good.
+This is $p\left(w_i\mid \alpha, \beta\right)$, the conditional likelihood of $w_i$.[^3]
+
+[^3]: While the parametrization of $\eta_0 \sim \text{Gumbel}\left(0,1\right)$ preserves symmetry among the $J+1$ goods and is thus a natural choice, the framework can easily accommodate an alternative distribution for $\eta_0$. For example, one could use an affine function of individual characteristics to accommodate individual-level variation in the propensity to prefer the outside good.
 
 
 ### Comment: Relation to the [@Brazell_2006] Dual Response Model
@@ -71,10 +72,6 @@ We acknowledge that this requires a slight abuse of notation, as $\mathcal{W}_w$
 
 
 ### Comment: Nesting a Single-Good Specification
-\newcommand\mleft{\mathopen{}\mathclose\bgroup\left}
-\newcommand\mright{\aftergroup\egroup\right}
-
-### Single-Good Formulation
 
 Suppose there are two goods: good $j$ and good $0$. For example, suppose good $j$ is Diet Coke and good 0 is the "outside option" of not purchasing the beverage.
 
@@ -95,13 +92,13 @@ The $W$ levels of the qualitative scale are separated at values $\mu_w$ such tha
 
 Then we have that 
 $$
-\begin{align}
+\begin{aligned}
     \Pr \left( y=w \right) 
     &= \Pr \left(\mu_{w-1} < U^* < \mu_w \right) \\
     &= \Pr \left(\mu_{w-1} < x_j'\beta + \eta^* < \mu_w \right) \\
     &= \Pr \left(\mu_{w-1} - x_j'\beta < \eta^* < \mu_w - x_j'\beta \right) \\
     &= F(\mu_w - x_j'\beta) - F(\mu_{w-1} - x_j'\beta)
-\end{align}
+\end{aligned}
 $$
 
 Define $t_w \in \lbrace 0,1 \rbrace$ as indicators with $t_w=1$ when $y=w$. The individual likelihood is then 
