@@ -245,24 +245,116 @@ Lorem ipsum
 
 \section{Model}\label{sec-model}
 
-Consumers are indexed by \(i=1,2,\ldots\,I\). Goods are indexed by
-\(j=1,2,\ldots\,J\) and each good is characterized by a vector of
-characteristics \(x_j\). Each consumer has: (i) taste parameters
-\(\beta_i\), (ii) a good-specific taste shock \(\varepsilon_{ij}\), and
-(iii) a good-specific taste shock \(\nu_{ij}\). The outside good is
-indexed with \(j=0\) and \(x_j = \mathbf{0}\).\\
-Consumer \(i\) derives utility \(U_{ij}\) from good \(j\), where \[
-    U_{ij} = \exp\left\lbrace {x_j}' \beta_{i} + \nu_{ij} + \varepsilon_{ij} \right\rbrace.
-\] For each consumer \(i\), the econometrician observes: * The most
-preferred good \(j \in \left\lbrace 1, 2, \ldots\,J\right\rbrace\),
-denoted \(j_i^{(1)}\). Let \(t_i = e_{j^{(1)}}\) represent the
-``one-hot'\,' encoding of consumer \(i\)'s choice of good \(j^{(1)}\); *
-A signal related to the probability that the consumer prefers the
-outside good \(j=0\). This signal takes the form of an ordinal scale
-\(w\in{}\left\lbrace1,2,\ldots\,W\right\rbrace\). Higher \(w_i\)
-corresponds to increased probability of choosing \(j_i^{(1)}\) over the
-outside good 0. In addition, the econometrician observes the matrix of
-good characteristics \(\symbfit{x}\).
+Assume some universal partitioning of the unit interval into \(W\)
+disjoint intervals with cutoffs denoted by the
+\(\left(W+1\right)\)-dimensional vector
+\(\symbfit{\pi} \in \Delta^{W-1}\). Let \(\symbfit{\alpha}\) denote the
+partial sums of \(\symbfit{\pi}\), so that \[
+    \begin{array}{*9{c}}
+       \symbfit{\alpha}  = \big\lbrace 0, & \pi_1, & \pi_1 + \pi_2, & \ldots, & \underbrace{\sum_{i=1}^{w} \pi_{i}}, & \ldots, & 1\big\rbrace \\
+         & & & & \alpha_w 
+    \end{array}
+\] \[
+    \vphantom{\bigcup_{w=1}^W} \mathcal{W}_w = \left[\alpha_{w-1}, \alpha_w\right)
+\] \[
+    \bigcup_{w=1}^W \mathcal{W}_i = \left[0, 1\right)
+\]
+
+Consumer \(i\)'s utility for good \(j\) is given by \[
+    U_{ij} = {X_j}'\beta_i + \eta_{ij},\quad \eta_{ij} \sim \text{Gumbel}\mleft(0,1\mright)
+\] where \(X\) is the design matrix of good characteristics and \(X^j\)
+denotes the \textit{j}\textsuperscript{th} row of \(X\). The
+``zero'\,'-th good is special and is associated with a zero vector of
+good characteristics. Consumers observe \(X\) and \(\eta\) for all goods
+\(j \in \mathcal{J}\), but they \emph{do not} observe
+\(\eta_{i0}\).\footnote{This can be motivated by a framework in which $U_0 = 0$ and $U_{ij} = {X_j}'\beta_i + \eta_{ij} - \eta_0$ for $j \in \mathcal{J}$. Here, $\eta_0$ captures the consumer's uncertainty about their future tastes. Given that utilities are ordinal and $\eta_0$ is a common shock, it plays no role in the choice among the most preferred good $j^* \in \mathcal{J}$.}
+
+First, consumers report their preferred good in
+\(\mathcal{J} = \left\lbrace 1, 2, \ldots\,, J\right\rbrace\), which is
+given by \[
+    t_i = e_{j^*_i}\ \text{s.t.}\ j^*_i = \arg\max_{j\in\mathcal{J}} U_{ij}.
+\] Let \(V_i\) denote the utility of good \(j^*_i\) for consumer \(i\).
+
+Second, consumers report the probability that they prefer good \(j^*_i\)
+to the outside good 0. Consumers know \(V_i\), but do not know their
+draw of \(\eta_{i0}\), and thus this probability is given by \[
+    p_i = \mathbb{P}\mleft(\eta_{i0} < V_i \mright).
+\] Each consumer reports the interval \(\mathcal{W}_w\) into which
+\(p_i\) falls \[
+    w_i = w\ \text{s.t.}\ p_i \in \left[\alpha_{w-1},\alpha_w\right).
+\]
+
+\subsection{Deriving the Likelihood}\label{deriving-the-likelihood}
+
+As is well known,\footnote{For example, see (McFadden 1981) and (Cardell
+  1997).} \(V_i\) follows a Gumbel distribution with location parameter
+\(\overline{\mu}_i\) and scale parameter 1, where
+\begin{equation}\phantomsection\label{eq-max-mu}{
+    \overline{\mu}_i = \ln\left( \sum_{j\in\mathcal{J}} \exp\left({X_j}'\beta_i\right)\right).
+}\end{equation}
+
+Under these assumptions, we have \[
+    p_i = F_{\text{Gumbel}\mleft(0,1\mright)}\mleft(V_i\mright)
+\] The consumer's report of \(w_i\) is therefore equivalent to reporting
+that \[
+    V_i \in \left[
+        F^{-1}_{\text{Gumbel}\mleft(0\mright)}\mleft(\alpha_{w\mleft(i\mright)-1}\mright),
+        F^{-1}_{\text{Gumbel}\mleft(0\mright)}\mleft(\alpha_{w\mleft(i\mright)}\mright)
+    \right),
+\] where we omit the common scale parameter for brevity.
+
+This occurs with probability \begin{align}
+    \mathbb{P}\mleft(V_i \in \mathcal{W}_{w\mleft(i\mright)}\mright) &= F_{\text{Gumbel}\mleft(\overline{\mu}\mright)}\mleft(F^{-1}_{\text{Gumbel}\mleft(0\mright)}\mleft(\alpha_{w\mleft(i\mright)}\mright)\mright) - F_{\text{Gumbel}\mleft(\overline{\mu}\mright)}\mleft(F^{-1}_{\text{Gumbel}\mleft(0\mright)}\mleft(\alpha_{w\mleft(i\mright)-1}\mright)\mright) \\
+    &= \left({\alpha_{w\mleft(i\mright)}}\right)^{\exp\left(\overline{\mu}\right)} - \left({\alpha_{w\mleft(i\mright)-1}}\right)^{\exp\left(\overline{\mu}\right)}.
+\end{align} This is \(p\mleft(w_i\mid \alpha, \beta\mright)\), the
+conditional likelihood of \(w_i\).\footnote{While the parametrization of
+  \(\eta_0 \sim \text{Gumbel}\mleft(0,1\mright)\) preserves symmetry
+  among the \(J+1\) goods and is thus a natural choice, the framework
+  can easily accommodate an alternative distribution for \(\eta_0\). For
+  example, one could use an affine function of individual
+  characteristics to accommodate individual-level variation in the
+  propensity to prefer the outside good.}
+
+\section{Sketch of Estimation}\label{sketch-of-estimation}
+
+\begin{itemize}
+    \item Specify hyper-parameters governing the prior distribution of $\left(\symbf{\pi}, \symbf{\beta}\right)$. There is a relatively large amount of flexibility in the prior distribution over $\beta$. $\symbf{\pi} \sim \text{Dirichlet}$ deterministically maps to $\symbf{\alpha}$.
+    \item (First Branch) Given draws of $\left(\alpha, \beta\right)$, the probability that consumer $i$ reports $j^*_i$ is given by a softmax
+    \begin{equation}
+        p\mleft(j^*_i \mid \alpha, \beta\mright) = p\mleft(j^*_i \mid \beta\mright) = \frac{\exp\left({X_j}'\beta_i\right)}{\sum_{j'\in\mathcal{J}}\exp\left({X_{j'}}'\beta_i\right)}
+    \end{equation}
+    \item (Second Branch) Given $\left(\alpha, \beta\right)$, the probability that consumer $i$ reports $w_i$ is given by
+    \begin{equation}
+        p\mleft(w_i \mid \alpha,\beta, j^*_i\mright) = p\mleft(w_i\mid \alpha, \beta\mright) =  \left({\alpha_{w\mleft(i\mright)}}\right)^{\exp\left(\overline{\mu}\right)} - \left({\alpha_{w\mleft(i\mright)-1}}\right)^{\exp\left(\overline{\mu}\right)}
+    \end{equation}
+    where $\overline{\mu}_i\mleft(\beta_i\mright)$ is a function of consumer $i$'s tastes $\beta_i$ and the design matrix $X$ (@eq-max-mu). Note that the observed choice $j^*_i$ is irrelevant for this likelihood.
+\end{itemize}
+
+Thus the overall likelihood (conditional on some draw of parameters) is
+\begin{equation}
+    p\mleft(\left(j^*_i, w_i\right) \mid \alpha, \beta \mright) = p\mleft(w_i \mid \alpha,\overline{\mu}_i\mleft(\beta\mright) \mright) \times p\mleft(j^* \mid \beta\mright).
+\end{equation}
+
+\section{Comment: Relation to the (Brazell et al. 2006) Dual Response
+Model}\label{comment-relation-to-the-brazell_2006-dual-response-model}
+
+Another common framework when soliciting consumer preferences is to
+directly ask consumers if \(V_i \ge 0\). This implicitly assumes that
+\(\eta_{i0} = 0\), so that consumers deterministically know whether or
+not the `'inside'\,' good \(j^*_i\) is preferred to the outside good. As
+we have already noted, our framework can nest that standard case by
+assuming that, rather than following a standard Gumbel distribution,
+\(\eta_0\) is instead a degenerate distribution. In such a case, all but
+2 of the \(W\) partitions are empty, and the non-empty partitions are
+\(\mathcal{W}_0 = \left\lbrace 0 \right\rbrace\) and
+\(\mathcal{W}_W = \left\lbrace 1\right\rbrace\), as
+\(p_i \in \left\lbrace 0, 1\right\rbrace\).
+
+We acknowledge that this requires a slight abuse of notation, as
+\(\mathcal{W}_w\) was defined above using left-closed intervals. These
+have the advantage of being invertible under the inverse-CDF mapping. In
+the degenerate case, we instead have
+\(p\mleft(w_i = W\mid\alpha,\beta\mright) = \mathbb{P}\mleft(\eta_{i0} < V_i\mright) = \mathbb{P}\mleft(V_i > 0\mright) = 1 - \exp\left(-\exp\left(\overline{\mu}\right)\right)\).
 
 \section{Simulation Study}\label{sec-simstudy}
 
@@ -291,6 +383,16 @@ L. Moore, Válerie Séverin, and Pierre-Francois Uldry. 2006. {``The
 No-Choice Option and Dual Response Choice Designs.''} \emph{Marketing
 Letters} 17 (4): 255--68.
 \url{https://doi.org/10.1007/s11002-006-7943-8}.
+
+\bibitem[\citeproctext]{ref-Cardell_1997}
+Cardell, N. Scott. 1997. {``Variance Components Structures for the
+Extreme-Value and Logistic Distributions with Application to Models of
+Heterogeneity.''} \emph{Econometric Theory} 13 (2): 185--213.
+\url{https://doi.org/10.1017/s0266466600005727}.
+
+\bibitem[\citeproctext]{ref-Mcfadden_1981}
+McFadden, Daniel L. 1981. {``Structural Discrete Probability Models
+Derived from Theories of Choice.''} In, 198--272. The MIT Press.
 
 \end{CSLReferences}
 
