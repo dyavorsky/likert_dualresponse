@@ -248,11 +248,11 @@ u_{ij} = h(\x_j, \bfbeta_i) + \eta_{ij}.
 j^*_i = \arg\max_{j&gt;0; \; j \in \mathcal{J}_i} u_{ij}.
 \]</span></p>
 <p>The consumer then reports a value <span class="math inline">\(y_i\)</span> on a discrete qualitative scale <span class="math inline">\(w \in \mathcal{W} = \lbrace 1, \ldots, W \rbrace\)</span> to reflect the probability <span class="math inline">\(p_i\)</span> that she would purchase <span class="math inline">\(j^*\)</span>, i.e., that she prefers good <span class="math inline">\(j^*_i\)</span> to the outside good <span class="math inline">\(j=0\)</span>.</p>
-<p>Apportion the range of <span class="math inline">\(F\)</span> into a number <span class="math inline">\(W\)</span> of intervals <span class="math inline">\(\phi_w = \left[ \alpha_{w-1}, \alpha_w \right)\)</span>, where <span class="math inline">\(\alpha_0 = 0\)</span> and <span class="math inline">\(\alpha_W = 1\)</span>. We assume that consumers share the definition of the qualitative scale and thus understand these intervals, whereas <span class="math inline">\(\alpha_w\)</span> for <span class="math inline">\(0&lt;w&lt;W\)</span> are unobserved by the researcher and are to be estimated.</p>
-<p>Let <span class="math inline">\(u_i^*\)</span> denote the utility of good <span class="math inline">\(j^*_i\)</span> for consumer <span class="math inline">\(i\)</span>. Consumers know <span class="math inline">\(u_i^*\)</span>, but do not know <span class="math inline">\(\eta_{i0}\)</span>, and thus the purchase probability from the consumer’s perspective given by <span class="math display">\[
+<p>Let <span class="math inline">\(F\)</span> denote the cumulative distribution function associated with <span class="math inline">\(p_i\)</span>. Apportion the range of <span class="math inline">\(F\)</span> into a number <span class="math inline">\(W\)</span> of intervals <span class="math inline">\(\phi_w = \left[ \alpha_{w-1}, \alpha_w \right)\)</span>, where <span class="math inline">\(\alpha_0 = 0\)</span> and <span class="math inline">\(\alpha_W = 1\)</span>. We assume that consumers share the definition of the qualitative scale and thus understand these intervals, whereas <span class="math inline">\(\alpha_w\)</span> for <span class="math inline">\(0&lt;w&lt;W\)</span> are unobserved by the researcher and are to be estimated.</p>
+<p>Let <span class="math inline">\(u_i^*\)</span> denote the utility of good <span class="math inline">\(j^*_i\)</span> for consumer <span class="math inline">\(i\)</span>. Consumers know <span class="math inline">\(u_i^*\)</span>, but do not know <span class="math inline">\(\eta_{i0}\)</span>, and thus the purchase probability from the consumer’s perspective is given by <span class="math display">\[
 p_i = \Pr \left( \eta_{i0} &lt; u_i^* \right) = F\left( u_i^* \right).
 \]</span></p>
-<p>The act of reporting the interval <span class="math inline">\(y_i=w\)</span> into which <span class="math inline">\(p_i\)</span> falls, reveals that <span class="math inline">\(p_i \in \left[\alpha_{w-1},\alpha_w\right)\)</span> and is therefore equivalent to reporting that <span class="math display">\[
+<p>The act of reporting the interval <span class="math inline">\(y_i=w\)</span> into which <span class="math inline">\(p_i\)</span> falls, reveals that <span class="math inline">\(p_i \in \phi_{w\left(i\right)} = \left[\alpha_{w-1},\alpha_w\right)\)</span> and is therefore equivalent to reporting that <span class="math display">\[
 u_i^* \in \left[
     F^{-1} \left( \alpha_{w_{i-1}} \right), \;
     F^{-1} \left( \alpha_{w_i}     \right)
@@ -261,35 +261,35 @@ u_i^* \in \left[
 </section>
 <section id="probability-specification" class="level3" data-number="2.2">
 <h3 data-number="2.2" class="anchored" data-anchor-id="probability-specification"><span class="header-section-number">2.2</span> Probability Specification</h3>
-<p>We model <span class="math inline">\(\eta_{ij} \iid \text{Gumbel} \left( 0,1 \right)\)</span> with <span class="math inline">\(\eta_{ij}\)</span> assumed to be independent of both <span class="math inline">\(\x_j\)</span> and <span class="math inline">\(\eta_{ik}\)</span> for <span class="math inline">\(k \ne j\)</span>.<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a></p>
-<p>From the consumer’s perspective, <span class="math display">\[
-p_i = \Pr \left( \eta_{i0} &lt; u_i^* \right) = F_{\text{Gumble}\left(0,1\right)} \left( u_i^* \right).
-\]</span> and <span class="math inline">\(\Pr(y_i=w)\)</span> is given by <span class="math display">\[
-\Pr(y_i=w)
-=
-F_{\text{Gumbel}\left(0,1\right)} \left( F^{-1}_{\text{Gumbel}\left(0,1\right)} \left( \alpha_w \right) \right) -
-F_{\text{Gumbel}\left(0,1\right)} \left( F^{-1}_{\text{Gumbel}\left(0,1\right)} \left( \alpha_{w-1} \right) \right)
-=
-\alpha_w - \alpha_{w-1}.
-\]</span></p>
-<p>From the researcher’s perspective, the unobserved likelihood of purchase is <span class="math display">\[
-p_i = \Pr \left(  u_i^* - \eta_{i0} &gt; 0 \right) = \Pr \left( \varepsilon_i &gt; 0 \right) = 1 - \Pr \left( \varepsilon_i &lt; 0 \right)
-\]</span> where <span class="math inline">\(\varepsilon_i = u_i^* - \eta_{i0}\)</span>. As is well known,<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a> <span class="math inline">\(\varepsilon_i\)</span> follows a Gumbel distribution with location parameter <span class="math inline">\(\overline{\mu}_i\)</span> and scale parameter <span class="math inline">\(1\)</span>, where <span id="eq-max-mu"><span class="math display">\[
-\overline{\mu}_i = \ln \left( \sum_{j\in\mathcal{J}_i} \exp \left( {\x_j}'\bfbeta_i \right) \right).
-\tag{1}\]</span></span> and so the unobserved choice probability is <span class="math display">\[
-p_i = 1 - F_{\text{Gumble} \left( \overline{\mu}_i, 1 \right)} \left( \varepsilon_i \right).
-\]</span></p>
-<p>[TODO: add a line/paragraph to connect <span class="math inline">\(p_i\)</span> above to <span class="math inline">\(\Pr \left( u_i^* \in \phi_{w\left( i \right)} \right)\)</span> below.]</p>
-<p>Therefore, the probability that consumer <span class="math inline">\(i\)</span> reports <span class="math inline">\(y_i=w\)</span> is <span class="math display">\[
+<p>We model <span class="math inline">\(\eta_{ij} \iid \text{Gumbel} \left( 0,1 \right)\)</span> with <span class="math inline">\(\eta_{ij}\)</span> assumed to be independent of both <span class="math inline">\(\x_j\)</span> and <span class="math inline">\(\eta_{ik}\)</span> for <span class="math inline">\(k \ne j\)</span>.<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> <a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a>:</p>
+<p>From the consumer’s perspective, her purchase probability is <span class="math display">\[
+p_i = \Pr \left( \eta_{i0} &lt; u_i^* \right) = F_{\text{Gumble}\left(0,1\right)} \left( u_i^* \right)
+\]</span> and, before she reports <span class="math inline">\(y_i\)</span>, the probability of reporting any particular value <span class="math inline">\(w\)</span> on the ordinal scale <span class="math inline">\(\Pr(y_i=w)\)</span> is given by <span class="math display">\[
 \begin{aligned}
-    \Pr \left( u_i^* \in \phi_{w\left( i \right)} \right)
-    &amp;= F_{\text{Gumbel} \left( \overline{ \mu, 1 } \right) } \left( F^{-1}_{\text{Gumbel} \left( 0, 1 \right) } \left( \alpha_{w_i} \right) \right) -
-       F_{\text{Gumbel} \left( \overline{ \mu, 1 } \right) } \left( F^{-1}_{\text{Gumbel} \left( 0, 1 \right) } \left( \alpha_{w_i-1} \right) \right) \\
-    &amp;= \left( \alpha_{w_i} \right)^{\exp \left( \overline{\mu} \right)} -
-       \left({\alpha_{w_i-1}} \right)^{\exp \left( \overline{\mu} \right)}.
+    \Pr(y_i=w)
+    &amp;=
+    F_{\text{Gumbel}\left(0,1\right)} \left( F^{-1}_{\text{Gumbel}\left(0,1\right)} \left( \alpha_w \right) \right) -
+    F_{\text{Gumbel}\left(0,1\right)} \left( F^{-1}_{\text{Gumbel}\left(0,1\right)} \left( \alpha_{w-1} \right) \right) \\
+    &amp;=
+    \alpha_w - \alpha_{w-1}.
 \end{aligned}
 \]</span></p>
-<p>We note that, while the parametrization of <span class="math inline">\(\eta_0 \sim \text{Gumbel}\left(0,1\right)\)</span> preserves symmetry among the <span class="math inline">\(J+1\)</span> goods and is thus a natural choice, the framework can easily accommodate an alternative distribution for <span class="math inline">\(\eta_0\)</span>. For example, one could use an affine function of individual characteristics to accommodate individual-level variation in the propensity to prefer the outside good.</p>
+<p>From the researcher’s perspective, the unobserved likelihood of purchase is <span class="math display">\[
+p_i = \Pr \left( \eta_{i0} - u_i^* &gt; 0 \right) = \Pr \left( \varepsilon_i &lt; 0 \right)
+\]</span> where <span class="math inline">\(\varepsilon_i = \eta_{i0} - u_i^*\)</span>. As is well known,<a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a> <span class="math inline">\(\varepsilon_i\)</span> follows a Gumbel distribution with location parameter <span class="math inline">\(\overline{\mu}_i\)</span> and scale parameter <span class="math inline">\(1\)</span>, where <span id="eq-max-mu"><span class="math display">\[
+\overline{\mu}_i = \ln \left( \sum_{j\in\mathcal{J}_i} \exp \left( {\x_j}'\bfbeta_i \right) \right).
+\tag{1}\]</span></span> and so the unobserved choice probability is <span class="math display">\[
+p_i = F_{\text{Gumble} \left( \overline{\mu}_i, 1 \right)} \left( \varepsilon_i \right).
+\]</span></p>
+<p>Therefore, the probability that consumer <span class="math inline">\(i\)</span> reports <span class="math inline">\(y_i=w\)</span> is <span class="math display">\[
+\begin{aligned}
+    \Pr \left( u_i^* \hspace{1ex} \text{s.t.} \hspace{1ex} p_i \in \phi_{w\left(i\right)} \right)
+    &amp;= F_{\text{Gumbel} \left( \overline{\mu}, 1 \right) } \left( F^{-1}_{\text{Gumbel} \left( 0, 1 \right) } \left( \alpha_{w\left(i\right)} \right) \right) -
+       F_{\text{Gumbel} \left( \overline{\mu}, 1 \right) } \left( F^{-1}_{\text{Gumbel} \left( 0, 1 \right) } \left( \alpha_{w\left(i\right)-1} \right) \right) \\
+    &amp;= \left( \alpha_{w\left(i\right)} \right)^{\exp \left( \overline{\mu} \right)} -
+       \left({\alpha_{w\left(i\right)-1}} \right)^{\exp \left( \overline{\mu} \right)}.
+\end{aligned}
+\]</span></p>
 </section>
 </section>
 <section id="sec-simstudy" class="level2" data-number="3">
@@ -349,7 +349,8 @@ McFadden, Daniel L. 1981. <span>“Structural Discrete Probability Models Derive
 
 <ol>
 <li id="fn1"><p>This can be motivated by a framework in which <span class="math inline">\(u_0 = 0\)</span> and <span class="math inline">\(u_{ij} = {\x_j}'\bfbeta_i + \eta_{ij} - \eta_0\)</span> for <span class="math inline">\(j&gt;0; j \in \mathcal{J}_i\)</span>. Here, <span class="math inline">\(\eta_0\)</span> captures the consumer’s uncertainty about their future tastes. Given that utilities are ordinal and <span class="math inline">\(\eta_0\)</span> is a common shock, it plays no role in the choice among the most preferred inside good <span class="math inline">\(j^* \in \mathcal{J}_i\)</span>.<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn2"><p>See, e.g., <span class="citation" data-cites="Mcfadden_1981">(<a href="#ref-Mcfadden_1981" role="doc-biblioref">McFadden 1981</a>)</span> or <span class="citation" data-cites="Cardell_1997">(<a href="#ref-Cardell_1997" role="doc-biblioref">Cardell 1997</a>)</span>.<a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn2"><p>We note that, while the parametrization of <span class="math inline">\(\eta_0 \sim \text{Gumbel}\left(0,1\right)\)</span> preserves symmetry among the <span class="math inline">\(J+1\)</span> goods and is thus a natural choice, the framework can easily accommodate an alternative distribution for <span class="math inline">\(\eta_0\)</span>. For example, one could use an affine function of individual characteristics to accommodate individual-level variation in the propensity to prefer the outside good.<a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn3"><p>See, e.g., <span class="citation" data-cites="Mcfadden_1981">(<a href="#ref-Mcfadden_1981" role="doc-biblioref">McFadden 1981</a>)</span> or <span class="citation" data-cites="Cardell_1997">(<a href="#ref-Cardell_1997" role="doc-biblioref">Cardell 1997</a>)</span>.<a href="#fnref3" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
 </ol>
 </section><section class="quarto-appendix-contents" id="quarto-citation"><h2 class="anchored quarto-appendix-heading">Citation</h2><div><div class="quarto-appendix-secondary-label">BibTeX citation:</div><pre class="sourceCode code-with-copy quarto-appendix-bibtex"><code class="sourceCode bibtex">@online{bhalerao2024,
   author = {Bhalerao, Prachi and Yavorsky, Dan and Zheng, Geoffery},
