@@ -12,7 +12,7 @@
 <meta name="dcterms.date" content="2024-07-09">
 <meta name="keywords" content="choice-based conjoint analysis, stated preference elicitation, discrete choice methods, ordered choice">
 
-<title>Likert Scale Dual Response in Conjoint Analysis</title>
+<title>Ordinal Dual Response in Choice-Based Conjoint Analysis</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -89,8 +89,8 @@ window.Quarto = {
 };
 </script>
 
-<meta name="citation_title" content="Likert Scale Dual Response in Conjoint Analysis">
-<meta name="citation_abstract" content="Write the abstract here ...
+<meta name="citation_title" content="Ordinal Dual Response in Choice-Based Conjoint Analysis">
+<meta name="citation_abstract" content="We provide a behavioral model that rationalizes the use of a dual-response framework in choice-based conjoint analysis and extends the evaluation of the purchase decision from binary to ordinal. Consumers are able to identify their most-preferred option among a set of alternatives, but face uncertainty in their evalulation of the outside good. A simulation study provides estimation routines for aggregate and Hierarhical Bayesian versions of the model, and demonstrates the model&amp;amp;#039;s superior performance compared with the binary and heuristic approaches currently used by practioners. We also provide an empirical example from a choice-based conjoint analysis conducted in partnership with a consumer insights consultancy.
 ">
 <meta name="citation_keywords" content="choice-based conjoint analysis, stated preference elicitation, discrete choice methods, ordered choice">
 <meta name="citation_author" content="Prachi Bhalerao">
@@ -112,7 +112,7 @@ window.Quarto = {
 <header id="title-block-header" class="quarto-title-block default toc-left page-columns page-full">
   <div class="quarto-title-banner page-columns page-full">
     <div class="quarto-title column-body">
-      <h1 class="title">Likert Scale Dual Response in Conjoint Analysis</h1>
+      <h1 class="title">Ordinal Dual Response in Choice-Based Conjoint Analysis</h1>
           </div>
 
     
@@ -168,7 +168,7 @@ window.Quarto = {
     <div>
       <div class="abstract">
         <div class="block-title">Abstract</div>
-        <p>Write the abstract here …</p>
+        <p>We provide a behavioral model that rationalizes the use of a dual-response framework in choice-based conjoint analysis and extends the evaluation of the purchase decision from binary to ordinal. Consumers are able to identify their most-preferred option among a set of alternatives, but face uncertainty in their evalulation of the outside good. A simulation study provides estimation routines for aggregate and Hierarhical Bayesian versions of the model, and demonstrates the model’s superior performance compared with the binary and heuristic approaches currently used by practioners. We also provide an empirical example from a choice-based conjoint analysis conducted in partnership with a consumer insights consultancy.</p>
       </div>
     </div>
 
@@ -217,7 +217,24 @@ window.Quarto = {
 \]</span></p>
 <section id="sec-intro" class="level2" data-number="1">
 <h2 data-number="1" class="anchored" data-anchor-id="sec-intro"><span class="header-section-number">1</span> Introduction</h2>
-<p>Lorem ipsum</p>
+<p>Motivate with:</p>
+<ol type="1">
+<li><p>Anecdotes:</p>
+<ul>
+<li>Quote stats on cart abandonment rates. Consumers can pick a preferred bluetooth speaker out of many brands (or a preferred color out of many options from the same brand), but then they may hesitate making the purchase.</li>
+<li>no unusual reaction from consumers if you ask them “how likely are you to purchase?” Uncertainty about making a purchase “feels natural.”</li>
+</ul></li>
+<li><p>Psych findings:</p>
+<ul>
+<li>[possibly use] decoy effect: low purchase prob when coke machine by iteslf, but high coke and pepsi purchase prob when machines side-by-side,</li>
+</ul></li>
+<li><p>Practice:</p>
+<ul>
+<li>Brazell et al 2006 paper</li>
+<li>Sawtooth’s implementation in Lighthouse Studio application</li>
+</ul></li>
+</ol>
+<p>Describe: The dual-response framework asks for an immediate comparison (which of these things in front of you do you like best) and a hypothetical future scenario (if this product was available to purchase in the near future, would you purchase it). We provide a behavioral model that rationalizes use of the dual-response framework</p>
 </section>
 <section id="sec-model" class="level2" data-number="2">
 <h2 data-number="2" class="anchored" data-anchor-id="sec-model"><span class="header-section-number">2</span> Model</h2>
@@ -277,7 +294,28 @@ p_i = 1 - F_{\text{Gumble} \left( \overline{\mu}_i, 1 \right)} \left( \varepsilo
 </section>
 <section id="sec-simstudy" class="level2" data-number="3">
 <h2 data-number="3" class="anchored" data-anchor-id="sec-simstudy"><span class="header-section-number">3</span> Simulation Study</h2>
-<p>add</p>
+<ol type="1">
+<li>Agg MNL</li>
+</ol>
+<ul>
+<li>Simulate data (<span class="math inline">\(\bfbeta_i = \bfbeta\)</span>), then:</li>
+<li>recover parameters</li>
+<li>compare to dichotomized dual-response</li>
+<li>compare to constant-prob (if <span class="math inline">\(W=5\)</span> set <span class="math inline">\(\alpha\)</span>’s such that <span class="math inline">\(\Pr(y_i=w) = 1/5\)</span> )</li>
+</ul>
+<ol type="1">
+<li>HB MNL</li>
+</ol>
+<ul>
+<li>Same 4 things as above</li>
+</ul>
+<ol type="1">
+<li>Assessing <span class="math inline">\(\alpha\)</span> cut-points</li>
+</ol>
+<ul>
+<li>May need to try extreme values for some <span class="math inline">\(\alpha\)</span>’s</li>
+<li>What happens when different consumers have different interpretation of the <span class="math inline">\(W\)</span> categories such that <span class="math inline">\(\alpha\)</span>’s are not the same for all consumers?</li>
+</ul>
 </section>
 <section id="sec-analysis" class="level2" data-number="4">
 <h2 data-number="4" class="anchored" data-anchor-id="sec-analysis"><span class="header-section-number">4</span> Empirical Analysis</h2>
@@ -315,14 +353,26 @@ McFadden, Daniel L. 1981. <span>“Structural Discrete Probability Models Derive
 </ol>
 </section><section class="quarto-appendix-contents" id="quarto-citation"><h2 class="anchored quarto-appendix-heading">Citation</h2><div><div class="quarto-appendix-secondary-label">BibTeX citation:</div><pre class="sourceCode code-with-copy quarto-appendix-bibtex"><code class="sourceCode bibtex">@online{bhalerao2024,
   author = {Bhalerao, Prachi and Yavorsky, Dan and Zheng, Geoffery},
-  title = {Likert {Scale} {Dual} {Response} in {Conjoint} {Analysis}},
+  title = {Ordinal {Dual} {Response} in {Choice-Based} {Conjoint}
+    {Analysis}},
   date = {2024-07-09},
   langid = {en},
-  abstract = {Write the abstract here ...}
+  abstract = {We provide a behavioral model that rationalizes the use of
+    a dual-response framework in choice-based conjoint analysis and
+    extends the evaluation of the purchase decision from binary to
+    ordinal. Consumers are able to identify their most-preferred option
+    among a set of alternatives, but face uncertainty in their
+    evalulation of the outside good. A simulation study provides
+    estimation routines for aggregate and Hierarhical Bayesian versions
+    of the model, and demonstrates the model’s superior performance
+    compared with the binary and heuristic approaches currently used by
+    practioners. We also provide an empirical example from a
+    choice-based conjoint analysis conducted in partnership with a
+    consumer insights consultancy.}
 }
 </code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre><div class="quarto-appendix-secondary-label">For attribution, please cite this work as:</div><div id="ref-bhalerao2024" class="csl-entry quarto-appendix-citeas" role="listitem">
-Bhalerao, Prachi, Dan Yavorsky, and Geoffery Zheng. 2024. <span>“Likert
-Scale Dual Response in Conjoint Analysis.”</span> July 9, 2024.
+Bhalerao, Prachi, Dan Yavorsky, and Geoffery Zheng. 2024. <span>“Ordinal
+Dual Response in Choice-Based Conjoint Analysis.”</span> July 9, 2024.
 </div></div></section></div></main>
 <!-- /main column -->
 <script id="quarto-html-after-body" type="application/javascript">

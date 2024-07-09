@@ -177,7 +177,7 @@
 \IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
 \urlstyle{same} % disable monospaced font for URLs
 \hypersetup{
-  pdftitle={Likert Scale Dual Response in Conjoint Analysis},
+  pdftitle={Ordinal Dual Response in Choice-Based Conjoint Analysis},
   pdfauthor={Prachi Bhalerao; Dan Yavorsky; Geoffery Zheng},
   pdfkeywords={choice-based conjoint analysis, stated preference
 elicitation, discrete choice methods, ordered choice},
@@ -189,14 +189,24 @@ elicitation, discrete choice methods, ordered choice},
   pdfcreator={LaTeX via pandoc}}
 
 
-\title{Likert Scale Dual Response in Conjoint Analysis}
+\title{Ordinal Dual Response in Choice-Based Conjoint Analysis}
 \author{Prachi Bhalerao \and Dan Yavorsky \and Geoffery Zheng}
 \date{2024-07-09}
 
 \begin{document}
 \maketitle
 \begin{abstract}
-Write the abstract here \ldots{}
+We provide a behavioral model that rationalizes the use of a
+dual-response framework in choice-based conjoint analysis and extends
+the evaluation of the purchase decision from binary to ordinal.
+Consumers are able to identify their most-preferred option among a set
+of alternatives, but face uncertainty in their evalulation of the
+outside good. A simulation study provides estimation routines for
+aggregate and Hierarhical Bayesian versions of the model, and
+demonstrates the model's superior performance compared with the binary
+and heuristic approaches currently used by practioners. We also provide
+an empirical example from a choice-based conjoint analysis conducted in
+partnership with a consumer insights consultancy.
 \end{abstract}
 
 
@@ -206,7 +216,52 @@ Write the abstract here \ldots{}
 
 \section{Introduction}\label{sec-intro}
 
-Lorem ipsum
+Motivate with:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  Anecdotes:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Quote stats on cart abandonment rates. Consumers can pick a
+    preferred bluetooth speaker out of many brands (or a preferred color
+    out of many options from the same brand), but then they may hesitate
+    making the purchase.
+  \item
+    no unusual reaction from consumers if you ask them ``how likely are
+    you to purchase?'' Uncertainty about making a purchase ``feels
+    natural.''
+  \end{itemize}
+\item
+  Psych findings:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    {[}possibly use{]} decoy effect: low purchase prob when coke machine
+    by iteslf, but high coke and pepsi purchase prob when machines
+    side-by-side,
+  \end{itemize}
+\item
+  Practice:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Brazell et al 2006 paper
+  \item
+    Sawtooth's implementation in Lighthouse Studio application
+  \end{itemize}
+\end{enumerate}
+
+Describe: The dual-response framework asks for an immediate comparison
+(which of these things in front of you do you like best) and a
+hypothetical future scenario (if this product was available to purchase
+in the near future, would you purchase it). We provide a behavioral
+model that rationalizes use of the dual-response framework
 
 \section{Model}\label{sec-model}
 
@@ -320,7 +375,55 @@ outside good.
 
 \section{Simulation Study}\label{sec-simstudy}
 
-add
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  Agg MNL
+\end{enumerate}
+
+\begin{itemize}
+\tightlist
+\item
+  Simulate data (\(\bfbeta_i = \bfbeta\)), then:
+\item
+  recover parameters
+\item
+  compare to dichotomized dual-response
+\item
+  compare to constant-prob (if \(W=5\) set \(\alpha\)'s such that
+  \(\Pr(y_i=w) = 1/5\) )
+\end{itemize}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  HB MNL
+\end{enumerate}
+
+\begin{itemize}
+\tightlist
+\item
+  Same 4 things as above
+\end{itemize}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  Assessing \(\alpha\) cut-points
+\end{enumerate}
+
+\begin{itemize}
+\tightlist
+\item
+  May need to try extreme values for some \(\alpha\)'s
+\item
+  What happens when different consumers have different interpretation of
+  the \(W\) categories such that \(\alpha\)'s are not the same for all
+  consumers?
+\end{itemize}
 
 \section{Empirical Analysis}\label{sec-analysis}
 
