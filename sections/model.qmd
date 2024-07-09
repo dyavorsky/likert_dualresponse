@@ -17,15 +17,15 @@ $$
 
 The consumer then reports a value $y_i$ on a discrete qualitative scale $w \in \mathcal{W} = \lbrace 1, \ldots, W \rbrace$ to reflect the probability $p_i$ that she would purchase $j^*$, i.e., that she prefers good $j^*_i$ to the outside good $j=0$. 
 
-Apportion the range of $F$ into a number $W$ of intervals $\phi_w = \left[ \alpha_{w-1}, \alpha_w \right)$, where $\alpha_0 = 0$ and $\alpha_W = 1$. We assume that consumers share the definition of the qualitative scale and thus understand these intervals, whereas $\alpha_w$ for $0<w<W$ are unobserved by the researcher and are to be estimated.
+Let $F$ denote the cumulative distribution function associated with $p_i$. Apportion the range of $F$ into a number $W$ of intervals $\phi_w = \left[ \alpha_{w-1}, \alpha_w \right)$, where $\alpha_0 = 0$ and $\alpha_W = 1$. We assume that consumers share the definition of the qualitative scale and thus understand these intervals, whereas $\alpha_w$ for $0<w<W$ are unobserved by the researcher and are to be estimated.
 
-Let $u_i^*$ denote the utility of good $j^*_i$ for consumer $i$. Consumers know $u_i^*$, but do not know $\eta_{i0}$, and thus the purchase probability from the consumer's perspective given by
+Let $u_i^*$ denote the utility of good $j^*_i$ for consumer $i$. Consumers know $u_i^*$, but do not know $\eta_{i0}$, and thus the purchase probability from the consumer's perspective is given by
 $$
 p_i = \Pr \left( \eta_{i0} < u_i^* \right) = F\left( u_i^* \right).
 $$
 
 The act of reporting the interval $y_i=w$ into which $p_i$ falls, reveals that
-$p_i \in \left[\alpha_{w-1},\alpha_w\right)$ and is therefore equivalent to reporting that
+$p_i \in \phi_{w\left(i\right)} = \left[\alpha_{w-1},\alpha_w\right)$ and is therefore equivalent to reporting that
 $$
 u_i^* \in \left[
     F^{-1} \left( \alpha_{w_{i-1}} \right), \;
@@ -35,53 +35,55 @@ $$
 
 ### Probability Specification
 
-We model $\eta_{ij} \iid \text{Gumbel} \left( 0,1 \right)$ with $\eta_{ij}$ assumed to be independent of both $\x_j$ and $\eta_{ik}$ for $k \ne j$.[^1] 
+We model $\eta_{ij} \iid \text{Gumbel} \left( 0,1 \right)$ with $\eta_{ij}$ assumed to be independent of both $\x_j$ and $\eta_{ik}$ for $k \ne j$.[^1] [^2]: 
 
 [^1]: This can be motivated by a framework in which $u_0 = 0$ and $u_{ij} = {\x_j}'\bfbeta_i + \eta_{ij} - \eta_0$ for $j>0; j \in \mathcal{J}_i$. Here, $\eta_0$ captures the consumer's uncertainty about their future tastes. Given that utilities are ordinal and $\eta_0$ is a common shock, it plays no role in the choice among the most preferred inside good $j^* \in \mathcal{J}_i$.
 
-From the consumer's perspective,
+[^2]: We note that, while the parametrization of $\eta_0 \sim \text{Gumbel}\left(0,1\right)$ preserves symmetry among the $J+1$ goods and is thus a natural choice, the framework can easily accommodate an alternative distribution for $\eta_0$. For example, one could use an affine function of individual characteristics to accommodate individual-level variation in the propensity to prefer the outside good.
+
+From the consumer's perspective, her purchase probability is
 $$
-p_i = \Pr \left( \eta_{i0} < u_i^* \right) = F_{\text{Gumble}\left(0,1\right)} \left( u_i^* \right).
+p_i = \Pr \left( \eta_{i0} < u_i^* \right) = F_{\text{Gumble}\left(0,1\right)} \left( u_i^* \right)
 $$
-and $\Pr(y_i=w)$ is given by
+and, before she reports $y_i$, the probability of reporting any particular value $w$ on the ordinal scale $\Pr(y_i=w)$ is given by
 $$
-\Pr(y_i=w)
-= 
-F_{\text{Gumbel}\left(0,1\right)} \left( F^{-1}_{\text{Gumbel}\left(0,1\right)} \left( \alpha_w \right) \right) - 
-F_{\text{Gumbel}\left(0,1\right)} \left( F^{-1}_{\text{Gumbel}\left(0,1\right)} \left( \alpha_{w-1} \right) \right)
-=
-\alpha_w - \alpha_{w-1}.
+\begin{aligned}
+    \Pr(y_i=w)
+    &= 
+    F_{\text{Gumbel}\left(0,1\right)} \left( F^{-1}_{\text{Gumbel}\left(0,1\right)} \left( \alpha_w \right) \right) - 
+    F_{\text{Gumbel}\left(0,1\right)} \left( F^{-1}_{\text{Gumbel}\left(0,1\right)} \left( \alpha_{w-1} \right) \right) \\
+    &=
+    \alpha_w - \alpha_{w-1}.
+\end{aligned}
 $$
 
 From the researcher's perspective, the unobserved likelihood of purchase is
 $$
-p_i = \Pr \left(  u_i^* - \eta_{i0} > 0 \right) = \Pr \left( \varepsilon_i > 0 \right) = 1 - \Pr \left( \varepsilon_i < 0 \right)
+p_i = \Pr \left( \eta_{i0} - u_i^* > 0 \right) = \Pr \left( \varepsilon_i < 0 \right)
 $$
-where $\varepsilon_i = u_i^* - \eta_{i0}$. As is well known,[^2] $\varepsilon_i$ follows a Gumbel distribution with location parameter $\overline{\mu}_i$ and scale parameter $1$, where
+where $\varepsilon_i = \eta_{i0} - u_i^*$. As is well known,[^3] $\varepsilon_i$ follows a Gumbel distribution with location parameter $\overline{\mu}_i$ and scale parameter $1$, where
 $$
 \overline{\mu}_i = \ln \left( \sum_{j\in\mathcal{J}_i} \exp \left( {\x_j}'\bfbeta_i \right) \right).
 $$ {#eq-max-mu}
 and so the unobserved choice probability is
 $$
-p_i = 1 - F_{\text{Gumble} \left( \overline{\mu}_i, 1 \right)} \left( \varepsilon_i \right).
+p_i = F_{\text{Gumble} \left( \overline{\mu}_i, 1 \right)} \left( \varepsilon_i \right).
 $$
 
-[^2]: See, e.g., [@Mcfadden_1981] or [@Cardell_1997].
-
-[TODO: add a line/paragraph to connect $p_i$ above to $\Pr \left( u_i^* \in \phi_{w\left( i \right)} \right)$ below.]
+[^3]: See, e.g., [@Mcfadden_1981] or [@Cardell_1997].
 
 Therefore, the probability that consumer $i$ reports $y_i=w$ is
 $$
 \begin{aligned}
-    \Pr \left( u_i^* \in \phi_{w\left( i \right)} \right) 
-    &= F_{\text{Gumbel} \left( \overline{ \mu, 1 } \right) } \left( F^{-1}_{\text{Gumbel} \left( 0, 1 \right) } \left( \alpha_{w_i} \right) \right) - 
-       F_{\text{Gumbel} \left( \overline{ \mu, 1 } \right) } \left( F^{-1}_{\text{Gumbel} \left( 0, 1 \right) } \left( \alpha_{w_i-1} \right) \right) \\
-    &= \left( \alpha_{w_i} \right)^{\exp \left( \overline{\mu} \right)} - 
-       \left({\alpha_{w_i-1}} \right)^{\exp \left( \overline{\mu} \right)}.
+    \Pr \left( u_i^* \hspace{1ex} \text{s.t.} \hspace{1ex} p_i \in \phi_{w\left(i\right)} \right) 
+    &= F_{\text{Gumbel} \left( \overline{\mu}, 1 \right) } \left( F^{-1}_{\text{Gumbel} \left( 0, 1 \right) } \left( \alpha_{w\left(i\right)} \right) \right) - 
+       F_{\text{Gumbel} \left( \overline{\mu}, 1 \right) } \left( F^{-1}_{\text{Gumbel} \left( 0, 1 \right) } \left( \alpha_{w\left(i\right)-1} \right) \right) \\
+    &= \left( \alpha_{w\left(i\right)} \right)^{\exp \left( \overline{\mu} \right)} - 
+       \left({\alpha_{w\left(i\right)-1}} \right)^{\exp \left( \overline{\mu} \right)}.
 \end{aligned}
 $$
 
-We note that, while the parametrization of $\eta_0 \sim \text{Gumbel}\left(0,1\right)$ preserves symmetry among the $J+1$ goods and is thus a natural choice, the framework can easily accommodate an alternative distribution for $\eta_0$. For example, one could use an affine function of individual characteristics to accommodate individual-level variation in the propensity to prefer the outside good.
+
 
 
 

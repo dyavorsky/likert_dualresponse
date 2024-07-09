@@ -11,7 +11,7 @@ format:
     pdf-engine: pdflatex
     include-in-header: 
       - text: |
-          \usepackage{mathtools,amsmath}
+          \usepackage{mathtools}
 
 manuscript:
   notebooks:
