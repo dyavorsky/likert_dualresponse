@@ -2,14 +2,14 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.6.0">
+<meta name="generator" content="quarto-1.6.1">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Prachi Bhalerao">
 <meta name="author" content="Dan Yavorsky">
 <meta name="author" content="Geoffery Zheng">
-<meta name="dcterms.date" content="2024-07-02">
+<meta name="dcterms.date" content="2024-07-09">
 <meta name="keywords" content="choice-based conjoint analysis, stated preference elicitation, discrete choice methods, ordered choice">
 
 <title>Likert Scale Dual Response in Conjoint Analysis</title>
@@ -96,15 +96,14 @@ window.Quarto = {
 <meta name="citation_author" content="Prachi Bhalerao">
 <meta name="citation_author" content="Dan Yavorsky">
 <meta name="citation_author" content="Geoffery Zheng">
-<meta name="citation_publication_date" content="2024-07-02">
-<meta name="citation_cover_date" content="2024-07-02">
+<meta name="citation_publication_date" content="2024-07-09">
+<meta name="citation_cover_date" content="2024-07-09">
 <meta name="citation_year" content="2024">
-<meta name="citation_online_date" content="2024-07-02">
+<meta name="citation_online_date" content="2024-07-09">
 <meta name="citation_language" content="en">
-<meta name="citation_reference" content="citation_title=Strategies for the development of volcanic hazard maps in monogenetic volcanic fields: The example of La Palma (Canary Islands);,citation_author=José Marrero;,citation_author=Alicia García;,citation_author=Manuel Berrocoso;,citation_author=Ángeles Llinares;,citation_author=Antonio Rodríguez-Losada;,citation_author=R. Ortiz;,citation_publication_date=2019-07;,citation_cover_date=2019-07;,citation_year=2019;,citation_doi=10.1186/s13617-019-0085-5;,citation_volume=8;,citation_journal_title=Journal of Applied Volcanology;">
-<meta name="citation_reference" content="citation_title=Variance components structures for the extreme-value and logistic distributions with application to models of heterogeneity;,citation_author=N. Scott Cardell;,citation_publication_date=1997-04;,citation_cover_date=1997-04;,citation_year=1997;,citation_issue=2;,citation_doi=10.1017/s0266466600005727;,citation_issn=1469-4360;,citation_volume=13;,citation_journal_title=Econometric Theory;,citation_publisher=Cambridge University Press (CUP);">
 <meta name="citation_reference" content="citation_title=Structural analysis of discrete data with econometric applications;,citation_author=Charles F. Manski;,citation_author=Daniel McFadden;,citation_publication_date=1981;,citation_cover_date=1981;,citation_year=1981;,citation_isbn=9780262131599;">
 <meta name="citation_reference" content="citation_title=Structural discrete probability models derived from theories of choice;,citation_author=Daniel L. McFadden;,citation_publication_date=1981;,citation_cover_date=1981;,citation_year=1981;,citation_isbn=9780262131599;,citation_inbook_title=undefined;">
+<meta name="citation_reference" content="citation_title=Variance components structures for the extreme-value and logistic distributions with application to models of heterogeneity;,citation_author=N. Scott Cardell;,citation_publication_date=1997-04;,citation_cover_date=1997-04;,citation_year=1997;,citation_issue=2;,citation_doi=10.1017/s0266466600005727;,citation_issn=1469-4360;,citation_volume=13;,citation_journal_title=Econometric Theory;,citation_publisher=Cambridge University Press (CUP);">
 <meta name="citation_reference" content="citation_title=The no-choice option and dual response choice designs;,citation_author=Jeff D. Brazell;,citation_author=Christopher G. Diener;,citation_author=Ekaterina Karniouchina;,citation_author=William L. Moore;,citation_author=Válerie Séverin;,citation_author=Pierre-Francois Uldry;,citation_publication_date=2006-12;,citation_cover_date=2006-12;,citation_year=2006;,citation_fulltext_html_url=http://dx.doi.org/10.1007/s11002-006-7943-8;,citation_issue=4;,citation_doi=10.1007/s11002-006-7943-8;,citation_issn=1573-059X;,citation_volume=17;,citation_journal_title=Marketing Letters;,citation_publisher=Springer Science; Business Media LLC;">
 </head>
 
@@ -155,7 +154,7 @@ window.Quarto = {
                 <div>
             <div class="quarto-title-meta-heading">Published</div>
             <div class="quarto-title-meta-contents">
-              <p class="date">July 2, 2024</p>
+              <p class="date">July 9, 2024</p>
             </div>
           </div>
           
@@ -191,10 +190,8 @@ window.Quarto = {
   <li><a href="#sec-intro" id="toc-sec-intro" class="nav-link active" data-scroll-target="#sec-intro"><span class="header-section-number">1</span> Introduction</a></li>
   <li><a href="#sec-model" id="toc-sec-model" class="nav-link" data-scroll-target="#sec-model"><span class="header-section-number">2</span> Model</a>
   <ul class="collapse">
-  <li><a href="#general-specification" id="toc-general-specification" class="nav-link" data-scroll-target="#general-specification"><span class="header-section-number">2.1</span> General Specification</a></li>
-  <li><a href="#comment-relation-to-the-brazell_2006-dual-response-model" id="toc-comment-relation-to-the-brazell_2006-dual-response-model" class="nav-link" data-scroll-target="#comment-relation-to-the-brazell_2006-dual-response-model"><span class="header-section-number">2.2</span> Comment: Relation to the <span class="citation" data-cites="Brazell_2006">(Brazell et al. 2006)</span> Dual Response Model</a></li>
-  <li><a href="#comment-nesting-a-single-good-specification" id="toc-comment-nesting-a-single-good-specification" class="nav-link" data-scroll-target="#comment-nesting-a-single-good-specification"><span class="header-section-number">2.3</span> Comment: Nesting a Single-Good Specification</a></li>
-  <li><a href="#sketch-of-estimation" id="toc-sketch-of-estimation" class="nav-link" data-scroll-target="#sketch-of-estimation"><span class="header-section-number">2.4</span> Sketch of Estimation</a></li>
+  <li><a href="#set-up" id="toc-set-up" class="nav-link" data-scroll-target="#set-up"><span class="header-section-number">2.1</span> Set Up</a></li>
+  <li><a href="#probability-specification" id="toc-probability-specification" class="nav-link" data-scroll-target="#probability-specification"><span class="header-section-number">2.2</span> Probability Specification</a></li>
   </ul></li>
   <li><a href="#sec-simstudy" id="toc-sec-simstudy" class="nav-link" data-scroll-target="#sec-simstudy"><span class="header-section-number">3</span> Simulation Study</a></li>
   <li><a href="#sec-analysis" id="toc-sec-analysis" class="nav-link" data-scroll-target="#sec-analysis"><span class="header-section-number">4</span> Empirical Analysis</a></li>
@@ -202,7 +199,7 @@ window.Quarto = {
   <li><a href="#sec-conclusion" id="toc-sec-conclusion" class="nav-link" data-scroll-target="#sec-conclusion"><span class="header-section-number">6</span> Conclusion</a></li>
   <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
   </ul>
-<div class="quarto-alternate-notebooks"><h2>Notebooks</h2><ul><li><a href="sections/conclusion-preview.html"><i class="bi bi-journal-code"></i>Conclusion</a></li><li><a href="sections/discussion-preview.html"><i class="bi bi-journal-code"></i>Discussion</a></li><li><a href="sections/analysis-preview.html"><i class="bi bi-journal-code"></i>Empirical Analysis</a></li><li><a href="notebooks/example_likert-preview.html"><i class="bi bi-journal-code"></i>example_likert.ipynb</a></li><li><a href="sections/intro-preview.html"><i class="bi bi-journal-code"></i>Introduction</a></li><li><a href="sections/model-preview.html"><i class="bi bi-journal-code"></i>Model</a></li><li><a href="notebooks/likert_dualresponse-preview.html"><i class="bi bi-journal-code"></i>Simulate some data</a></li><li><a href="sections/simstudy-preview.html"><i class="bi bi-journal-code"></i>Simulation Study</a></li><li><a href="notebooks/temp-preview.html"><i class="bi bi-journal-code"></i>temp.qmd</a></li><li><a href="notebooks/example_discretechoice-preview.html"><i class="bi bi-journal-code"></i>Use a standard dataset for this example</a></li></ul></div></nav>
+<div class="quarto-alternate-notebooks"><h2>Notebooks</h2><ul><li><a href="notebooks/likert_dualresponse-preview.html"><i class="bi bi-journal-code"></i>Binary Dual Response</a></li><li><a href="notebooks/example_discretechoice-preview.html"><i class="bi bi-journal-code"></i>Discrete Choice</a></li><li><a href="notebooks/example_likert-preview.html"><i class="bi bi-journal-code"></i>Likert Scale Dual Response</a></li></ul></div></nav>
 </div>
 <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
 </div>
@@ -213,97 +210,68 @@ window.Quarto = {
   
 
 
+<p><span class="math display">\[
+  \newcommand{\x}{\mathbf{x}}
+  \newcommand{\bfbeta}{\boldsymbol{\beta}}
+  \newcommand{\iid}{\stackrel{iid}{\sim}}
+\]</span></p>
 <section id="sec-intro" class="level2" data-number="1">
 <h2 data-number="1" class="anchored" data-anchor-id="sec-intro"><span class="header-section-number">1</span> Introduction</h2>
 <p>Lorem ipsum</p>
 </section>
 <section id="sec-model" class="level2" data-number="2">
 <h2 data-number="2" class="anchored" data-anchor-id="sec-model"><span class="header-section-number">2</span> Model</h2>
-<section id="general-specification" class="level3" data-number="2.1">
-<h3 data-number="2.1" class="anchored" data-anchor-id="general-specification"><span class="header-section-number">2.1</span> General Specification</h3>
+<section id="set-up" class="level3" data-number="2.1">
+<h3 data-number="2.1" class="anchored" data-anchor-id="set-up"><span class="header-section-number">2.1</span> Set Up</h3>
 <p>Consumer <span class="math inline">\(i=1,\ldots,N\)</span> derives utility from good <span class="math inline">\(j \in \mathcal{J}_i =  \lbrace 0,\ldots,J_i \rbrace\)</span> with utility <span class="math inline">\(u_{ij}\)</span> given by <span class="math display">\[
-u_{ij} = h(\symbfit{x}_j, \symbfit{\beta}_i) + \eta_{ij}.
+u_{ij} = h(\x_j, \bfbeta_i) + \eta_{ij}.
+\]</span> where <span class="math inline">\(\x_j\)</span> is a length-<span class="math inline">\(P\)</span> column vector of good characteristics, <span class="math inline">\(\bfbeta_i\)</span> is a length-<span class="math inline">\(P\)</span> column vector of consumer-specific taste parameters, and <span class="math inline">\(\eta_{ij}\)</span> encapsulates factors known to the consumer but unobserved by the researcher. We take <span class="math inline">\(h(\x_j, \bfbeta_i) = \x_j'\bfbeta_i\)</span> but this specification is not required.</p>
+<p>The “zero”-th (or “outside”) good is special and is associated with a zero vector of good characteristics (<span class="math inline">\(\x_0 = \mathbf{0}\)</span>) such that <span class="math inline">\(h(\x_0, \bfbeta_i)=0\)</span>. Consumers observe <span class="math inline">\(\x_j\)</span> and <span class="math inline">\(\eta_{ij}\)</span> for all “inside” goods (<span class="math inline">\(j&gt;0; j \in \mathcal{J}_i\)</span>), but they <em>do not</em> observe <span class="math inline">\(\eta_{i0}\)</span>.</p>
+<p>The consumer first reports her preferred inside good, which is given by <span class="math display">\[
+j^*_i = \arg\max_{j&gt;0; \; j \in \mathcal{J}_i} u_{ij}.
 \]</span></p>
-<p>where <span class="math inline">\(\symbfit{x}_j\)</span> is a vector of good characteristics, <span class="math inline">\(\symbfit{\beta}_i\)</span> is a vector of consumer-specific taste parameters, and <span class="math inline">\(\eta_{ij}\)</span> encapsulates factors known to the consumer but not to the researcher that affect the consumer’s utility and are modeled as <span class="math inline">\(\eta_{ij} \sim \text{Gumbel} \left( 0,1 \right)\)</span> with <span class="math inline">\(\eta_{ij}\)</span> assumed to be indepedent of both <span class="math inline">\(x_j\)</span> and <span class="math inline">\(\eta_{ij'}\)</span> for <span class="math inline">\(j' \ne j\)</span>. We take <span class="math inline">\(h(\symbfit{x}_j, \symbfit{\beta}_i) = \symbfit{x}_j'\symbfit{\beta}_i\)</span> but this specification is not required.</p>
-<p>The “zero”-th (or “outside”) good is special and is associated with a zero vector of good characteristics (<span class="math inline">\(\symbfit{x}_0 = \mathbf{0}\)</span>) such that <span class="math inline">\(h(\symbfit{x}_0, \symbfit{\beta}_i)=0\)</span>. Consumers observe <span class="math inline">\(\symbfit{x}_j\)</span> and <span class="math inline">\(\eta_{ij}\)</span> for all “inside” goods (<span class="math inline">\(j&gt;0; j \in \mathcal{J}_i\)</span>), but they <em>do not</em> observe <span class="math inline">\(\eta_{i0}\)</span>.<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a></p>
-<p>Consumers first report their preferred inside good among, which is given by <span class="math display">\[
-j^*_i = \arg\max_{j&gt;0; j \in \mathcal{J}_i} u_{ij}.
+<p>The consumer then reports a value <span class="math inline">\(y_i\)</span> on a discrete qualitative scale <span class="math inline">\(w \in \mathcal{W} = \lbrace 1, \ldots, W \rbrace\)</span> to reflect the probability <span class="math inline">\(p_i\)</span> that she would purchase <span class="math inline">\(j^*\)</span>, i.e., that she prefers good <span class="math inline">\(j^*_i\)</span> to the outside good <span class="math inline">\(j=0\)</span>.</p>
+<p>Apportion the range of <span class="math inline">\(F\)</span> into a number <span class="math inline">\(W\)</span> of intervals <span class="math inline">\(\phi_w = \left[ \alpha_{w-1}, \alpha_w \right)\)</span>, where <span class="math inline">\(\alpha_0 = 0\)</span> and <span class="math inline">\(\alpha_W = 1\)</span>. We assume that consumers share the definition of the qualitative scale and thus understand these intervals, whereas <span class="math inline">\(\alpha_w\)</span> for <span class="math inline">\(0&lt;w&lt;W\)</span> are unobserved by the researcher and are to be estimated.</p>
+<p>Let <span class="math inline">\(u_i^*\)</span> denote the utility of good <span class="math inline">\(j^*_i\)</span> for consumer <span class="math inline">\(i\)</span>. Consumers know <span class="math inline">\(u_i^*\)</span>, but do not know <span class="math inline">\(\eta_{i0}\)</span>, and thus the purchase probability from the consumer’s perspective given by <span class="math display">\[
+p_i = \Pr \left( \eta_{i0} &lt; u_i^* \right) = F\left( u_i^* \right).
 \]</span></p>
-<p>Let <span class="math inline">\(u_i^*\)</span> denote the utility of good <span class="math inline">\(j^*_i\)</span> for consumer <span class="math inline">\(i\)</span> and let <span class="math inline">\(t_i = e_{j_i^*}\)</span> indicate the “one-hot” encoding of the most-preferred inside good (ie, <span class="math inline">\(t_i\)</span> is a vector with <span class="math inline">\(J_i-1\)</span> zeros and <span class="math inline">\(1\)</span> one).</p>
-<p>Second, consumers report a value <span class="math inline">\(y_i\)</span> on a discrete qualitative scale <span class="math inline">\(w \in \mathcal{W} = \lbrace 1, \ldots, W \rbrace\)</span> to indicate the probability that they prefer good <span class="math inline">\(j^*_i\)</span> to the outside good 0. Consumers know <span class="math inline">\(u_i^*\)</span>, but do not know <span class="math inline">\(\eta_{i0}\)</span>, and thus this probability is given by <span class="math display">\[
-p_i = \Pr \left( \eta_{i0} &lt; u_i^* \right).
+<p>The act of reporting the interval <span class="math inline">\(y_i=w\)</span> into which <span class="math inline">\(p_i\)</span> falls, reveals that <span class="math inline">\(p_i \in \left[\alpha_{w-1},\alpha_w\right)\)</span> and is therefore equivalent to reporting that <span class="math display">\[
+u_i^* \in \left[
+    F^{-1} \left( \alpha_{w_{i-1}} \right), \;
+    F^{-1} \left( \alpha_{w_i}     \right)
+\right],
 \]</span></p>
-<p>Each consumer reports the interval <span class="math inline">\(y_i=w\)</span> into which <span class="math inline">\(p_i\)</span> falls <span class="math display">\[
-y_i = w \hspace{1ex} \text{s.t.} \hspace{1ex} p_i \in \left[\alpha_{w-1},\alpha_w\right).
+</section>
+<section id="probability-specification" class="level3" data-number="2.2">
+<h3 data-number="2.2" class="anchored" data-anchor-id="probability-specification"><span class="header-section-number">2.2</span> Probability Specification</h3>
+<p>We model <span class="math inline">\(\eta_{ij} \iid \text{Gumbel} \left( 0,1 \right)\)</span> with <span class="math inline">\(\eta_{ij}\)</span> assumed to be independent of both <span class="math inline">\(\x_j\)</span> and <span class="math inline">\(\eta_{ik}\)</span> for <span class="math inline">\(k \ne j\)</span>.<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a></p>
+<p>From the consumer’s perspective, <span class="math display">\[
+p_i = \Pr \left( \eta_{i0} &lt; u_i^* \right) = F_{\text{Gumble}\left(0,1\right)} \left( u_i^* \right).
+\]</span> and <span class="math inline">\(\Pr(y_i=w)\)</span> is given by <span class="math display">\[
+\Pr(y_i=w)
+=
+F_{\text{Gumbel}\left(0,1\right)} \left( F^{-1}_{\text{Gumbel}\left(0,1\right)} \left( \alpha_w \right) \right) -
+F_{\text{Gumbel}\left(0,1\right)} \left( F^{-1}_{\text{Gumbel}\left(0,1\right)} \left( \alpha_{w-1} \right) \right)
+=
+\alpha_w - \alpha_{w-1}.
 \]</span></p>
-<p>As is well known,<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a> <span class="math inline">\(u_i\)</span> follows a Gumbel distribution with location parameter <span class="math inline">\(\overline{\mu}_i\)</span> and scale parameter <span class="math inline">\(1\)</span>, where <span id="eq-max-mu"><span class="math display">\[
-\overline{\mu}_i = \ln\left( \sum_{j\in\mathcal{J}} \exp\left({X_j}'\beta_i\right)\right).
-\tag{1}\]</span></span></p>
-<p>Under these assumptions, we have <span class="math inline">\(p_i = F\left( u_i^* \right)\)</span> with <span class="math inline">\(F\)</span> as the <span class="math inline">\(\text{Gumbel} \left( 0,1 \right)\)</span> distribution.</p>
-<p>The consumer’s report of <span class="math inline">\(y_i=w\)</span> is therefore equivalent to reporting that <span class="math display">\[
-    u_i^* \in \left[
-        F^{-1}_{\text{Gumbel}\left(0\right)}\left(\alpha_{w\left(i\right)-1}\right),
-        F^{-1}_{\text{Gumbel}\left(0\right)}\left(\alpha_{w\left(i\right)}\right)
-    \right),
-\]</span> where we omit the common scale parameter for brevity.</p>
-<p>This occurs with probability <span class="math display">\[
+<p>From the researcher’s perspective, the unobserved likelihood of purchase is <span class="math display">\[
+p_i = \Pr \left(  u_i^* - \eta_{i0} &gt; 0 \right) = \Pr \left( \varepsilon_i &gt; 0 \right) = 1 - \Pr \left( \varepsilon_i &lt; 0 \right)
+\]</span> where <span class="math inline">\(\varepsilon_i = u_i^* - \eta_{i0}\)</span>. As is well known,<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a> <span class="math inline">\(\varepsilon_i\)</span> follows a Gumbel distribution with location parameter <span class="math inline">\(\overline{\mu}_i\)</span> and scale parameter <span class="math inline">\(1\)</span>, where <span id="eq-max-mu"><span class="math display">\[
+\overline{\mu}_i = \ln \left( \sum_{j\in\mathcal{J}_i} \exp \left( {\x_j}'\bfbeta_i \right) \right).
+\tag{1}\]</span></span> and so the unobserved choice probability is <span class="math display">\[
+p_i = 1 - F_{\text{Gumble} \left( \overline{\mu}_i, 1 \right)} \left( \varepsilon_i \right).
+\]</span></p>
+<p>Therefore, the probability that consumer <span class="math inline">\(i\)</span> reports <span class="math inline">\(y_i=w\)</span> is <span class="math display">\[
 \begin{aligned}
-    \Pr \left( u_i^* \in \mathcal{W}_{w\left( i \right)} \right)
-    &amp;= F_{\text{Gumbel} \left( \overline{ \mu } \right) } \left( F^{-1}_{\text{Gumbel} \left( 0 \right) } \left( \alpha_{w \left( i \right)} \right) \right) -
-       F_{\text{Gumbel} \left( \overline{ \mu } \right) } \left( F^{-1}_{\text{Gumbel} \left( 0 \right) } \left( \alpha_{w \left( i \right) - 1} \right) \right) \\
-    &amp;= \left( \alpha_{w \left( i \right)} \right)^{\exp \left( \overline{\mu} \right)} -
-       \left({\alpha_{w \left( i \right)-1}} \right)^{\exp \left( \overline{\mu} \right)}.
+    \Pr \left( u_i^* \in \phi_{w\left( i \right)} \right)
+    &amp;= F_{\text{Gumbel} \left( \overline{ \mu, 1 } \right) } \left( F^{-1}_{\text{Gumbel} \left( 0, 1 \right) } \left( \alpha_{w_i} \right) \right) -
+       F_{\text{Gumbel} \left( \overline{ \mu, 1 } \right) } \left( F^{-1}_{\text{Gumbel} \left( 0, 1 \right) } \left( \alpha_{w_i-1} \right) \right) \\
+    &amp;= \left( \alpha_{w_i} \right)^{\exp \left( \overline{\mu} \right)} -
+       \left({\alpha_{w_i-1}} \right)^{\exp \left( \overline{\mu} \right)}.
 \end{aligned}
 \]</span></p>
-<p>This is <span class="math inline">\(p\left(w_i\mid \alpha, \beta\right)\)</span>, the conditional likelihood of <span class="math inline">\(w_i\)</span>.<a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a></p>
-</section>
-<section id="comment-relation-to-the-brazell_2006-dual-response-model" class="level3" data-number="2.2">
-<h3 data-number="2.2" class="anchored" data-anchor-id="comment-relation-to-the-brazell_2006-dual-response-model"><span class="header-section-number">2.2</span> Comment: Relation to the <span class="citation" data-cites="Brazell_2006">(<a href="#ref-Brazell_2006" role="doc-biblioref">Brazell et al. 2006</a>)</span> Dual Response Model</h3>
-<p>Another common framework when soliciting consumer preferences is to directly ask consumers if <span class="math inline">\(V_i \ge 0\)</span>. This implicitly assumes that <span class="math inline">\(\eta_{i0} = 0\)</span>, so that consumers deterministically know whether or not the ‘’inside’’ good <span class="math inline">\(j^*_i\)</span> is preferred to the outside good. As we have already noted, our framework can nest that standard case by assuming that, rather than following a standard Gumbel distribution, <span class="math inline">\(\eta_0\)</span> is instead a degenerate distribution. In such a case, all but 2 of the <span class="math inline">\(W\)</span> partitions are empty, and the non-empty partitions are <span class="math inline">\(\mathcal{W}_0 = \left\lbrace 0 \right\rbrace\)</span> and <span class="math inline">\(\mathcal{W}_W = \left\lbrace 1\right\rbrace\)</span>, as <span class="math inline">\(p_i \in \left\lbrace 0, 1\right\rbrace\)</span>.</p>
-<p>We acknowledge that this requires a slight abuse of notation, as <span class="math inline">\(\mathcal{W}_w\)</span> was defined above using left-closed intervals. These have the advantage of being invertible under the inverse-CDF mapping. In the degenerate case, we instead have <span class="math inline">\(p\left(w_i = W\mid\alpha,\beta\right) = \mathbb{P}\left(\eta_{i0} &lt; V_i\right) = \mathbb{P}\left(V_i &gt; 0\right) = 1 - \exp\left(-\exp\left(\overline{\mu}\right)\right)\)</span>.</p>
-</section>
-<section id="comment-nesting-a-single-good-specification" class="level3" data-number="2.3">
-<h3 data-number="2.3" class="anchored" data-anchor-id="comment-nesting-a-single-good-specification"><span class="header-section-number">2.3</span> Comment: Nesting a Single-Good Specification</h3>
-<p>Suppose there are two goods: good <span class="math inline">\(j\)</span> and good <span class="math inline">\(0\)</span>. For example, suppose good <span class="math inline">\(j\)</span> is Diet Coke and good 0 is the “outside option” of not purchasing the beverage.</p>
-<p>These goods provide utility of</p>
-<ul>
-<li><span class="math inline">\(U_j = x_j'\beta + \eta_j\)</span> and</li>
-<li><span class="math inline">\(U_0 = x_0'\beta + \eta_0\)</span>.</li>
-</ul>
-<p><span class="math inline">\(x\)</span> is observed by both the consumer and the researcher (eg, the price <span class="math inline">\(x_j\)</span> of the Diet Coke and the price of not making a purchase <span class="math inline">\(x_0=0\)</span>); <span class="math inline">\(\beta\)</span> are taste parameters known to the consumer, but not to the researcher that are to be estimated (eg, her price sensitivity).</p>
-<p><span class="math inline">\(\eta\)</span> encapsulates factors known to the consumer but not to the researcher that affect the consumer’s utility (eg, the positive or negative “status” from being observed purchasing or consuming the Diet Coke, or from not purchasing and consuming a beverage). From the researcher’s perspective, <span class="math inline">\(\eta_j\)</span> and <span class="math inline">\(\eta_0\)</span> are assumed to be independent of <span class="math inline">\(x\)</span> and modeled as random variables with cumulative distribution functions <span class="math inline">\(F(\eta_j)\)</span> and <span class="math inline">\(F(\eta_0)\)</span>.</p>
-<p>We define the difference in utility as <span class="math inline">\(U^* = U_j - U_0 = x_j'\beta + \eta^*\)</span> where <span class="math inline">\(x_0 = 0\)</span> and <span class="math inline">\(\eta^* = \eta_j - \eta_0\)</span>.</p>
-<p>The consumer does not report <span class="math inline">\(U^*\)</span> but rather reports <span class="math inline">\(y\)</span>, a censoring of <span class="math inline">\(U^*\)</span> into one of <span class="math inline">\(W\)</span> discrete qualitative scale values <span class="math inline">\(w=1,2,\ldots,W\)</span>. Suppose, for example, that the consumer reports the middle level (<span class="math inline">\(y=2\)</span>) out of three available (labeled, “unlikely” for <span class="math inline">\(w=1\)</span>, “somewhat likely” for <span class="math inline">\(w=2\)</span>, and “very likely” for <span class="math inline">\(w=3\)</span>).</p>
-<p>The <span class="math inline">\(W\)</span> levels of the qualitative scale are separated at values <span class="math inline">\(\mu_w\)</span> such that <span class="math inline">\(-\infty &lt; \mu_1, \mu_2, \ldots, \mu_W = \infty\)</span>, with <span class="math inline">\(\mu_w, w=1,2,\ldots,W\)</span> as parameters to be estimated.</p>
-<p>Then we have that <span class="math display">\[
-\begin{aligned}
-    \Pr \left( y=w \right)
-    &amp;= \Pr \left(\mu_{w-1} &lt; U^* &lt; \mu_w \right) \\
-    &amp;= \Pr \left(\mu_{w-1} &lt; x_j'\beta + \eta^* &lt; \mu_w \right) \\
-    &amp;= \Pr \left(\mu_{w-1} - x_j'\beta &lt; \eta^* &lt; \mu_w - x_j'\beta \right) \\
-    &amp;= F(\mu_w - x_j'\beta) - F(\mu_{w-1} - x_j'\beta)
-\end{aligned}
-\]</span></p>
-<p>Define <span class="math inline">\(t_w \in \lbrace 0,1 \rbrace\)</span> as indicators with <span class="math inline">\(t_w=1\)</span> when <span class="math inline">\(y=w\)</span>. The individual likelihood is then</p>
-<p><span class="math display">\[
-\prod_{w=1}^W =  \left[ F(\mu_w - x_j'\beta) - F(\mu_{w-1} - x_j'\beta) \right]^{t_w}
-\]</span></p>
-</section>
-<section id="sketch-of-estimation" class="level3" data-number="2.4">
-<h3 data-number="2.4" class="anchored" data-anchor-id="sketch-of-estimation"><span class="header-section-number">2.4</span> Sketch of Estimation</h3>
-<p>Thus the overall likelihood (conditional on some draw of parameters) is <span class="math display">\[
-    p\left(\left(j^*_i, w_i\right) \mid \alpha, \beta \right) = p\left(w_i \mid \alpha,\overline{\mu}_i\left(\beta\right) \right) \times p\left(j^* \mid \beta\right).
-\]</span></p>
-<p>Assume some universal partitioning of the unit interval into <span class="math inline">\(W\)</span> disjoint intervals with cutoffs denoted by the <span class="math inline">\(\left(W+1\right)\)</span>-dimensional vector <span class="math inline">\(\symbfit{\pi} \in \Delta^{W-1}\)</span>. Let <span class="math inline">\(\symbfit{\alpha}\)</span> denote the partial sums of <span class="math inline">\(\symbfit{\pi}\)</span>, so that <span class="math display">\[
-    \begin{array}{*9{c}}
-       \symbfit{\alpha}  = \big\lbrace 0, &amp; \pi_1, &amp; \pi_1 + \pi_2, &amp; \ldots, &amp; \underbrace{\sum_{i=1}^{w} \pi_{i}}, &amp; \ldots, &amp; 1\big\rbrace \\
-         &amp; &amp; &amp; &amp; \alpha_w
-    \end{array}
-\]</span> <span class="math display">\[
-    \vphantom{\bigcup_{w=1}^W} \mathcal{W}_w = \left[\alpha_{w-1}, \alpha_w\right)
-\]</span> <span class="math display">\[
-    \bigcup_{w=1}^W \mathcal{W}_i = \left[0, 1\right)
-\]</span></p>
+<p>We note that, while the parametrization of <span class="math inline">\(\eta_0 \sim \text{Gumbel}\left(0,1\right)\)</span> preserves symmetry among the <span class="math inline">\(J+1\)</span> goods and is thus a natural choice, the framework can easily accommodate an alternative distribution for <span class="math inline">\(\eta_0\)</span>. For example, one could use an affine function of individual characteristics to accommodate individual-level variation in the propensity to prefer the outside good.</p>
 </section>
 </section>
 <section id="sec-simstudy" class="level2" data-number="3">
@@ -341,20 +309,19 @@ McFadden, Daniel L. 1981. <span>“Structural Discrete Probability Models Derive
 <div id="quarto-appendix" class="default"><section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes"><h2 class="anchored quarto-appendix-heading">Footnotes</h2>
 
 <ol>
-<li id="fn1"><p>This can be motivated by a framework in which <span class="math inline">\(u_0 = 0\)</span> and <span class="math inline">\(u_{ij} = {x_j}'\beta_i + \eta_{ij} - \eta_0\)</span> for <span class="math inline">\(j&gt;0; j \in \mathcal{J}_i\)</span>. Here, <span class="math inline">\(\eta_0\)</span> captures the consumer’s uncertainty about their future tastes. Given that utilities are ordinal and <span class="math inline">\(\eta_0\)</span> is a common shock, it plays no role in the choice among the most preferred inside good <span class="math inline">\(j^* \in \mathcal{J}_i\)</span>.]<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn2"><p>For example, see <span class="citation" data-cites="Mcfadden_1981">(<a href="#ref-Mcfadden_1981" role="doc-biblioref">McFadden 1981</a>)</span> and <span class="citation" data-cites="Cardell_1997">(<a href="#ref-Cardell_1997" role="doc-biblioref">Cardell 1997</a>)</span>.<a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn3"><p>While the parametrization of <span class="math inline">\(\eta_0 \sim \text{Gumbel}\left(0,1\right)\)</span> preserves symmetry among the <span class="math inline">\(J+1\)</span> goods and is thus a natural choice, the framework can easily accommodate an alternative distribution for <span class="math inline">\(\eta_0\)</span>. For example, one could use an affine function of individual characteristics to accommodate individual-level variation in the propensity to prefer the outside good.<a href="#fnref3" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn1"><p>This can be motivated by a framework in which <span class="math inline">\(u_0 = 0\)</span> and <span class="math inline">\(u_{ij} = {\x_j}'\bfbeta_i + \eta_{ij} - \eta_0\)</span> for <span class="math inline">\(j&gt;0; j \in \mathcal{J}_i\)</span>. Here, <span class="math inline">\(\eta_0\)</span> captures the consumer’s uncertainty about their future tastes. Given that utilities are ordinal and <span class="math inline">\(\eta_0\)</span> is a common shock, it plays no role in the choice among the most preferred inside good <span class="math inline">\(j^* \in \mathcal{J}_i\)</span>.<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn2"><p>See, e.g., <span class="citation" data-cites="Mcfadden_1981">(<a href="#ref-Mcfadden_1981" role="doc-biblioref">McFadden 1981</a>)</span> or <span class="citation" data-cites="Cardell_1997">(<a href="#ref-Cardell_1997" role="doc-biblioref">Cardell 1997</a>)</span>.<a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
 </ol>
 </section><section class="quarto-appendix-contents" id="quarto-citation"><h2 class="anchored quarto-appendix-heading">Citation</h2><div><div class="quarto-appendix-secondary-label">BibTeX citation:</div><pre class="sourceCode code-with-copy quarto-appendix-bibtex"><code class="sourceCode bibtex">@online{bhalerao2024,
   author = {Bhalerao, Prachi and Yavorsky, Dan and Zheng, Geoffery},
   title = {Likert {Scale} {Dual} {Response} in {Conjoint} {Analysis}},
-  date = {2024-07-02},
+  date = {2024-07-09},
   langid = {en},
   abstract = {Write the abstract here ...}
 }
 </code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre><div class="quarto-appendix-secondary-label">For attribution, please cite this work as:</div><div id="ref-bhalerao2024" class="csl-entry quarto-appendix-citeas" role="listitem">
 Bhalerao, Prachi, Dan Yavorsky, and Geoffery Zheng. 2024. <span>“Likert
-Scale Dual Response in Conjoint Analysis.”</span> July 2, 2024.
+Scale Dual Response in Conjoint Analysis.”</span> July 9, 2024.
 </div></div></section></div></main>
 <!-- /main column -->
 <script id="quarto-html-after-body" type="application/javascript">
