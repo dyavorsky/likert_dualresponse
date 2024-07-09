@@ -7,15 +7,18 @@ execute:
 format:
   html:
     toc: true
-  pdf:
-    documentclass: article
-    colorlinks: true
-    include-in-header:
-      - file: preamble.tex
-  #   cite-method: biblatex
+  pdf: 
+    pdf-engine: pdflatex
+    include-in-header: 
+      - text: |
+          \usepackage{mathtools,amsmath}
 
-# manuscript:
-#   notebooks:
-#     - notebook: notebooks/temp.qmd
-#       title: Temporary Test 
+manuscript:
+  notebooks:
+    - notebook: notebooks/example_discretechoice.ipynb
+      title: Discrete Choice 
+    - notebook: notebooks/example_likert.ipynb
+      title: Likert Scale Dual Response 
+    - notebook: notebooks/likert_dualresponse.ipynb
+      title: Binary Dual Response 
 

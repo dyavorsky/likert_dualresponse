@@ -47,6 +47,8 @@ citation: true
 
 
 
+{{< include latex_commands.qmd >}}
+
 {{< include sections/intro.qmd >}}
 
 {{< include sections/model.qmd >}}
