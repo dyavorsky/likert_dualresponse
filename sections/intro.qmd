@@ -1,5 +1,19 @@
 ## Introduction {#sec-intro}
 
-Lorem ipsum
+Motivate with:
 
+1. Anecdotes: 
 
+    - Quote stats on cart abandonment rates.  Consumers can pick a preferred bluetooth speaker out of many brands (or a preferred color out of many options from the same brand), but then they may hesitate making the purchase. 
+    - no unusual reaction from consumers if you ask them "how likely are you to purchase?"  Uncertainty about making a purchase "feels natural."
+
+1. Psych findings: 
+
+    - [possibly use] decoy effect: low purchase prob when coke machine by iteslf, but high coke and pepsi purchase prob when machines side-by-side, 
+
+1. Practice: 
+
+    - Brazell et al 2006 paper
+    - Sawtooth's implementation in Lighthouse Studio application
+
+Describe:  The dual-response framework asks for an immediate comparison (which of these things in front of you do you like best) and a hypothetical future scenario (if this product was available to purchase in the near future, would you purchase it).  We provide a behavioral model that rationalizes use of the dual-response framework

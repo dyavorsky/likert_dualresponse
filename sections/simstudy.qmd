@@ -1,3 +1,18 @@
 ## Simulation Study {#sec-simstudy}
 
-add
+1. Agg MNL
+
+  - Simulate data ($\bfbeta_i = \bfbeta$), then:
+  - recover parameters
+  - compare to dichotomized dual-response
+  - compare to constant-prob (if $W=5$ set $\alpha$'s such that $\Pr(y_i=w) = 1/5$ )
+
+1. HB MNL
+
+  - Same 4 things as above
+  
+1. Assessing $\alpha$ cut-points
+
+  - May need to try extreme values for some $\alpha$'s
+  - What happens when different consumers have different interpretation of the $W$ categories such that $\alpha$'s are not the same for all consumers?
+ 
