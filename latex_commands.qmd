@@ -1,0 +1,15 @@
+::: {.content-hidden unless-format="html"}
+$$
+  \newcommand{\x}{\mathbf{x}}
+  \newcommand{\bfbeta}{\boldsymbol{\beta}}
+  \newcommand{\iid}{\stackrel{iid}{\sim}}
+$$
+:::
+
+::: {.content-hidden unless-format="pdf"}
+```{=latex}
+  \newcommand{\x}{\mathbf{x}}
+  \newcommand{\bfbeta}{\boldsymbol{\beta}}
+  \newcommand{\iid}{\stackrel{iid}{\sim}}
+```
+:::
