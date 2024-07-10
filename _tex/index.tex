@@ -287,7 +287,7 @@ but they \emph{do not} observe \(\eta_{i0}\).
 
 The consumer first reports her preferred inside good, which is given by
 \[
-j^*_i = \arg\max_{j \in \mathcal{J}^{+}_i} u_{ij}.
+j^*_i = \underset{j \in \mathcal{J}^+}{\operatorname{arg max}} u_{ij}.
 \]
 
 The consumer then reports a value \(y_i\) on a discrete qualitative
@@ -326,17 +326,17 @@ We model \(\eta_{ij} \iid \text{Gumbel} \left( 0,1 \right)\) with
 \(\eta_{ik}\) for \(k \ne j\).\footnote{This can be motivated by a
   framework in which \(u_0 = 0\) and
   \(u_{ij} = {\x_j}'\bfbeta_i + \eta_{ij} - \eta_0\) for
-  \(j>0; j \in \mathcal{J}_i\). Here, \(\eta_0\) captures the consumer's
+  \(j \in \mathcal{J}^{+}_i\). Here, \(\eta_0\) captures the consumer's
   uncertainty about their future tastes. Given that utilities are
   ordinal and \(\eta_0\) is a common shock, it plays no role in the
-  choice among the most preferred inside good \(j^* \in \mathcal{J}_i\).}
-\footnote{We note that, while the parametrization of
-  \(\eta_0 \sim \text{Gumbel}\left(0,1\right)\) preserves symmetry among
-  the \(J+1\) goods and is thus a natural choice, the framework can
-  easily accommodate an alternative distribution for \(\eta_0\). For
-  example, one could use an affine function of individual
-  characteristics to accommodate individual-level variation in the
-  propensity to prefer the outside good.}:
+  choice among the most preferred inside good
+  \(j^* \in \mathcal{J}^{+}_i\).} \footnote{We note that, while the
+  parametrization of \(\eta_0 \sim \text{Gumbel}\left(0,1\right)\)
+  preserves symmetry among the \(J+1\) goods and is thus a natural
+  choice, the framework can easily accommodate an alternative
+  distribution for \(\eta_0\). For example, one could use an affine
+  function of individual characteristics to accommodate individual-level
+  variation in the propensity to prefer the outside good.}:
 
 From the consumer's perspective, her purchase probability is \[
 p_i = \Pr \left( \eta_{i0} < u_i^* \right) = F_{\text{Gumble}\left(0,1\right)} \left( u_i^* \right)
@@ -357,22 +357,24 @@ From the researcher's perspective, the unobserved likelihood of purchase
 is \[
 p_i = \Pr \left( \eta_{i0} - u_i^* > 0 \right) = \Pr \left( \varepsilon_i < 0 \right)
 \] where \(\varepsilon_i = \eta_{i0} - u_i^*\). As is well
-known,\footnote{See, e.g., (McFadden 1981) or (Cardell 1997).}
-\(\varepsilon_i\) follows a Gumbel distribution with location parameter
+known,\footnote{See, e.g., (McFadden 1981) or (Cardell 1997).} \(u_i^*\)
+follows a Gumbel distribution with location parameter
 \(\overline{\mu}_i\) and scale parameter \(1\), where
 \begin{equation}\phantomsection\label{eq-max-mu}{
 \overline{\mu}_i = \ln \left( \sum_{j\in\mathcal{J}_i} \exp \left( {\x_j}'\bfbeta_i \right) \right).
-}\end{equation} and so the unobserved choice probability is \[
-p_i = F_{\text{Gumble} \left( \overline{\mu}_i, 1 \right)} \left( \varepsilon_i \right).
+}\end{equation} and so \(\varepsilon_i\) follows a Logistic distribution
+with location parameter \(\overline{\mu}_i\) and scale parameter \(1\).
+The unobserved choice probability is \[
+p_i = F_{\text{Logistic} \left( \overline{\mu}_i, 1 \right)} \left( \varepsilon_i \right).
 \]
 
 Therefore, the probability that consumer \(i\) reports \(y_i=w\) is \[
 \begin{aligned}
     \Pr \left( u_i^* \hspace{1ex} \text{s.t.} \hspace{1ex} p_i \in \phi_{w\left(i\right)} \right) 
-    &= F_{\text{Gumbel} \left( \overline{\mu}, 1 \right) } \left( F^{-1}_{\text{Gumbel} \left( 0, 1 \right) } \left( \alpha_{w\left(i\right)} \right) \right) - 
-       F_{\text{Gumbel} \left( \overline{\mu}, 1 \right) } \left( F^{-1}_{\text{Gumbel} \left( 0, 1 \right) } \left( \alpha_{w\left(i\right)-1} \right) \right) \\
-    &= \left( \alpha_{w\left(i\right)} \right)^{\exp \left( \overline{\mu} \right)} - 
-       \left({\alpha_{w\left(i\right)-1}} \right)^{\exp \left( \overline{\mu} \right)}.
+    &= F_{\text{Logistic} \left( \overline{\mu}, 1 \right) } \left( F^{-1}_{\text{Gumbel} \left( 0, 1 \right) } \left( \alpha_{w\left(i\right)} \right) \right) - 
+       F_{\text{Logistic} \left( \overline{\mu}, 1 \right) } \left( F^{-1}_{\text{Gumbel} \left( 0, 1 \right) } \left( \alpha_{w\left(i\right)-1} \right) \right) \\
+    &= \frac{1}{1 + \exp \left( \overline{\mu} \right) \ln \alpha_{w\left(i\right)}} - 
+       \frac{1}{1 + \exp \left( \overline{\mu} \right) \ln \alpha_{w\left(i-1\right)}} - 
 \end{aligned}
 \]
 
