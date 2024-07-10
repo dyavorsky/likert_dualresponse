@@ -2,17 +2,17 @@
 
 ### Set Up
 
-Consumer $i=1,\ldots,N$ derives utility from good $j \in \mathcal{J}_i =  \lbrace 0,\ldots,J_i \rbrace$ with utility $u_{ij}$ given by
+Consumer $i=1,\ldots,N$ derives utility from good $j \in \mathcal{J}_i =  \lbrace 0,1,2,\ldots,J_i \rbrace$ with utility $u_{ij}$ given by
 $$
 u_{ij} = h(\x_j, \bfbeta_i) + \eta_{ij}.
 $$
 where $\x_j$ is a length-$P$ column vector of good characteristics, $\bfbeta_i$ is a length-$P$ column vector of consumer-specific taste parameters, and $\eta_{ij}$ encapsulates factors known to the consumer but unobserved by the researcher. We take $h(\x_j, \bfbeta_i) = \x_j'\bfbeta_i$ but this specification is not required.
 
-The "zero"-th (or "outside") good is special and is associated with a zero vector of good characteristics ($\x_0 = \mathbf{0}$) such that $h(\x_0, \bfbeta_i)=0$. Consumers observe $\x_j$ and $\eta_{ij}$ for all "inside" goods ($j>0; j \in \mathcal{J}_i$), but they _do not_ observe $\eta_{i0}$.
+The "zero"-th (or "outside") good is special and is associated with a zero vector of good characteristics ($\x_0 = \mathbf{0}$) such that $h(\x_0, \bfbeta_i)=0$. Consumers observe $\x_j$ and $\eta_{ij}$ for all "inside" goods (j \in \mathcal{J}^+_i \coloneqq \lbrace 1,2,\ldots,J_i \rbrace$), but they _do not_ observe $\eta_{i0}$.
 
 The consumer first reports her preferred inside good, which is given by
 $$
-j^*_i = \arg\max_{j>0; \; j \in \mathcal{J}_i} u_{ij}.
+j^*_i = \arg\max_{j \in \mathcal{J}^+_i} u_{ij}.
 $$
 
 The consumer then reports a value $y_i$ on a discrete qualitative scale $w \in \mathcal{W} = \lbrace 1, \ldots, W \rbrace$ to reflect the probability $p_i$ that she would purchase $j^*$, i.e., that she prefers good $j^*_i$ to the outside good $j=0$. 
