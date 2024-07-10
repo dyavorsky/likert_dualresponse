@@ -61,7 +61,7 @@ From the researcher's perspective, the unobserved likelihood of purchase is
 $$
 p_i = \Pr \left( \eta_{i0} - u_i^* > 0 \right) = \Pr \left( \varepsilon_i < 0 \right)
 $$
-where $\varepsilon_i = \eta_{i0} - u_i^*$. As is well known,[^choicepapers] $\u_i^*$ follows a Gumbel distribution with location parameter $\overline{\mu}_i$ and scale parameter $1$, where
+where $\varepsilon_i = \eta_{i0} - u_i^*$. As is well known,[^choicepapers] $u_i^*$ follows a Gumbel distribution with location parameter $\overline{\mu}_i$ and scale parameter $1$, where
 $$
 \overline{\mu}_i = \ln \left( \sum_{j\in\mathcal{J}_i} \exp \left( {\x_j}'\bfbeta_i \right) \right).
 $$ {#eq-max-mu}
