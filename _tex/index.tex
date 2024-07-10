@@ -191,7 +191,7 @@ elicitation, discrete choice methods, ordered choice},
 
 \title{Ordinal Dual Response in Choice-Based Conjoint Analysis}
 \author{Prachi Bhalerao \and Dan Yavorsky \and Geoffery Zheng}
-\date{2024-07-09}
+\date{2024-07-10}
 
 \begin{document}
 \maketitle
@@ -268,7 +268,7 @@ model that rationalizes use of the dual-response framework
 \subsection{Set Up}\label{set-up}
 
 Consumer \(i=1,\ldots,N\) derives utility from good
-\(j \in \mathcal{J}_i =  \lbrace 0,\ldots,J_i \rbrace\) with utility
+\(j \in \mathcal{J}_i =  \lbrace 0,1,2,\ldots,J_i \rbrace\) with utility
 \(u_{ij}\) given by \[
 u_{ij} = h(\x_j, \bfbeta_i) + \eta_{ij}.
 \] where \(\x_j\) is a length-\(P\) column vector of good
@@ -281,12 +281,13 @@ required.
 The ``zero''-th (or ``outside'') good is special and is associated with
 a zero vector of good characteristics (\(\x_0 = \mathbf{0}\)) such that
 \(h(\x_0, \bfbeta_i)=0\). Consumers observe \(\x_j\) and \(\eta_{ij}\)
-for all ``inside'' goods (\(j>0; j \in \mathcal{J}_i\)), but they
-\emph{do not} observe \(\eta_{i0}\).
+for all ``inside'' goods
+(\(j \in \mathcal{J}^{+}_i \coloneqq \lbrace 1,2,\ldots,J_i \rbrace\)),
+but they \emph{do not} observe \(\eta_{i0}\).
 
 The consumer first reports her preferred inside good, which is given by
 \[
-j^*_i = \arg\max_{j>0; \; j \in \mathcal{J}_i} u_{ij}.
+j^*_i = \arg\max_{j \in \mathcal{J}^{+}_i} u_{ij}.
 \]
 
 The consumer then reports a value \(y_i\) on a discrete qualitative
