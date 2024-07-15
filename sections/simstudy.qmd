@@ -6,6 +6,7 @@
   - recover parameters
   - compare to dichotomized dual-response
   - compare to constant-prob (if $W=5$ set $\alpha$'s such that $\Pr(y_i=w) = 1/5$ )
+  - or, instead of 1/W do the observed frequency
 
 1. HB MNL
 
