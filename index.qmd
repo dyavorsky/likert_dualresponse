@@ -33,23 +33,18 @@ author:
 keywords: choice-based conjoint analysis, stated preference elicitation, discrete choice methods, ordered choice
 
 abstract: |
-  We provide a behavioral model that rationalizes the use of a dual-response framework in choice-based conjoint analysis and extends the evaluation of the purchase decision from binary to ordinal. Consumers are able to identify their most-preferred option among a set of alternatives, but face uncertainty in their evalulation of the outside good. A simulation study provides estimation routines for aggregate and Hierarhical Bayesian versions of the model, and demonstrates the model's superior performance compared with the binary and heuristic approaches currently used by practioners. We also provide an empirical example from a choice-based conjoint analysis conducted in partnership with a consumer insights consultancy.
-
-plain-language-summary: |
-  Add the plain language summary here ...
-
-key-points:
-  - add a sentence
-  - maybe two
+  We provide a behavioral model in which consumers are able to identify their most-preferred option among a set of alternatives, but face uncertainty in their evalulation of the outside good. The model rationalizes the use of a dual-response framework in choice-based conjoint analysis and extends the evaluation of the purchase decision from binary to ordinal.  A simulation study provides estimation routines for aggregate and Hierarhical Bayesian versions of the model, and demonstrates the model's superior performance compared with the binary and heuristic approaches currently used by practioners. We also provide an empirical example from a choice-based conjoint analysis conducted in partnership with a consumer insights consultancy.
   
 bibliography: references.bib
 citation: true
 ---
 
 
-
+<!-- Latex -->
 {{< include latex_commands.qmd >}}
 
+
+<!-- Sections -->
 {{< include sections/intro.qmd >}}
 
 {{< include sections/model.qmd >}}
