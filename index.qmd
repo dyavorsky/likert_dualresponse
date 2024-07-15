@@ -1,5 +1,6 @@
 ---
-title: Ordinal Dual Response in Choice-Based Conjoint Analysis
+title: Outside Good Uncertainty
+subtitle: Ordinal Dual Response in Choice-Based Conjoint Analysis
 
 date: last-modified
 number-sections: true

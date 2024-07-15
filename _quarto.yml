@@ -19,6 +19,6 @@ manuscript:
       title: Discrete Choice 
     - notebook: notebooks/example_likert.ipynb
       title: Likert Scale Dual Response 
-    - notebook: notebooks/likert_dualresponse.ipynb
-      title: Binary Dual Response 
+#    - notebook: notebooks/likert_dualresponse.ipynb
+#      title: Binary Dual Response 
 
