@@ -177,7 +177,7 @@
 \IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
 \urlstyle{same} % disable monospaced font for URLs
 \hypersetup{
-  pdftitle={Ordinal Dual Response in Choice-Based Conjoint Analysis},
+  pdftitle={Outside Good Uncertainty},
   pdfauthor={Prachi Bhalerao; Dan Yavorsky; Geoffery Zheng},
   pdfkeywords={choice-based conjoint analysis, stated preference
 elicitation, discrete choice methods, ordered choice},
@@ -189,9 +189,16 @@ elicitation, discrete choice methods, ordered choice},
   pdfcreator={LaTeX via pandoc}}
 
 
-\title{Ordinal Dual Response in Choice-Based Conjoint Analysis}
+\title{Outside Good Uncertainty}
+\usepackage{etoolbox}
+\makeatletter
+\providecommand{\subtitle}[1]{% add subtitle to \maketitle
+  \apptocmd{\@title}{\par {\large #1 \par}}{}{}
+}
+\makeatother
+\subtitle{Ordinal Dual Response in Choice-Based Conjoint Analysis}
 \author{Prachi Bhalerao \and Dan Yavorsky \and Geoffery Zheng}
-\date{2024-07-10}
+\date{2024-07-15}
 
 \begin{document}
 \maketitle
@@ -355,7 +362,7 @@ particular value \(w\) on the ordinal scale \(\Pr(y_i=w)\) is given by
 
 From the researcher's perspective, the unobserved likelihood of purchase
 is \[
-p_i = \Pr \left( \eta_{i0} - u_i^* > 0 \right) = \Pr \left( \varepsilon_i < 0 \right)
+p_i = \Pr \left( \eta_{i0} - u_i^* < 0 \right) = \Pr \left( \varepsilon_i < 0 \right)
 \] where \(\varepsilon_i = \eta_{i0} - u_i^*\). As is well
 known,\footnote{See, e.g., (McFadden 1981) or (Cardell 1997).} \(u_i^*\)
 follows a Gumbel distribution with location parameter
@@ -398,6 +405,8 @@ Therefore, the probability that consumer \(i\) reports \(y_i=w\) is \[
 \item
   compare to constant-prob (if \(W=5\) set \(\alpha\)'s such that
   \(\Pr(y_i=w) = 1/5\) )
+\item
+  or, instead of 1/W do the observed frequency
 \end{itemize}
 
 \begin{enumerate}
