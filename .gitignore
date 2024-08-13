@@ -3,6 +3,7 @@
 
 /.quarto/
 /_manuscript
+/_freeze/
 
 /agujournal2019.cls
 /trackchanges.sty
