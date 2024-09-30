@@ -1,0 +1,69 @@
+
+
+#### Simulate Data
+
+
+```{r}
+make_data <- function(N, J, K, seed=42) {
+    set.seed(seed)
+
+    alpha <- rnorm(J, mean=-2, sd=1) |> matrix(ncol=1)
+    beta  <- rnorm(K, mean=0,  sd=1) |> matrix(ncol=1)
+
+    datlist <- vector(mode="list", length=N)
+    for(i in 1:N) {
+        x1 <- rbind(diag(J), 0)
+        x2 <- rnorm(J*K, mean=0, sd=1) |> matrix(nrow=J, ncol=K) |> rbind(0)
+        x <- cbind(x1, x2); colnames(x) <- paste0("x", seq(ncol(x)))
+        v <- x1 %*% alpha + x2 %*% beta
+        eta <- log(-log(runif(J+1))) |> matrix(ncol=1)
+        u <- v + eta
+        jstar <- which.max(u)
+        choice <- (1:(J+1) == jstar) |> as.integer() |> matrix(ncol=1)
+
+        datlist[[i]] <- data.frame(id=i, alts=seq(J+1), y=choice, x)
+    }
+
+    return(datlist)
+}
+
+datlist <- make_data(200, 3, 5)
+dat <- do.call(rbind, datlist)
+```
+
+#### Visualize Choices
+
+```{r}
+choices <- dat$alt[dat$y==1]
+choices |> table() |> prop.table() |> barplot()
+```
+
+#### Estimate via mlogit
+
+```{r}
+library(mlogit)
+mdat <- dfidx(dat, choice="y", shape="long", idx=c("id", "alts"))
+form <- paste("y ~", paste0("x", seq(ncol(dat)-3), collapse=" + "), "| 0") |> as.formula()
+out <- mlogit(form, data=dat)
+```
+
+```{r}
+library(ggplot2)
+
+truth <- data.frame(num = seq(length(c(alpha, beta))), coef=c(alpha, beta))
+
+mnl_est <- cbind(seq(coef(out)), lmtest::coeftest(out), confint(out)) |> as.data.frame()
+names(mnl_est) <- c("num", "est", "serr", "t", "p", "low", "high")
+mnl_est |> 
+    ggplot() + 
+    geom_point(aes(x=num, y=coef), data=truth, fill="green", color="red", pch=21, size=4) + 
+    geom_point(aes(x=num, y=est)) + 
+    geom_errorbar(aes(x=num, ymin=low, ymax=high))
+```
+
+#### Estimate via RStan
+
+
+```{r}
+
+```
