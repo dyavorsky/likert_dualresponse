@@ -2,18 +2,21 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.6.20">
+<meta name="generator" content="quarto-1.10.14">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Prachi Bhalerao">
 <meta name="author" content="Dan Yavorsky">
 <meta name="author" content="Geoffery Zheng">
-<meta name="dcterms.date" content="2024-10-03">
-<meta name="keywords" content="choice-based conjoint analysis, stated preference elicitation, discrete choice methods, ordered choice">
+<meta name="dcterms.date" content="2026-07-10">
+<meta name="keywords" content="choice-based conjoint analysis, dual response, stated preference elicitation, discrete choice methods, ordered choice, outside good">
 
 <title>Outside Good Uncertainty</title>
 <style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
 div.columns{display: flex; gap: min(4vw, 1.5em);}
@@ -29,7 +32,6 @@ ul.task-list li input[type="checkbox"] {
 div.csl-bib-body { }
 div.csl-entry {
   clear: both;
-  margin-bottom: 0em;
 }
 .hanging-indent div.csl-entry {
   margin-left:2em;
@@ -49,18 +51,19 @@ div.csl-indent {
 
 
 <script src="site_libs/clipboard/clipboard.min.js"></script>
-<script src="site_libs/quarto-html/quarto.js"></script>
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="site_libs/quarto-html/anchor.min.js"></script>
 <link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-018089954d508eae8a473f0b7f0491f0.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-7832d8100c30e5308af25d4a964213de.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-f9d477f1d62ddffd2fa441715a11aa79.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-026b43eddac53d9c8001bc9214a409cd.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 
   <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
 <script type="text/javascript">
 const typesetMath = (el) => {
@@ -73,7 +76,7 @@ const typesetMath = (el) => {
     var macros = [];
     for (var i = 0; i < mathElements.length; i++) {
       var texText = mathElements[i].firstChild;
-      if (mathElements[i].tagName == "SPAN") {
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
         window.katex.render(texText.data, mathElements[i], {
           displayMode: mathElements[i].classList.contains('display'),
           throwOnError: false,
@@ -90,24 +93,45 @@ window.Quarto = {
 </script>
 
 <meta name="citation_title" content="Outside Good Uncertainty">
-<meta name="citation_abstract" content="We provide a behavioral model in which consumers are able to identify their most-preferred option among a set of alternatives, but face uncertainty in their evalulation of the outside good. The model rationalizes the use of a dual-response framework in choice-based conjoint analysis and extends the evaluation of the purchase decision from binary to ordinal.  A simulation study provides estimation routines for aggregate and Hierarhical Bayesian versions of the model, and demonstrates the model&amp;amp;#039;s superior performance compared with the binary and heuristic approaches currently used by practioners. We also provide an empirical example from a choice-based conjoint analysis conducted in partnership with a consumer insights consultancy.
+<meta name="citation_abstract" content="We provide a behavioral model in which consumers can identify their most-preferred option among a set of alternatives but face uncertainty in their evaluation of the outside good. The model rationalizes the dual-response format used in choice-based conjoint analysis and extends the follow-up purchase question from binary to ordinal, accommodating scales with any number of points. The resulting likelihood couples a multinomial logit for the forced choice with a cumulative-link ordinal model driven by the task&amp;amp;#039;s inclusive value, and it nests the leading binary dual-response models as its two-point special case. We derive the information gains from finer response scales, provide estimation routines for aggregate and hierarchical Bayesian versions of the model — including an extension with respondent-specific cut points — and demonstrate the model's superior performance relative to the dichotomization and constant-probability heuristics currently used by practitioners. An empirical application uses a choice-based conjoint study conducted in partnership with a consumer insights consultancy.
 ">
-<meta name="citation_keywords" content="choice-based conjoint analysis, stated preference elicitation, discrete choice methods, ordered choice">
+<meta name="citation_keywords" content="choice-based conjoint analysis, dual response, stated preference elicitation, discrete choice methods, ordered choice, outside good">
 <meta name="citation_author" content="Prachi Bhalerao">
 <meta name="citation_author" content="Dan Yavorsky">
 <meta name="citation_author" content="Geoffery Zheng">
-<meta name="citation_publication_date" content="2024-10-03">
-<meta name="citation_cover_date" content="2024-10-03">
-<meta name="citation_year" content="2024">
-<meta name="citation_online_date" content="2024-10-03">
+<meta name="citation_publication_date" content="2026-07-10">
+<meta name="citation_cover_date" content="2026-07-10">
+<meta name="citation_year" content="2026">
+<meta name="citation_online_date" content="2026-07-10">
 <meta name="citation_language" content="en">
 <meta name="citation_reference" content="citation_title=Structural analysis of discrete data with econometric applications;,citation_author=Charles F. Manski;,citation_author=Daniel McFadden;,citation_publication_date=1981;,citation_cover_date=1981;,citation_year=1981;,citation_isbn=9780262131599;">
 <meta name="citation_reference" content="citation_title=Structural discrete probability models derived from theories of choice;,citation_author=Daniel L. McFadden;,citation_publication_date=1981;,citation_cover_date=1981;,citation_year=1981;,citation_isbn=9780262131599;,citation_inbook_title=undefined;">
 <meta name="citation_reference" content="citation_title=Variance components structures for the extreme-value and logistic distributions with application to models of heterogeneity;,citation_author=N. Scott Cardell;,citation_publication_date=1997-04;,citation_cover_date=1997-04;,citation_year=1997;,citation_issue=2;,citation_doi=10.1017/s0266466600005727;,citation_issn=1469-4360;,citation_volume=13;,citation_journal_title=Econometric Theory;,citation_publisher=Cambridge University Press (CUP);">
+<meta name="citation_reference" content="citation_title=Discrete choice methods with simulation;,citation_author=Kenneth E. Train;,citation_publication_date=2009;,citation_cover_date=2009;,citation_year=2009;">
+<meta name="citation_reference" content="citation_title=Economic foundations of conjoint analysis;,citation_author=Greg M. Allenby;,citation_author=Nino Hardt;,citation_author=Peter E. Rossi;,citation_editor=Jean-Pierre Dubé;,citation_editor=Peter E. Rossi;,citation_publication_date=2019;,citation_cover_date=2019;,citation_year=2019;,citation_volume=1;,citation_inbook_title=Handbook of the economics of marketing;">
 <meta name="citation_reference" content="citation_title=The no-choice option and dual response choice designs;,citation_author=Jeff D. Brazell;,citation_author=Christopher G. Diener;,citation_author=Ekaterina Karniouchina;,citation_author=William L. Moore;,citation_author=Válerie Séverin;,citation_author=Pierre-Francois Uldry;,citation_publication_date=2006-12;,citation_cover_date=2006-12;,citation_year=2006;,citation_fulltext_html_url=http://dx.doi.org/10.1007/s11002-006-7943-8;,citation_issue=4;,citation_doi=10.1007/s11002-006-7943-8;,citation_issn=1573-059X;,citation_volume=17;,citation_journal_title=Marketing Letters;,citation_publisher=Springer Science; Business Media LLC;">
+<meta name="citation_reference" content="citation_title=Dual response “none” approaches: Theory and practice;,citation_author=Christopher G. Diener;,citation_author=Bryan K. Orme;,citation_author=David Yardley;,citation_publication_date=2006;,citation_cover_date=2006;,citation_year=2006;,citation_conference_title=Proceedings of the sawtooth software conference;,citation_conference=Sawtooth Software;">
+<meta name="citation_reference" content="citation_title=The “no-choice” alternative in conjoint choice experiments;,citation_author=Rinus Haaijer;,citation_author=Wagner A. Kamakura;,citation_author=Michel Wedel;,citation_publication_date=2001;,citation_cover_date=2001;,citation_year=2001;,citation_issue=1;,citation_doi=10.1177/147078530104300105;,citation_volume=43;,citation_journal_title=International Journal of Market Research;">
+<meta name="citation_reference" content="citation_title=The effect of forced choice on choice;,citation_author=Ravi Dhar;,citation_author=Itamar Simonson;,citation_publication_date=2003;,citation_cover_date=2003;,citation_year=2003;,citation_issue=2;,citation_doi=10.1509/jmkr.40.2.146.19229;,citation_volume=40;,citation_journal_title=Journal of Marketing Research;">
+<meta name="citation_reference" content="citation_title=Including opt-out options in discrete choice experiments: Issues to consider;,citation_author=Danny Campbell;,citation_author=Seda Erdem;,citation_publication_date=2019;,citation_cover_date=2019;,citation_year=2019;,citation_issue=1;,citation_doi=10.1007/s40271-018-0324-6;,citation_volume=12;,citation_journal_title=The Patient - Patient-Centered Outcomes Research;">
+<meta name="citation_reference" content="citation_title=Two new features in discrete choice experiments to improve willingness-to-pay estimation that result in SDR and SADR: Separated (adaptive) dual response;,citation_author=Christian Schlereth;,citation_author=Bernd Skiera;,citation_publication_date=2017;,citation_cover_date=2017;,citation_year=2017;,citation_issue=3;,citation_doi=10.1287/mnsc.2015.2367;,citation_volume=63;,citation_journal_title=Management Science;">
+<meta name="citation_reference" content="citation_title=Dual response in conjoint analysis;,citation_author=Chien-Yu Hung;,citation_author=Yueming Liu;,citation_author=Jeff D. Brazell;,citation_author=Greg M. Allenby;,citation_publication_date=2025;,citation_cover_date=2025;,citation_year=2025;,citation_doi=10.1007/s11002-025-09787-1;,citation_journal_title=Marketing Letters;">
+<meta name="citation_reference" content="citation_title=Re-examining the no-choice option in conjoint analysis;,citation_author=Chien-Yu Hung;,citation_author=Peter Kurz;,citation_author=Roger A. Bailey;,citation_author=Joel Huber;,citation_author=Greg M. Allenby;,citation_publication_date=2025;,citation_cover_date=2025;,citation_year=2025;,citation_doi=10.1016/j.jocm.2025.100578;,citation_volume=57;,citation_journal_title=Journal of Choice Modelling;">
+<meta name="citation_reference" content="citation_title=The CBC system for choice-based conjoint analysis, version 9;,citation_author=Sawtooth Software;,citation_publication_date=2017;,citation_cover_date=2017;,citation_year=2017;,citation_technical_report_institution=Sawtooth Software, Inc.;">
+<meta name="citation_reference" content="citation_title=Consumer buying intentions and purchase probability: An experiment in survey design;,citation_author=F. Thomas Juster;,citation_publication_date=1966;,citation_cover_date=1966;,citation_year=1966;,citation_issue=315;,citation_doi=10.1080/01621459.1966.10480897;,citation_volume=61;,citation_journal_title=Journal of the American Statistical Association;">
+<meta name="citation_reference" content="citation_title=Purchase intentions and purchase behavior;,citation_author=Donald G. Morrison;,citation_publication_date=1979;,citation_cover_date=1979;,citation_year=1979;,citation_issue=2;,citation_doi=10.1177/002224297904300207;,citation_volume=43;,citation_journal_title=Journal of Marketing;">
+<meta name="citation_reference" content="citation_title=Ordered choices and heterogeneity in attribute processing;,citation_author=William H. Greene;,citation_author=David A. Hensher;,citation_publication_date=2010;,citation_cover_date=2010;,citation_year=2010;,citation_issue=3;,citation_volume=44;,citation_journal_title=Journal of Transport Economics and Policy;">
+<meta name="citation_reference" content="citation_title=Heterogeneity in subjective wellbeing: An application to occupational allocation in Africa;,citation_author=Paolo Falco;,citation_author=William F. Maloney;,citation_author=Bob Rijkers;,citation_author=Mauricio Sarrias;,citation_publication_date=2015;,citation_cover_date=2015;,citation_year=2015;,citation_doi=10.1016/j.jebo.2014.12.022;,citation_volume=111;,citation_journal_title=Journal of Economic Behavior &amp;amp;amp; Organization;">
+<meta name="citation_reference" content="citation_title=A unified approach to conjoint analysis models;,citation_author=Pablo Marshall;,citation_author=Eric T. Bradlow;,citation_publication_date=2002;,citation_cover_date=2002;,citation_year=2002;,citation_issue=459;,citation_doi=10.1198/016214502388618410;,citation_volume=97;,citation_journal_title=Journal of the American Statistical Association;">
+<meta name="citation_reference" content="citation_title=Bayesian statistics and marketing;,citation_author=Peter E. Rossi;,citation_author=Greg M. Allenby;,citation_author=Robert McCulloch;,citation_publication_date=2005;,citation_cover_date=2005;,citation_year=2005;">
+<meta name="citation_reference" content="citation_title=A comparison of hierarchical Bayes and maximum simulated likelihood for mixed logit;,citation_author=Kenneth E. Train;,citation_publication_date=2001;,citation_cover_date=2001;,citation_year=2001;,citation_technical_report_institution=University of California, Berkeley;">
+<meta name="citation_reference" content="citation_title=Individual-specific posterior distributions from mixed logit models: Properties, limitations and diagnostic checks;,citation_author=Mauricio Sarrias;,citation_publication_date=2020;,citation_cover_date=2020;,citation_year=2020;,citation_doi=10.1016/j.jocm.2020.100224;,citation_volume=36;,citation_journal_title=Journal of Choice Modelling;">
+<meta name="citation_reference" content="citation_title=Approximate Bayesian inference with the weighted likelihood bootstrap;,citation_author=Michael A. Newton;,citation_author=Adrian E. Raftery;,citation_publication_date=1994;,citation_cover_date=1994;,citation_year=1994;,citation_issue=1;,citation_doi=10.1111/j.2517-6161.1994.tb01956.x;,citation_volume=56;,citation_journal_title=Journal of the Royal Statistical Society: Series B (Methodological);">
+<meta name="citation_reference" content="citation_title=The importance of utility balance in efficient choice designs;,citation_author=Joel Huber;,citation_author=Klaus Zwerina;,citation_publication_date=1996;,citation_cover_date=1996;,citation_year=1996;,citation_issue=3;,citation_doi=10.1177/002224379603300305;,citation_volume=33;,citation_journal_title=Journal of Marketing Research;">
+<meta name="citation_reference" content="citation_title=The role of the scale parameter in the estimation and comparison of multinomial logit models;,citation_author=Joffre Swait;,citation_author=Jordan Louviere;,citation_publication_date=1993;,citation_cover_date=1993;,citation_year=1993;,citation_issue=3;,citation_doi=10.1177/002224379303000303;,citation_volume=30;,citation_journal_title=Journal of Marketing Research;">
 </head>
 
-<body>
+<body class="quarto-light">
 
 <header id="title-block-header" class="quarto-title-block default toc-left page-columns page-full">
   <div class="quarto-title-banner page-columns page-full">
@@ -132,7 +156,7 @@ window.Quarto = {
                       </p>
                   </div>
                       <div class="quarto-title-meta-contents">
-            <p class="author">Dan Yavorsky <a href="mailto:dyavorsky@gmail.com" class="quarto-title-author-email"><i class="bi bi-envelope"></i></a> <a href="https://orcid.org/0000-0003-4095-6405" class="quarto-title-author-orcid"> <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAA2ZpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYwIDYxLjEzNDc3NywgMjAxMC8wMi8xMi0xNzozMjowMCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0UmVmPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VSZWYjIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD0ieG1wLmRpZDo1N0NEMjA4MDI1MjA2ODExOTk0QzkzNTEzRjZEQTg1NyIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDozM0NDOEJGNEZGNTcxMUUxODdBOEVCODg2RjdCQ0QwOSIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDozM0NDOEJGM0ZGNTcxMUUxODdBOEVCODg2RjdCQ0QwOSIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgQ1M1IE1hY2ludG9zaCI+IDx4bXBNTTpEZXJpdmVkRnJvbSBzdFJlZjppbnN0YW5jZUlEPSJ4bXAuaWlkOkZDN0YxMTc0MDcyMDY4MTE5NUZFRDc5MUM2MUUwNEREIiBzdFJlZjpkb2N1bWVudElEPSJ4bXAuZGlkOjU3Q0QyMDgwMjUyMDY4MTE5OTRDOTM1MTNGNkRBODU3Ii8+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+84NovQAAAR1JREFUeNpiZEADy85ZJgCpeCB2QJM6AMQLo4yOL0AWZETSqACk1gOxAQN+cAGIA4EGPQBxmJA0nwdpjjQ8xqArmczw5tMHXAaALDgP1QMxAGqzAAPxQACqh4ER6uf5MBlkm0X4EGayMfMw/Pr7Bd2gRBZogMFBrv01hisv5jLsv9nLAPIOMnjy8RDDyYctyAbFM2EJbRQw+aAWw/LzVgx7b+cwCHKqMhjJFCBLOzAR6+lXX84xnHjYyqAo5IUizkRCwIENQQckGSDGY4TVgAPEaraQr2a4/24bSuoExcJCfAEJihXkWDj3ZAKy9EJGaEo8T0QSxkjSwORsCAuDQCD+QILmD1A9kECEZgxDaEZhICIzGcIyEyOl2RkgwAAhkmC+eAm0TAAAAABJRU5ErkJggg=="></a></p>
+            <p class="author">Dan Yavorsky <a href="mailto:dyavorsky@gmail.com" class="quarto-title-author-email"><i class="bi bi-envelope"></i></a> <a href="https://orcid.org/0000-0003-4095-6405" class="quarto-title-author-orcid" aria-label="ORCID profile for Dan Yavorsky"> <img alt="" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAA2ZpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYwIDYxLjEzNDc3NywgMjAxMC8wMi8xMi0xNzozMjowMCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0UmVmPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VSZWYjIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD0ieG1wLmRpZDo1N0NEMjA4MDI1MjA2ODExOTk0QzkzNTEzRjZEQTg1NyIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDozM0NDOEJGNEZGNTcxMUUxODdBOEVCODg2RjdCQ0QwOSIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDozM0NDOEJGM0ZGNTcxMUUxODdBOEVCODg2RjdCQ0QwOSIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgQ1M1IE1hY2ludG9zaCI+IDx4bXBNTTpEZXJpdmVkRnJvbSBzdFJlZjppbnN0YW5jZUlEPSJ4bXAuaWlkOkZDN0YxMTc0MDcyMDY4MTE5NUZFRDc5MUM2MUUwNEREIiBzdFJlZjpkb2N1bWVudElEPSJ4bXAuZGlkOjU3Q0QyMDgwMjUyMDY4MTE5OTRDOTM1MTNGNkRBODU3Ii8+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+84NovQAAAR1JREFUeNpiZEADy85ZJgCpeCB2QJM6AMQLo4yOL0AWZETSqACk1gOxAQN+cAGIA4EGPQBxmJA0nwdpjjQ8xqArmczw5tMHXAaALDgP1QMxAGqzAAPxQACqh4ER6uf5MBlkm0X4EGayMfMw/Pr7Bd2gRBZogMFBrv01hisv5jLsv9nLAPIOMnjy8RDDyYctyAbFM2EJbRQw+aAWw/LzVgx7b+cwCHKqMhjJFCBLOzAR6+lXX84xnHjYyqAo5IUizkRCwIENQQckGSDGY4TVgAPEaraQr2a4/24bSuoExcJCfAEJihXkWDj3ZAKy9EJGaEo8T0QSxkjSwORsCAuDQCD+QILmD1A9kECEZgxDaEZhICIzGcIyEyOl2RkgwAAhkmC+eAm0TAAAAABJRU5ErkJggg=="></a></p>
           </div>
                 <div class="quarto-title-meta-contents">
                     <p class="affiliation">
@@ -140,7 +164,7 @@ window.Quarto = {
                       </p>
                   </div>
                       <div class="quarto-title-meta-contents">
-            <p class="author">Geoffery Zheng <a href="mailto:gxz206@nyu.edu" class="quarto-title-author-email"><i class="bi bi-envelope"></i></a> <a href="https://orcid.org/0000-0003-4229-8231" class="quarto-title-author-orcid"> <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAA2ZpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYwIDYxLjEzNDc3NywgMjAxMC8wMi8xMi0xNzozMjowMCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0UmVmPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VSZWYjIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD0ieG1wLmRpZDo1N0NEMjA4MDI1MjA2ODExOTk0QzkzNTEzRjZEQTg1NyIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDozM0NDOEJGNEZGNTcxMUUxODdBOEVCODg2RjdCQ0QwOSIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDozM0NDOEJGM0ZGNTcxMUUxODdBOEVCODg2RjdCQ0QwOSIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgQ1M1IE1hY2ludG9zaCI+IDx4bXBNTTpEZXJpdmVkRnJvbSBzdFJlZjppbnN0YW5jZUlEPSJ4bXAuaWlkOkZDN0YxMTc0MDcyMDY4MTE5NUZFRDc5MUM2MUUwNEREIiBzdFJlZjpkb2N1bWVudElEPSJ4bXAuZGlkOjU3Q0QyMDgwMjUyMDY4MTE5OTRDOTM1MTNGNkRBODU3Ii8+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+84NovQAAAR1JREFUeNpiZEADy85ZJgCpeCB2QJM6AMQLo4yOL0AWZETSqACk1gOxAQN+cAGIA4EGPQBxmJA0nwdpjjQ8xqArmczw5tMHXAaALDgP1QMxAGqzAAPxQACqh4ER6uf5MBlkm0X4EGayMfMw/Pr7Bd2gRBZogMFBrv01hisv5jLsv9nLAPIOMnjy8RDDyYctyAbFM2EJbRQw+aAWw/LzVgx7b+cwCHKqMhjJFCBLOzAR6+lXX84xnHjYyqAo5IUizkRCwIENQQckGSDGY4TVgAPEaraQr2a4/24bSuoExcJCfAEJihXkWDj3ZAKy9EJGaEo8T0QSxkjSwORsCAuDQCD+QILmD1A9kECEZgxDaEZhICIzGcIyEyOl2RkgwAAhkmC+eAm0TAAAAABJRU5ErkJggg=="></a></p>
+            <p class="author">Geoffery Zheng <a href="mailto:gxz206@nyu.edu" class="quarto-title-author-email"><i class="bi bi-envelope"></i></a> <a href="https://orcid.org/0000-0003-4229-8231" class="quarto-title-author-orcid" aria-label="ORCID profile for Geoffery Zheng"> <img alt="" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAA2ZpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYwIDYxLjEzNDc3NywgMjAxMC8wMi8xMi0xNzozMjowMCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0UmVmPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VSZWYjIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD0ieG1wLmRpZDo1N0NEMjA4MDI1MjA2ODExOTk0QzkzNTEzRjZEQTg1NyIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDozM0NDOEJGNEZGNTcxMUUxODdBOEVCODg2RjdCQ0QwOSIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDozM0NDOEJGM0ZGNTcxMUUxODdBOEVCODg2RjdCQ0QwOSIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgQ1M1IE1hY2ludG9zaCI+IDx4bXBNTTpEZXJpdmVkRnJvbSBzdFJlZjppbnN0YW5jZUlEPSJ4bXAuaWlkOkZDN0YxMTc0MDcyMDY4MTE5NUZFRDc5MUM2MUUwNEREIiBzdFJlZjpkb2N1bWVudElEPSJ4bXAuZGlkOjU3Q0QyMDgwMjUyMDY4MTE5OTRDOTM1MTNGNkRBODU3Ii8+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+84NovQAAAR1JREFUeNpiZEADy85ZJgCpeCB2QJM6AMQLo4yOL0AWZETSqACk1gOxAQN+cAGIA4EGPQBxmJA0nwdpjjQ8xqArmczw5tMHXAaALDgP1QMxAGqzAAPxQACqh4ER6uf5MBlkm0X4EGayMfMw/Pr7Bd2gRBZogMFBrv01hisv5jLsv9nLAPIOMnjy8RDDyYctyAbFM2EJbRQw+aAWw/LzVgx7b+cwCHKqMhjJFCBLOzAR6+lXX84xnHjYyqAo5IUizkRCwIENQQckGSDGY4TVgAPEaraQr2a4/24bSuoExcJCfAEJihXkWDj3ZAKy9EJGaEo8T0QSxkjSwORsCAuDQCD+QILmD1A9kECEZgxDaEZhICIzGcIyEyOl2RkgwAAhkmC+eAm0TAAAAABJRU5ErkJggg=="></a></p>
           </div>
                 <div class="quarto-title-meta-contents">
                     <p class="affiliation">
@@ -155,7 +179,7 @@ window.Quarto = {
                 <div>
             <div class="quarto-title-meta-heading">Published</div>
             <div class="quarto-title-meta-contents">
-              <p class="date">October 3, 2024</p>
+              <p class="date">July 10, 2026</p>
             </div>
           </div>
           
@@ -169,14 +193,14 @@ window.Quarto = {
     <div>
       <div class="abstract">
         <div class="block-title">Abstract</div>
-        <p>We provide a behavioral model in which consumers are able to identify their most-preferred option among a set of alternatives, but face uncertainty in their evalulation of the outside good. The model rationalizes the use of a dual-response framework in choice-based conjoint analysis and extends the evaluation of the purchase decision from binary to ordinal. A simulation study provides estimation routines for aggregate and Hierarhical Bayesian versions of the model, and demonstrates the model’s superior performance compared with the binary and heuristic approaches currently used by practioners. We also provide an empirical example from a choice-based conjoint analysis conducted in partnership with a consumer insights consultancy.</p>
+        <p>We provide a behavioral model in which consumers can identify their most-preferred option among a set of alternatives but face uncertainty in their evaluation of the outside good. The model rationalizes the dual-response format used in choice-based conjoint analysis and extends the follow-up purchase question from binary to ordinal, accommodating scales with any number of points. The resulting likelihood couples a multinomial logit for the forced choice with a cumulative-link ordinal model driven by the task’s inclusive value, and it nests the leading binary dual-response models as its two-point special case. We derive the information gains from finer response scales, provide estimation routines for aggregate and hierarchical Bayesian versions of the model — including an extension with respondent-specific cut points — and demonstrate the model’s superior performance relative to the dichotomization and constant-probability heuristics currently used by practitioners. An empirical application uses a choice-based conjoint study conducted in partnership with a consumer insights consultancy.</p>
       </div>
     </div>
 
     <div>
       <div class="keywords">
         <div class="block-title">Keywords</div>
-        <p>choice-based conjoint analysis, stated preference elicitation, discrete choice methods, ordered choice</p>
+        <p>choice-based conjoint analysis, dual response, stated preference elicitation, discrete choice methods, ordered choice, outside good</p>
       </div>
     </div>
 
@@ -191,12 +215,39 @@ window.Quarto = {
   <li><a href="#sec-intro" id="toc-sec-intro" class="nav-link active" data-scroll-target="#sec-intro"><span class="header-section-number">1</span> Introduction</a></li>
   <li><a href="#sec-model" id="toc-sec-model" class="nav-link" data-scroll-target="#sec-model"><span class="header-section-number">2</span> Model</a>
   <ul class="collapse">
-  <li><a href="#set-up" id="toc-set-up" class="nav-link" data-scroll-target="#set-up"><span class="header-section-number">2.1</span> Set Up</a></li>
-  <li><a href="#probability-specification" id="toc-probability-specification" class="nav-link" data-scroll-target="#probability-specification"><span class="header-section-number">2.2</span> Probability Specification</a></li>
+  <li><a href="#setup" id="toc-setup" class="nav-link" data-scroll-target="#setup"><span class="header-section-number">2.1</span> Setup</a></li>
+  <li><a href="#first-response-multinomial-logit" id="toc-first-response-multinomial-logit" class="nav-link" data-scroll-target="#first-response-multinomial-logit"><span class="header-section-number">2.2</span> First Response: Multinomial Logit</a></li>
+  <li><a href="#second-response-an-ordinal-model-of-the-purchase-evaluation" id="toc-second-response-an-ordinal-model-of-the-purchase-evaluation" class="nav-link" data-scroll-target="#second-response-an-ordinal-model-of-the-purchase-evaluation"><span class="header-section-number">2.3</span> Second Response: An Ordinal Model of the Purchase Evaluation</a></li>
+  <li><a href="#joint-likelihood" id="toc-joint-likelihood" class="nav-link" data-scroll-target="#joint-likelihood"><span class="header-section-number">2.4</span> Joint Likelihood</a></li>
+  <li><a href="#sec-nesting" id="toc-sec-nesting" class="nav-link" data-scroll-target="#sec-nesting"><span class="header-section-number">2.5</span> Special Cases and Relation to Existing Models</a></li>
+  <li><a href="#sec-heterogeneity" id="toc-sec-heterogeneity" class="nav-link" data-scroll-target="#sec-heterogeneity"><span class="header-section-number">2.6</span> Heterogeneity</a></li>
+  <li><a href="#sec-identification" id="toc-sec-identification" class="nav-link" data-scroll-target="#sec-identification"><span class="header-section-number">2.7</span> Identification</a></li>
+  <li><a href="#sec-information" id="toc-sec-information" class="nav-link" data-scroll-target="#sec-information"><span class="header-section-number">2.8</span> The Information Content of the Ordinal Response</a></li>
+  <li><a href="#sec-estimation" id="toc-sec-estimation" class="nav-link" data-scroll-target="#sec-estimation"><span class="header-section-number">2.9</span> Estimation</a></li>
   </ul></li>
-  <li><a href="#sec-simstudy" id="toc-sec-simstudy" class="nav-link" data-scroll-target="#sec-simstudy"><span class="header-section-number">3</span> Simulation Study</a></li>
-  <li><a href="#sec-analysis" id="toc-sec-analysis" class="nav-link" data-scroll-target="#sec-analysis"><span class="header-section-number">4</span> Empirical Analysis</a></li>
-  <li><a href="#sec-discussion" id="toc-sec-discussion" class="nav-link" data-scroll-target="#sec-discussion"><span class="header-section-number">5</span> Discussion</a></li>
+  <li><a href="#sec-simstudy" id="toc-sec-simstudy" class="nav-link" data-scroll-target="#sec-simstudy"><span class="header-section-number">3</span> Simulation Study</a>
+  <ul class="collapse">
+  <li><a href="#sec-simdesign" id="toc-sec-simdesign" class="nav-link" data-scroll-target="#sec-simdesign"><span class="header-section-number">3.1</span> Design</a></li>
+  <li><a href="#sec-sim-agg" id="toc-sec-sim-agg" class="nav-link" data-scroll-target="#sec-sim-agg"><span class="header-section-number">3.2</span> Aggregate Model</a></li>
+  <li><a href="#sec-sim-hb" id="toc-sec-sim-hb" class="nav-link" data-scroll-target="#sec-sim-hb"><span class="header-section-number">3.3</span> Hierarchical Model</a></li>
+  <li><a href="#sec-sim-benchmarks" id="toc-sec-sim-benchmarks" class="nav-link" data-scroll-target="#sec-sim-benchmarks"><span class="header-section-number">3.4</span> The Cost of Current Practice</a></li>
+  <li><a href="#sec-sim-cutpoints" id="toc-sec-sim-cutpoints" class="nav-link" data-scroll-target="#sec-sim-cutpoints"><span class="header-section-number">3.5</span> Cut-Point Placement and Scale-Usage Heterogeneity</a></li>
+  <li><a href="#sec-sim-efficiency" id="toc-sec-sim-efficiency" class="nav-link" data-scroll-target="#sec-sim-efficiency"><span class="header-section-number">3.6</span> Information Gains from Finer Scales</a></li>
+  </ul></li>
+  <li><a href="#sec-analysis" id="toc-sec-analysis" class="nav-link" data-scroll-target="#sec-analysis"><span class="header-section-number">4</span> Empirical Application</a>
+  <ul class="collapse">
+  <li><a href="#sec-data" id="toc-sec-data" class="nav-link" data-scroll-target="#sec-data"><span class="header-section-number">4.1</span> Data</a></li>
+  <li><a href="#sec-empirical-spec" id="toc-sec-empirical-spec" class="nav-link" data-scroll-target="#sec-empirical-spec"><span class="header-section-number">4.2</span> Model Specifications and Estimation</a></li>
+  <li><a href="#sec-empirical-results" id="toc-sec-empirical-results" class="nav-link" data-scroll-target="#sec-empirical-results"><span class="header-section-number">4.3</span> Results</a></li>
+  <li><a href="#sec-empirical-hetcut" id="toc-sec-empirical-hetcut" class="nav-link" data-scroll-target="#sec-empirical-hetcut"><span class="header-section-number">4.4</span> Scale-Usage Heterogeneity</a></li>
+  </ul></li>
+  <li><a href="#sec-discussion" id="toc-sec-discussion" class="nav-link" data-scroll-target="#sec-discussion"><span class="header-section-number">5</span> Discussion</a>
+  <ul class="collapse">
+  <li><a href="#what-the-behavioral-model-changes" id="toc-what-the-behavioral-model-changes" class="nav-link" data-scroll-target="#what-the-behavioral-model-changes"><span class="header-section-number">5.1</span> What the Behavioral Model Changes</a></li>
+  <li><a href="#implications-for-practice" id="toc-implications-for-practice" class="nav-link" data-scroll-target="#implications-for-practice"><span class="header-section-number">5.2</span> Implications for Practice</a></li>
+  <li><a href="#relation-to-the-outside-good-literature" id="toc-relation-to-the-outside-good-literature" class="nav-link" data-scroll-target="#relation-to-the-outside-good-literature"><span class="header-section-number">5.3</span> Relation to the Outside-Good Literature</a></li>
+  <li><a href="#limitations" id="toc-limitations" class="nav-link" data-scroll-target="#limitations"><span class="header-section-number">5.4</span> Limitations</a></li>
+  </ul></li>
   <li><a href="#sec-conclusion" id="toc-sec-conclusion" class="nav-link" data-scroll-target="#sec-conclusion"><span class="header-section-number">6</span> Conclusion</a></li>
   <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
   </ul>
@@ -215,139 +266,323 @@ window.Quarto = {
 <p><span class="math display">\[
   \newcommand{\x}{\mathbf{x}}
   \newcommand{\bfbeta}{\boldsymbol{\beta}}
+  \newcommand{\bftheta}{\boldsymbol{\theta}}
   \newcommand{\iid}{\stackrel{iid}{\sim}}
+  \newcommand{\coloneqq}{\mathrel{:=}}
 \]</span></p>
 <!-- Sections -->
 <section id="sec-intro" class="level2" data-number="1">
 <h2 data-number="1" class="anchored" data-anchor-id="sec-intro"><span class="header-section-number">1</span> Introduction</h2>
-<p>Motivate with:</p>
-<ol type="1">
-<li><p>Anecdotes:</p>
-<ul>
-<li>Quote stats on cart abandonment rates. Consumers can pick a preferred bluetooth speaker out of many brands (or a preferred color out of many options from the same brand), but then they may hesitate making the purchase.</li>
-<li>no unusual reaction from consumers if you ask them “how likely are you to purchase?” Uncertainty about making a purchase “feels natural.”</li>
-</ul></li>
-<li><p>Psych findings:</p>
-<ul>
-<li>[possibly use] decoy effect: low purchase prob when coke machine by iteslf, but high coke and pepsi purchase prob when machines side-by-side,</li>
-</ul></li>
-<li><p>Practice:</p>
-<ul>
-<li>Brazell et al 2006 paper</li>
-<li>Sawtooth’s implementation in Lighthouse Studio application</li>
-</ul></li>
-</ol>
-<p>Describe: The dual-response framework asks for an immediate comparison (which of these things in front of you do you like best) and a hypothetical future scenario (if this product was available to purchase in the near future, would you purchase it). We provide a behavioral model that rationalizes use of the dual-response framework</p>
+<p>Consumers are good at telling us which product they like best. They are considerably less certain about whether they would actually buy it. A shopper can pick a preferred bluetooth speaker from a shelf of a dozen — or a preferred color from a dozen options of the same model — and still hesitate at the moment of purchase; industry trackers consistently estimate that roughly seven in ten online shopping carts are abandoned before checkout.<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> The comparison among displayed alternatives and the commitment to purchase are different cognitive acts: the former is a choice among fully described options in front of the consumer, while the latter requires her to weigh the winner against an outside option — keep the money, wait for a sale, buy elsewhere, do without — whose value she has not yet fully resolved. Survey respondents reflect this distinction naturally. Asked “which of these would you choose?”, they answer readily; asked “would you buy it?”, many prefer to answer “probably” than to commit to yes or no. Uncertainty about a purchase <em>feels natural</em>, and stated purchase-likelihood scales have been a fixture of marketing research for over half a century <span class="citation" data-cites="Juster_1966 Morrison_1979">(<a href="#ref-Juster_1966" role="doc-biblioref">Juster 1966</a>; <a href="#ref-Morrison_1979" role="doc-biblioref">Morrison 1979</a>)</span>.</p>
+<p>Choice-based conjoint analysis, the workhorse of stated-preference measurement in marketing <span class="citation" data-cites="Allenby_2019">(<a href="#ref-Allenby_2019" role="doc-biblioref">Allenby et al. 2019</a>)</span>, has developed its own device for separating these two acts: the <em>dual-response</em> design. In each task the respondent first makes a forced choice among the displayed product profiles, and then answers a follow-up question about whether she would actually purchase her selection. The design was introduced to solve a practical problem with the traditional no-choice option. When “none of these” appears alongside the profiles in a single-stage task, every task in which it is chosen contributes nothing to the estimation of attribute preferences, and the efficiency loss grows with no-choice incidence <span class="citation" data-cites="Brazell_2006">(<a href="#ref-Brazell_2006" role="doc-biblioref">Brazell et al. 2006</a>)</span>. The dual response recovers that lost information — the forced choice always reveals preference among profiles — while still measuring demand for the category through the follow-up question, and it does so without systematically biasing preference estimates <span class="citation" data-cites="Brazell_2006 Dhar_2003">(<a href="#ref-Brazell_2006" role="doc-biblioref">Brazell et al. 2006</a>; <a href="#ref-Dhar_2003" role="doc-biblioref">Dhar and Simonson 2003</a>)</span>. Following its implementation in Sawtooth Software’s widely used CBC system <span class="citation" data-cites="Diener_2006 Sawtooth_2017">(<a href="#ref-Diener_2006" role="doc-biblioref">Diener et al. 2006</a>; <a href="#ref-Sawtooth_2017" role="doc-biblioref">Sawtooth Software 2017</a>)</span>, the dual-response format became standard practice in commercial conjoint research, and it has continued to attract methodological attention, from willingness-to-pay measurement <span class="citation" data-cites="Schlereth_2017">(<a href="#ref-Schlereth_2017" role="doc-biblioref">Schlereth and Skiera 2017</a>)</span> to the recent behavioral and econometric re-examinations of <span class="citation" data-cites="Hung_2025_dual">Hung, Liu, et al. (<a href="#ref-Hung_2025_dual" role="doc-biblioref">2025</a>)</span> and <span class="citation" data-cites="Hung_2025_nochoice">Hung, Kurz, et al. (<a href="#ref-Hung_2025_nochoice" role="doc-biblioref">2025</a>)</span>.</p>
+<p>Practice, however, has quietly moved beyond the models available to analyze it. The canonical dual-response question is binary — “would you buy the option you selected above? (yes/no)” — and the canonical models are correspondingly binary: a multinomial logit for the forced choice paired with a binary logit for the purchase question <span class="citation" data-cites="Diener_2006 Hung_2025_dual">(<a href="#ref-Diener_2006" role="doc-biblioref">Diener et al. 2006</a>; <a href="#ref-Hung_2025_dual" role="doc-biblioref">Hung, Liu, et al. 2025</a>)</span>. But many applied researchers instead field an <em>ordinal</em> follow-up — “how likely are you to buy the option you selected above?”, answered on a five- or seven- or eleven-point scale from “very unlikely” to “very likely.” The ordinal format is attractive precisely because purchase uncertainty feels natural to respondents: it lets them express a degree of conviction rather than forcing a resolution they have not reached. It is also, as we show, more informative. Yet there is no statistical model for it. Analysts confronted with ordinal dual-response data today either <em>dichotomize</em> the scale at an arbitrary point (top box or top two boxes count as “buy”) and estimate the binary model, or apply <em>constant-probability weights</em> that map each scale point to a fixed purchase probability regardless of what was on the screen. The first discards information the researcher paid to collect and hard-codes an arbitrary cut; the second, as our model makes precise, ignores the fact that the meaning of “somewhat likely” depends on how attractive the displayed alternatives were.</p>
+<p>This paper provides the missing model. We start from a simple behavioral premise: the consumer can rank the goods in front of her because she observes everything relevant about them, but she faces genuine uncertainty about the outside good — the not-yet-arrived purchase occasion that the follow-up question asks her to imagine. This premise does three things at once. It <em>rationalizes the dual-response design</em>: the forced choice is the question the consumer can answer with certainty, and the follow-up is the question about which she is uncertain, so the design cleanly partitions what she knows from what she does not. It <em>rationalizes the ordinal format</em>: a consumer who has not resolved her outside-good uncertainty holds a purchase <em>probability</em>, and an ordinal scale is exactly an instrument for reporting a probability in bins. And it <em>delivers a likelihood</em>: because the maximum of Gumbel utilities is itself Gumbel — with location equal to the log-sum inclusive value — and is independent of which alternative attains it, the joint probability of the pair (chosen profile, ordinal report) factors into a multinomial logit times a cumulative-link ordinal model driven by the inclusive value of the task.</p>
+<p>Within this framework we develop two variants that differ only in how literally the respondent carries her uncertainty into the report. In Model A she reports the purchase probability itself, binned by cut points on the unit interval; the implied ordinal likelihood has a Gumbel (complementary log-log type) link. In Model B she behaves as the binary literature implicitly assumes — resolving the outside-good draw and grading the resulting utility difference — which yields a standard ordered logit link. The two variants have identical parameter counts and are numerically close, but they carry different behavioral interpretations, and their binary special cases differ in an instructive way. With a two-point scale, Model B collapses <em>exactly</em> to the “Unified Model” of <span class="citation" data-cites="Hung_2025_dual">Hung, Liu, et al. (<a href="#ref-Hung_2025_dual" role="doc-biblioref">2025</a>)</span> — equivalently the DR-AnyMax model of <span class="citation" data-cites="Diener_2006">Diener et al. (<a href="#ref-Diener_2006" role="doc-biblioref">2006</a>)</span>, and, after telescoping, the standard single-stage multinomial logit with a no-choice constant <span class="citation" data-cites="Haaijer_2001">(<a href="#ref-Haaijer_2001" role="doc-biblioref">Haaijer et al. 2001</a>)</span>. Our model is thus a strict generalization of the leading binary dual-response model: practitioners who adopt it lose nothing at <span class="math inline">\(W=2\)</span> and gain the ability to use every scale point of a richer follow-up. Model A’s binary case, by contrast, implies that even the familiar yes/no follow-up should be analyzed with a complementary log-log rather than logistic link when respondents remain genuinely uncertain — a one-line modification of existing practice that is testable on existing data.</p>
+<p>We make four contributions. First, the behavioral model itself: a utility-theoretic account of dual-response conjoint in which outside-good uncertainty is the primitive, which rationalizes the design, selects the link function, and nests the existing binary models as the two-point special case. Second, an analysis of the information content of the ordinal follow-up: we derive the Fisher-information increment contributed by a <span class="math inline">\(W\)</span>-point second response and show it is positive semi-definite and non-decreasing in scale refinement, extending the binary efficiency results of <span class="citation" data-cites="Brazell_2006">Brazell et al. (<a href="#ref-Brazell_2006" role="doc-biblioref">2006</a>)</span> and <span class="citation" data-cites="Hung_2025_dual">Hung, Liu, et al. (<a href="#ref-Hung_2025_dual" role="doc-biblioref">2025</a>)</span> and giving design guidance on the choice of <span class="math inline">\(W\)</span>. Third, estimation machinery: maximum likelihood for the aggregate model and a custom Markov chain Monte Carlo sampler for the hierarchical Bayesian model with heterogeneous preferences — including an extension with respondent-specific cut points that accommodates individual differences in scale usage <span class="citation" data-cites="Greene_2010 Falco_2015">(<a href="#ref-Greene_2010" role="doc-biblioref">Greene and Hensher 2010</a>; <a href="#ref-Falco_2015" role="doc-biblioref">Falco et al. 2015</a>)</span> — with complete replication code in R. Fourth, evidence: a simulation study demonstrating parameter recovery and quantifying the losses from dichotomization and constant-probability weighting, and an empirical application to a commercial choice-based conjoint study with an ordinal dual response conducted in partnership with a consumer insights consultancy.</p>
+<p>Our work sits at the intersection of three literatures. The dual-response and no-choice literature in marketing established the design’s efficiency rationale and its estimation conventions <span class="citation" data-cites="Brazell_2006 Diener_2006 Haaijer_2001 Schlereth_2017 Hung_2025_dual">(<a href="#ref-Brazell_2006" role="doc-biblioref">Brazell et al. 2006</a>; <a href="#ref-Diener_2006" role="doc-biblioref">Diener et al. 2006</a>; <a href="#ref-Haaijer_2001" role="doc-biblioref">Haaijer et al. 2001</a>; <a href="#ref-Schlereth_2017" role="doc-biblioref">Schlereth and Skiera 2017</a>; <a href="#ref-Hung_2025_dual" role="doc-biblioref">Hung, Liu, et al. 2025</a>)</span>, and recent work shows the outside good remains the format’s active research frontier — including evidence that its utility can drift over the course of a survey <span class="citation" data-cites="Hung_2025_nochoice">(<a href="#ref-Hung_2025_nochoice" role="doc-biblioref">Hung, Kurz, et al. 2025</a>)</span>. The opt-out literature in choice modeling catalogs how misspecifying the outside option distorts welfare and share predictions <span class="citation" data-cites="Campbell_2019">(<a href="#ref-Campbell_2019" role="doc-biblioref">Campbell and Erdem 2019</a>)</span>. And a literature on ordered and mixed response formats in preference measurement — from unified treatments of ratings, rankings, and choices <span class="citation" data-cites="Marshall_2002">(<a href="#ref-Marshall_2002" role="doc-biblioref">Marshall and Bradlow 2002</a>)</span> to ordered-choice models with reporting heterogeneity <span class="citation" data-cites="Greene_2010 Falco_2015">(<a href="#ref-Greene_2010" role="doc-biblioref">Greene and Hensher 2010</a>; <a href="#ref-Falco_2015" role="doc-biblioref">Falco et al. 2015</a>)</span> — supplies tools we adapt to the dual-response setting. To our knowledge, no prior work provides a utility-consistent joint model of a forced choice and an ordinal purchase evaluation.</p>
+<p>The remainder of the paper proceeds as follows. <a href="#sec-model" class="quarto-xref">Section&nbsp;2</a> develops the behavioral model, derives the joint likelihood, establishes the nesting relationships, and presents the information-content and estimation results. <a href="#sec-simstudy" class="quarto-xref">Section&nbsp;3</a> reports the simulation study. <a href="#sec-analysis" class="quarto-xref">Section&nbsp;4</a> presents the empirical application. <a href="#sec-discussion" class="quarto-xref">Section&nbsp;5</a> discusses implications for practice, including guidance on scale design, and <a href="#sec-conclusion" class="quarto-xref">Section&nbsp;6</a> concludes.</p>
 </section>
 <section id="sec-model" class="level2" data-number="2">
 <h2 data-number="2" class="anchored" data-anchor-id="sec-model"><span class="header-section-number">2</span> Model</h2>
-<section id="set-up" class="level3" data-number="2.1">
-<h3 data-number="2.1" class="anchored" data-anchor-id="set-up"><span class="header-section-number">2.1</span> Set Up</h3>
-<p>Consumer <span class="math inline">\(i=1,\ldots,N\)</span> derives utility from good <span class="math inline">\(j \in \mathcal{J}_i =  \lbrace 0,1,2,\ldots,J_i \rbrace\)</span> with utility <span class="math inline">\(u_{ij}\)</span> given by <span class="math display">\[
-u_{ij} = h(\x_j, \bfbeta_i) + \eta_{ij}.
-\]</span> where <span class="math inline">\(\x_j\)</span> is a length-<span class="math inline">\(P\)</span> column vector of good characteristics, <span class="math inline">\(\bfbeta_i\)</span> is a length-<span class="math inline">\(P\)</span> column vector of consumer-specific taste parameters, and <span class="math inline">\(\eta_{ij}\)</span> encapsulates factors known to the consumer but unobserved by the researcher. We take <span class="math inline">\(h(\x_j, \bfbeta_i) = \x_j'\bfbeta_i\)</span> but this specification is not required.</p>
-<p>The “zero”-th (or “outside”) good is special and is associated with a zero vector of good characteristics (<span class="math inline">\(\x_0 = \mathbf{0}\)</span>) such that <span class="math inline">\(h(\x_0, \bfbeta_i)=0\)</span>. Consumers observe <span class="math inline">\(\x_j\)</span> and <span class="math inline">\(\eta_{ij}\)</span> for all “inside” goods (<span class="math inline">\(j \in \mathcal{J}^{+}_i \coloneqq \lbrace 1,2,\ldots,J_i \rbrace\)</span>), but they <em>do not</em> observe <span class="math inline">\(\eta_{i0}\)</span>.</p>
-<p>The consumer first reports her preferred inside good, which is given by <span class="math display">\[
-j^*_i = \underset{j \in \mathcal{J}^+}{\operatorname{arg max}} \ u_{ij}.
-\]</span></p>
-<p>The consumer then reports a value <span class="math inline">\(y_i\)</span> on a discrete qualitative scale <span class="math inline">\(w \in \mathcal{W} = \lbrace 1, \ldots, W \rbrace\)</span> to reflect the probability <span class="math inline">\(p_i\)</span> that she would purchase <span class="math inline">\(j^*\)</span>, i.e., that she prefers good <span class="math inline">\(j^*_i\)</span> to the outside good <span class="math inline">\(j=0\)</span>.</p>
-<p>Let <span class="math inline">\(F\)</span> denote the cumulative distribution function associated with <span class="math inline">\(p_i\)</span>. Apportion the range of <span class="math inline">\(F\)</span> into a number <span class="math inline">\(W\)</span> of intervals <span class="math inline">\(\phi_w = \left[ \alpha_{w-1}, \alpha_w \right)\)</span>, where <span class="math inline">\(\alpha_0 = 0\)</span> and <span class="math inline">\(\alpha_W = 1\)</span>. We assume that consumers share the definition of the qualitative scale and thus understand these intervals, whereas <span class="math inline">\(\alpha_w\)</span> for <span class="math inline">\(0&lt;w&lt;W\)</span> are unobserved by the researcher and are to be estimated.</p>
-<p>Let <span class="math inline">\(u_i^*\)</span> denote the utility of good <span class="math inline">\(j^*_i\)</span> for consumer <span class="math inline">\(i\)</span>. Consumers know <span class="math inline">\(u_i^*\)</span>, but do not know <span class="math inline">\(\eta_{i0}\)</span>, and thus the purchase probability from the consumer’s perspective is given by <span class="math display">\[
-p_i = \Pr \left( \eta_{i0} &lt; u_i^* \right) = F\left( u_i^* \right).
-\]</span></p>
-<p>The act of reporting the interval <span class="math inline">\(y_i=w\)</span> into which <span class="math inline">\(p_i\)</span> falls, reveals that <span class="math inline">\(p_i \in \phi_{w\left(i\right)} = \left[\alpha_{w-1},\alpha_w\right)\)</span> and is therefore equivalent to reporting that <span class="math display">\[
-u_i^* \in \left[
-    F^{-1} \left( \alpha_{w_{i-1}} \right), \;
-    F^{-1} \left( \alpha_{w_i}     \right)
-\right].
-\]</span></p>
+<section id="setup" class="level3" data-number="2.1">
+<h3 data-number="2.1" class="anchored" data-anchor-id="setup"><span class="header-section-number">2.1</span> Setup</h3>
+<p>Consumer <span class="math inline">\(i=1,\ldots,N\)</span> faces choice tasks <span class="math inline">\(t=1,\ldots,T\)</span>. Each task presents a set of “inside” goods <span class="math inline">\(\mathcal{J}^{+} = \lbrace 1,2,\ldots,J \rbrace\)</span> alongside the ever-present “outside” good <span class="math inline">\(j=0\)</span>, so that the full choice set is <span class="math inline">\(\mathcal{J} = \lbrace 0,1,2,\ldots,J \rbrace\)</span>.<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a> Consumer <span class="math inline">\(i\)</span> derives utility <span class="math inline">\(u_{itj}\)</span> from good <span class="math inline">\(j\)</span> in task <span class="math inline">\(t\)</span>: <span id="eq-utility"><span class="math display">\[
+u_{itj} = h(\x_{tj}, \bfbeta_i) + \eta_{itj},
+\tag{1}\]</span></span> where <span class="math inline">\(\x_{tj}\)</span> is a length-<span class="math inline">\(P\)</span> column vector of good characteristics, <span class="math inline">\(\bfbeta_i\)</span> is a length-<span class="math inline">\(P\)</span> column vector of consumer-specific taste parameters, and <span class="math inline">\(\eta_{itj}\)</span> encapsulates factors known to the consumer but unobserved by the researcher. We take <span class="math inline">\(h(\x_{tj}, \bfbeta_i) = \x_{tj}'\bfbeta_i\)</span> and write <span class="math inline">\(V_{itj} \coloneqq \x_{tj}'\bfbeta_i\)</span> for this deterministic component, but the linear specification is not required.</p>
+<p>The outside good is special in two respects. First, it is associated with a zero vector of characteristics (<span class="math inline">\(\x_{t0} = \mathbf{0}\)</span>), so that <span class="math inline">\(V_{it0}=0\)</span>; this is the standard normalization that anchors the location of utility <span class="citation" data-cites="Haaijer_2001">(<a href="#ref-Haaijer_2001" role="doc-biblioref">Haaijer et al. 2001</a>)</span>. Second — and this is the central behavioral assumption of the paper — the consumer observes <span class="math inline">\(\eta_{itj}\)</span> for all inside goods but <em>does not</em> observe <span class="math inline">\(\eta_{it0}\)</span>. The inside goods are described completely on the screen in front of her; the outside good stands in for a purchase occasion that has not yet arrived, and her evaluation of it is uncertain.<a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a> <a href="#fn4" class="footnote-ref" id="fnref4" role="doc-noteref"><sup>4</sup></a></p>
+<p>In each task the consumer provides two responses:</p>
+<ol type="1">
+<li><p><strong>First response (choice).</strong> She reports her preferred inside good, <span id="eq-firstresponse"><span class="math display">\[
+j^*_{it} = \underset{j \in \mathcal{J}^+}{\operatorname{arg max}} \ u_{itj}.
+\tag{2}\]</span></span> This is a <em>forced</em> choice: the outside good is not among the options.</p></li>
+<li><p><strong>Second response (ordinal purchase evaluation).</strong> She reports a value <span class="math inline">\(y_{it}\)</span> on a discrete ordinal scale <span class="math inline">\(w \in \mathcal{W} = \lbrace 1, \ldots, W \rbrace\)</span> (e.g., “very unlikely” to “very likely” on a five-point scale) that characterizes her evaluation of purchasing <span class="math inline">\(j^*_{it}\)</span> — that is, of choosing <span class="math inline">\(j^*_{it}\)</span> over the outside good. The binary dual-response format of <span class="citation" data-cites="Brazell_2006">Brazell et al. (<a href="#ref-Brazell_2006" role="doc-biblioref">2006</a>)</span> and <span class="citation" data-cites="Diener_2006">Diener et al. (<a href="#ref-Diener_2006" role="doc-biblioref">2006</a>)</span> is the special case <span class="math inline">\(W=2\)</span>.</p></li>
+</ol>
+<p>We model <span class="math inline">\(\eta_{itj} \iid \text{Gumbel} \left( 0,1 \right)\)</span>, independent of <span class="math inline">\(\x_{tj}\)</span> and independent across goods, tasks, and consumers. Two classical properties of the Gumbel family organize everything that follows <span class="citation" data-cites="Mcfadden_1981 Cardell_1997">(<a href="#ref-Mcfadden_1981" role="doc-biblioref">McFadden 1981</a>; <a href="#ref-Cardell_1997" role="doc-biblioref">Cardell 1997</a>)</span>.</p>
+<div id="lem-gumbel" class="theorem lemma">
+<p><span class="theorem-title"><strong>Lemma 1</strong></span> Let <span class="math inline">\(u_{itj} = V_{itj} + \eta_{itj}\)</span> with <span class="math inline">\(\eta_{itj} \iid \text{Gumbel}(0,1)\)</span> for <span class="math inline">\(j \in \mathcal{J}^+\)</span>, and define <span class="math inline">\(u^*_{it} = \max_{j \in \mathcal{J}^+} u_{itj}\)</span>. Then</p>
+<ol type="i">
+<li><p><span class="math inline">\(u^*_{it} \sim \text{Gumbel}\left(\overline{\mu}_{it}, 1\right)\)</span> with location <span id="eq-max-mu"><span class="math display">\[
+\overline{\mu}_{it} = \ln S_{it},
+\qquad
+S_{it} \coloneqq \sum_{j\in\mathcal{J}^{+}} \exp \left( V_{itj} \right);
+\tag{3}\]</span></span></p></li>
+<li><p>the <em>identity</em> of the maximizer <span class="math inline">\(j^*_{it}\)</span> and the <em>value</em> of the maximum <span class="math inline">\(u^*_{it}\)</span> are statistically independent.</p></li>
+</ol>
+</div>
+<p>Property (ii) is what makes the dual-response likelihood tractable: whatever the consumer tells us about the level of her best utility (the second response) is independent of which good delivered it (the first response), conditional on the deterministic utilities.</p>
 </section>
-<section id="probability-specification" class="level3" data-number="2.2">
-<h3 data-number="2.2" class="anchored" data-anchor-id="probability-specification"><span class="header-section-number">2.2</span> Probability Specification</h3>
-<p>We model <span class="math inline">\(\eta_{ij} \iid \text{Gumbel} \left( 0,1 \right)\)</span> with <span class="math inline">\(\eta_{ij}\)</span> assumed to be independent of both <span class="math inline">\(\x_j\)</span> and <span class="math inline">\(\eta_{ik}\)</span> for <span class="math inline">\(k \ne j\)</span>,<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> <a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a></p>
-<p>From the consumer’s perspective, her purchase probability is <span class="math display">\[
-p_i = \Pr \left( \eta_{i0} &lt; u_i^* \right) = F_{\text{Gumble}\left(0,1\right)} \left( u_i^* \right)
-\]</span> and, before she reports <span class="math inline">\(y_i\)</span>, the probability of reporting any particular value <span class="math inline">\(w\)</span> on the ordinal scale <span class="math inline">\(\Pr(y_i=w)\)</span> is given by <span class="math display">\[
+<section id="first-response-multinomial-logit" class="level3" data-number="2.2">
+<h3 data-number="2.2" class="anchored" data-anchor-id="first-response-multinomial-logit"><span class="header-section-number">2.2</span> First Response: Multinomial Logit</h3>
+<p>The first response is a standard forced choice among the inside goods. Under the Gumbel assumption, <span id="eq-mnl"><span class="math display">\[
+\Pr \left( j^*_{it} = j \right)
+= \frac{\exp \left( V_{itj} \right)}{\sum_{k\in\mathcal{J}^{+}} \exp \left( V_{itk} \right)}
+= \frac{\exp \left( V_{itj} \right)}{S_{it}},
+\tag{4}\]</span></span> the multinomial logit over inside goods only. Note that the outside good does not appear: the forced choice is uncontaminated by the consumer’s uncertain evaluation of the outside good, which is precisely the design’s appeal <span class="citation" data-cites="Brazell_2006">(<a href="#ref-Brazell_2006" role="doc-biblioref">Brazell et al. 2006</a>)</span>.</p>
+</section>
+<section id="second-response-an-ordinal-model-of-the-purchase-evaluation" class="level3" data-number="2.3">
+<h3 data-number="2.3" class="anchored" data-anchor-id="second-response-an-ordinal-model-of-the-purchase-evaluation"><span class="header-section-number">2.3</span> Second Response: An Ordinal Model of the Purchase Evaluation</h3>
+<p>What does the consumer consult when answering “how likely are you to purchase the option you selected?” We develop two behavioral models that differ only in how the consumer treats the unobserved outside-good shock <span class="math inline">\(\eta_{it0}\)</span>. Both lead to likelihoods of the same <em>cumulative-link</em> form, differing only in the link function, and both depend on the choice set only through the inclusive value <span class="math inline">\(\overline{\mu}_{it}\)</span>.</p>
+<section id="sec-modelA" class="level4" data-number="2.3.1">
+<h4 data-number="2.3.1" class="anchored" data-anchor-id="sec-modelA"><span class="header-section-number">2.3.1</span> Model A: Reporting a Purchase Probability</h4>
+<p>Under Model A the consumer takes her uncertainty about the outside good seriously and reports a <em>probability</em>. She knows <span class="math inline">\(u^*_{it}\)</span> (she just identified <span class="math inline">\(j^*_{it}\)</span>) but does not know <span class="math inline">\(\eta_{it0}\)</span>, so from her perspective the probability that she would follow through and purchase <span class="math inline">\(j^*_{it}\)</span> is <span id="eq-purchprob"><span class="math display">\[
+p_{it} = \Pr \left( \eta_{it0} &lt; u^*_{it} \mid u^*_{it} \right) = F\left( u^*_{it} \right),
+\tag{5}\]</span></span> where <span class="math inline">\(F(z) = \exp(-e^{-z})\)</span> is the standard Gumbel CDF. The ordinal scale discretizes the unit interval: fix cut points <span class="math inline">\(0 = \alpha_0 &lt; \alpha_1 &lt; \cdots &lt; \alpha_{W-1} &lt; \alpha_W = 1\)</span> and suppose the consumer reports <span id="eq-reportruleA"><span class="math display">\[
+y_{it} = w
+\quad \Longleftrightarrow \quad
+p_{it} \in \left[ \alpha_{w-1}, \alpha_w \right).
+\tag{6}\]</span></span> We assume consumers share the definitions of the qualitative scale labels, so the <span class="math inline">\(\alpha_w\)</span> are common across consumers (we relax this in <a href="#sec-hetcut" class="quarto-xref">Section&nbsp;2.6.1</a>); the interior cut points are unobserved by the researcher and are estimated.</p>
+<p>Reporting <span class="math inline">\(y_{it}=w\)</span> is equivalent to reporting that <span class="math inline">\(u^*_{it} \in \left[ F^{-1}(\alpha_{w-1}), \, F^{-1}(\alpha_w) \right)\)</span>, an interval statement about the consumer’s best utility. From the researcher’s perspective, <span class="math inline">\(u^*_{it} \sim \text{Gumbel}(\overline{\mu}_{it},1)\)</span> by <a href="#lem-gumbel" class="quarto-xref">Lemma&nbsp;1</a>(i), so <span id="eq-modelA"><span class="math display">\[
 \begin{aligned}
-    \Pr(y_i=w)
-    &amp;=
-    F_{\text{Gumbel}\left(0,1\right)} \left( F^{-1}_{\text{Gumbel}\left(0,1\right)} \left( \alpha_w \right) \right) -
-    F_{\text{Gumbel}\left(0,1\right)} \left( F^{-1}_{\text{Gumbel}\left(0,1\right)} \left( \alpha_{w-1} \right) \right) \\
-    &amp;=
-    \alpha_w - \alpha_{w-1}.
+\Pr \left( y_{it} = w \right)
+&amp;= F_{\text{Gumbel}(\overline{\mu}_{it},1)} \left( F^{-1}(\alpha_w) \right) - F_{\text{Gumbel}(\overline{\mu}_{it},1)} \left( F^{-1}(\alpha_{w-1}) \right) \\
+&amp;= \alpha_w^{\,S_{it}} - \alpha_{w-1}^{\,S_{it}},
 \end{aligned}
-\]</span></p>
-<p>From the researcher’s perspective, the unobserved likelihood of purchase is <span class="math display">\[
-p_i = \Pr \left( \eta_{i0} - u_i^* &lt; 0 \right) = \Pr \left( \varepsilon_i &lt; 0 \right)
-\]</span> where <span class="math inline">\(\varepsilon_i = \eta_{i0} - u_i^*\)</span>. As is well known,<a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a> <span class="math inline">\(u_i^*\)</span> follows a Gumbel distribution with location parameter <span class="math inline">\(\overline{\mu}_i\)</span> and scale parameter <span class="math inline">\(1\)</span>, where <span id="eq-max-mu"><span class="math display">\[
-\overline{\mu}_i = \ln \left( \sum_{j\in\mathcal{J}_i} \exp \left( {\x_j}'\bfbeta_i \right) \right).
-\tag{1}\]</span></span> and so <span class="math inline">\(\varepsilon_i\)</span> follows a Logistic distribution with location parameter <span class="math inline">\(\overline{\mu}_i\)</span> and scale parameter <span class="math inline">\(1\)</span>. The unobserved choice probability is <span class="math display">\[
-p_i = F_{\text{Logistic} \left( \overline{\mu}_i, 1 \right)} \left( \varepsilon_i \right).
-\]</span></p>
-<p>Therefore, the probability that consumer <span class="math inline">\(i\)</span> reports <span class="math inline">\(y_i=w\)</span> is <span class="math display">\[
-\begin{aligned}
-    \Pr \left( u_i^* \hspace{1ex} \text{s.t.} \hspace{1ex} p_i \in \phi_{w\left(i\right)} \right)
-    &amp;= F_{\text{Logistic} \left( \overline{\mu}, 1 \right) } \left( F^{-1}_{\text{Gumbel} \left( 0, 1 \right) } \left( \alpha_{w\left(i\right)} \right) \right) -
-       F_{\text{Logistic} \left( \overline{\mu}, 1 \right) } \left( F^{-1}_{\text{Gumbel} \left( 0, 1 \right) } \left( \alpha_{w\left(i\right)-1} \right) \right) \\
-    &amp;= \frac{1}{1 - \exp \left( \overline{\mu} \right) \ln \alpha_{w\left(i\right)}} -
-       \frac{1}{1 - \exp \left( \overline{\mu} \right) \ln \alpha_{w\left(i-1\right)}}
-\end{aligned}
-\]</span></p>
-<!-- 
-    &= \left( \alpha_{w\left(i\right)} \right)^{\exp \left( \overline{\mu} \right)} - 
-       \left({\alpha_{w\left(i\right)-1}} \right)^{\exp \left( \overline{\mu} \right)}.
--->
+\tag{7}\]</span></span> using <span class="math inline">\(F_{\text{Gumbel}(\overline{\mu},1)}(c) = \exp\left(-e^{-(c - \overline{\mu})}\right) = \exp\left( e^{\overline{\mu}} \ln \alpha \right) = \alpha^{S}\)</span> when <span class="math inline">\(c = F^{-1}(\alpha) = -\ln(-\ln \alpha)\)</span>. The second-response probabilities are differences of powers of the cut points, with the exponent <span class="math inline">\(S_{it} = e^{\overline{\mu}_{it}}\)</span> summarizing the attractiveness of the task’s inside goods: the more attractive the set, the more probability mass shifts toward high scale points.</p>
+</section>
+<section id="sec-modelB" class="level4" data-number="2.3.2">
+<h4 data-number="2.3.2" class="anchored" data-anchor-id="sec-modelB"><span class="header-section-number">2.3.2</span> Model B: Grading a Resolved Comparison</h4>
+<p>Under Model B the consumer behaves as the binary dual-response literature implicitly assumes: she resolves (or acts as if she resolves) the outside-good shock and evaluates the realized utility difference <span class="math display">\[
+d_{it} = u^*_{it} - \eta_{it0}.
+\]</span> Rather than reporting only its sign — the binary “would you buy it?” — she grades its magnitude on the <span class="math inline">\(W\)</span>-point scale: fix utility-scale cut points <span class="math inline">\(-\infty = c_0 &lt; c_1 &lt; \cdots &lt; c_{W-1} &lt; c_W = \infty\)</span> and suppose <span id="eq-reportruleB"><span class="math display">\[
+y_{it} = w
+\quad \Longleftrightarrow \quad
+d_{it} \in \left[ c_{w-1}, c_w \right).
+\tag{8}\]</span></span> From the researcher’s perspective, <span class="math inline">\(u^*_{it} \sim \text{Gumbel}(\overline{\mu}_{it},1)\)</span> and <span class="math inline">\(\eta_{it0} \sim \text{Gumbel}(0,1)\)</span> are independent, so their difference is logistic: <span class="math inline">\(d_{it} \sim \text{Logistic}\left( \overline{\mu}_{it}, 1 \right)\)</span>. Hence <span id="eq-modelB"><span class="math display">\[
+\Pr \left( y_{it} = w \right)
+= \Lambda \left( c_w - \overline{\mu}_{it} \right) - \Lambda \left( c_{w-1} - \overline{\mu}_{it} \right),
+\qquad
+\Lambda(z) = \frac{1}{1+e^{-z}}.
+\tag{9}\]</span></span> This is an ordered logit <span class="citation" data-cites="Greene_2010">(<a href="#ref-Greene_2010" role="doc-biblioref">Greene and Hensher 2010</a>)</span> with the inclusive value <span class="math inline">\(\overline{\mu}_{it}\)</span> as the (negatively signed) linear predictor.</p>
+</section>
+<section id="a-unified-cumulative-link-representation" class="level4" data-number="2.3.3">
+<h4 data-number="2.3.3" class="anchored" data-anchor-id="a-unified-cumulative-link-representation"><span class="header-section-number">2.3.3</span> A Unified Cumulative-Link Representation</h4>
+<p>Define <span class="math inline">\(c_w = F^{-1}(\alpha_w)\)</span> in Model A so that both models carry utility-scale cut points. Then both second-response models take the cumulative-link form <span id="eq-cumlink"><span class="math display">\[
+\Pr \left( y_{it} \le w \right) = G \left( c_w - \overline{\mu}_{it} \right),
+\qquad
+G = \begin{cases}
+F \ \left(\text{standard Gumbel}\right) &amp; \text{Model A}, \\[2pt]
+\Lambda \ \left(\text{standard logistic}\right) &amp; \text{Model B}.
+\end{cases}
+\tag{10}\]</span></span> The behavioral story pins down the link: a consumer who <em>carries</em> her outside-good uncertainty into the report (Model A) generates a Gumbel — i.e., complementary log-log type — link, while a consumer who <em>resolves</em> it and grades the outcome (Model B) generates the familiar logistic link. The two links are numerically close over most of their range and diverge in the tails; which better describes respondents is an empirical question we take up in <a href="#sec-simstudy" class="quarto-xref">Section&nbsp;3</a> and <a href="#sec-analysis" class="quarto-xref">Section&nbsp;4</a>. Both are estimable at identical parameter counts (<span class="math inline">\(W-1\)</span> interior cut points), so the comparison is a clean, non-nested horse race between links.</p>
+</section>
+</section>
+<section id="joint-likelihood" class="level3" data-number="2.4">
+<h3 data-number="2.4" class="anchored" data-anchor-id="joint-likelihood"><span class="header-section-number">2.4</span> Joint Likelihood</h3>
+<p>By <a href="#lem-gumbel" class="quarto-xref">Lemma&nbsp;1</a>(ii), the value of <span class="math inline">\(u^*_{it}\)</span> is independent of the identity of <span class="math inline">\(j^*_{it}\)</span>; and <span class="math inline">\(\eta_{it0}\)</span> is independent of the inside-good shocks. The two responses in a task are therefore independent conditional on <span class="math inline">\((\x_t, \bfbeta_i)\)</span>, and the per-task likelihood contribution is simply the product of <a href="#eq-mnl" class="quarto-xref">Equation&nbsp;4</a> and <a href="#eq-cumlink" class="quarto-xref">Equation&nbsp;10</a>: <span id="eq-joint"><span class="math display">\[
+\ell_{it} \left( \bfbeta_i, \mathbf{c} \right)
+= \underbrace{\frac{\exp \left( V_{itj^*} \right)}{S_{it}}}_{\text{choice (MNL)}}
+\; \times \;
+\underbrace{\Big[ G \left( c_{y_{it}} - \overline{\mu}_{it} \right) - G \left( c_{y_{it}-1} - \overline{\mu}_{it} \right) \Big]}_{\text{ordinal purchase evaluation}},
+\tag{11}\]</span></span> with <span class="math inline">\(\mathbf{c} = (c_1, \ldots, c_{W-1})\)</span> and the full likelihood <span class="math inline">\(L_i = \prod_{t} \ell_{it}\)</span>. We emphasize that this factorization is not an <em>assumption</em> of independent errors across the two responses, as in the “DR-2Max” tradition <span class="citation" data-cites="Diener_2006 Sawtooth_2017">(<a href="#ref-Diener_2006" role="doc-biblioref">Diener et al. 2006</a>; <a href="#ref-Sawtooth_2017" role="doc-biblioref">Sawtooth Software 2017</a>)</span>; it is a <em>consequence</em> of the max-stability properties of the Gumbel family within a single, internally consistent utility draw. The same realized utilities generate both responses.</p>
+</section>
+<section id="sec-nesting" class="level3" data-number="2.5">
+<h3 data-number="2.5" class="anchored" data-anchor-id="sec-nesting"><span class="header-section-number">2.5</span> Special Cases and Relation to Existing Models</h3>
+<p><strong>Binary dual response, Model B.</strong> Set <span class="math inline">\(W=2\)</span> with the single cut point <span class="math inline">\(c_1 = \gamma\)</span>. From <a href="#eq-modelB" class="quarto-xref">Equation&nbsp;9</a>, <span class="math inline">\(\Pr(\text{would buy}) = \Lambda\left( \overline{\mu}_{it} - \gamma \right) = S_{it} \big/ \left( e^{\gamma} + S_{it} \right)\)</span>, and the joint probabilities from <a href="#eq-joint" class="quarto-xref">Equation&nbsp;11</a> telescope: <span id="eq-collapseB"><span class="math display">\[
+\Pr \left( j, \text{buy} \right) = \frac{\exp \left( V_{itj} \right)}{e^{\gamma} + S_{it}},
+\qquad
+\Pr \left( j, \text{not buy} \right) = \frac{\exp \left( V_{itj} \right)}{S_{it}} \cdot \frac{e^{\gamma}}{e^{\gamma} + S_{it}}.
+\tag{12}\]</span></span> With <span class="math inline">\(\gamma = 0\)</span> these are <em>exactly</em> the joint probabilities of the “Unified Model” of <span class="citation" data-cites="Hung_2025_dual">Hung, Liu, et al. (<a href="#ref-Hung_2025_dual" role="doc-biblioref">2025</a>)</span> (their Eq. 4), which is in turn algebraically identical to the “DR-AnyMax” model of <span class="citation" data-cites="Diener_2006">Diener et al. (<a href="#ref-Diener_2006" role="doc-biblioref">2006</a>)</span>; and <a href="#eq-collapseB" class="quarto-xref">Equation&nbsp;12</a> with free <span class="math inline">\(\gamma\)</span> is the standard single-stage MNL with a no-choice alternative-specific constant <span class="citation" data-cites="Haaijer_2001">(<a href="#ref-Haaijer_2001" role="doc-biblioref">Haaijer et al. 2001</a>)</span>. Our ordinal model is thus a strict generalization of the leading binary dual-response model: at <span class="math inline">\(W=2\)</span>, Model B <em>is</em> that model, and for <span class="math inline">\(W&gt;2\)</span> the additional cut points are the only new parameters.</p>
+<p><strong>Binary dual response, Model A.</strong> Set <span class="math inline">\(W=2\)</span> in <a href="#eq-modelA" class="quarto-xref">Equation&nbsp;7</a>: <span class="math inline">\(\Pr(\text{not buy}) = \alpha_1^{S_{it}} = F\left( c_1 - \overline{\mu}_{it}\right)\)</span>, a <em>complementary log-log</em> rather than logistic binary response. Model A therefore implies that even the familiar binary dual response is misspecified — mildly, given the proximity of the links — when consumers genuinely face outside-good uncertainty at the moment they answer. This observation gives the binary special case of Model A independent interest: it provides a one-parameter alternative to the binary logit second stage that can be tested on existing binary dual-response data.</p>
+<p><strong>DR-2Max.</strong> The other binary model in the literature, “DR-2Max” <span class="citation" data-cites="Diener_2006">(<a href="#ref-Diener_2006" role="doc-biblioref">Diener et al. 2006</a>)</span>, as implemented in Sawtooth Software’s CBC/HB <span class="citation" data-cites="Sawtooth_2017">(<a href="#ref-Sawtooth_2017" role="doc-biblioref">Sawtooth Software 2017</a>)</span>, models the second response as a binary logit on the <em>chosen good’s</em> deterministic utility: <span class="math inline">\(\Pr(\text{buy} \mid j^*) = e^{V_{itj^*}} \big/ \left( e^{V_{itj^*}} + e^{\gamma} \right)\)</span>. This requires drawing a fresh error for the chosen good in the second stage — the consumer who just declared <span class="math inline">\(j^*\)</span> best re-evaluates it from scratch. Under our framework such conditioning is unnecessary: by <a href="#lem-gumbel" class="quarto-xref">Lemma&nbsp;1</a>(ii) the distribution of the best utility does not depend on which good attained it, so the second response should depend on the set only through <span class="math inline">\(\overline{\mu}_{it}\)</span>. This distinction is testable, and the existing evidence favors the inclusive-value form: <span class="citation" data-cites="Diener_2006">Diener et al. (<a href="#ref-Diener_2006" role="doc-biblioref">2006</a>)</span> found DR-AnyMax fit dual-response data better than DR-2Max, and <span class="citation" data-cites="Hung_2025_dual">Hung, Liu, et al. (<a href="#ref-Hung_2025_dual" role="doc-biblioref">2025</a>)</span> reach the same conclusion for their Unified Model.</p>
+<p><strong>Practitioner heuristics for ordinal dual responses.</strong> When practitioners field an ordinal purchase-likelihood question today, common practice is either (i) <em>dichotomization</em> — collapse the scale at some point (e.g., top box or top two boxes) and estimate the binary model, discarding the ordinal information and hard-coding an arbitrary cut; or (ii) <em>constant-probability weighting</em> — map each scale point to a fixed purchase probability (e.g., “definitely would buy” <span class="math inline">\(= 0.9\)</span>) independent of the choice set. Both are nested within, or dominated by, <a href="#eq-joint" class="quarto-xref">Equation&nbsp;11</a>: dichotomization is <a href="#eq-collapseB" class="quarto-xref">Equation&nbsp;12</a> applied to a coarsened <span class="math inline">\(y_{it}\)</span>, and constant-probability weighting violates <a href="#eq-modelA" class="quarto-xref">Equation&nbsp;7</a>, under which the mapping from scale point to purchase probability necessarily depends on the attractiveness of the inside goods through <span class="math inline">\(S_{it}\)</span>. These two heuristics are the benchmarks in our simulation study (<a href="#sec-simstudy" class="quarto-xref">Section&nbsp;3</a>).</p>
+</section>
+<section id="sec-heterogeneity" class="level3" data-number="2.6">
+<h3 data-number="2.6" class="anchored" data-anchor-id="sec-heterogeneity"><span class="header-section-number">2.6</span> Heterogeneity</h3>
+<p>We accommodate preference heterogeneity with a standard hierarchical Bayesian specification <span class="citation" data-cites="Rossi_2005 Train_2001">(<a href="#ref-Rossi_2005" role="doc-biblioref">Rossi et al. 2005</a>; <a href="#ref-Train_2001" role="doc-biblioref">Train 2001</a>)</span>: <span id="eq-hb"><span class="math display">\[
+\bfbeta_i \iid \mathcal{N} \left( \overline{\bfbeta}, \Sigma_{\beta} \right),
+\tag{13}\]</span></span> with conjugate priors on <span class="math inline">\(\left( \overline{\bfbeta}, \Sigma_{\beta} \right)\)</span>. In the main model the cut points <span class="math inline">\(\mathbf{c}\)</span> are common across consumers: the scale labels (“very likely,” “somewhat likely,” …) are assumed to mean the same thing to everyone, while <em>preferences</em> vary.</p>
+<section id="sec-hetcut" class="level4" data-number="2.6.1">
+<h4 data-number="2.6.1" class="anchored" data-anchor-id="sec-hetcut"><span class="header-section-number">2.6.1</span> Heterogeneous Cut Points</h4>
+<p>The assumption of a shared reporting scale is convenient but contestable: a rich literature documents individual differences in the use of ordinal response scales <span class="citation" data-cites="Greene_2010 Falco_2015">(<a href="#ref-Greene_2010" role="doc-biblioref">Greene and Hensher 2010</a>; <a href="#ref-Falco_2015" role="doc-biblioref">Falco et al. 2015</a>)</span>. We therefore develop an extension with consumer-specific cut points. Parameterize <span id="eq-hetcutparam"><span class="math display">\[
+c_{i1} \in \mathbb{R},
+\qquad
+c_{iw} = c_{i,w-1} + \exp \left( \delta_{iw} \right) \ \text{for} \ w = 2, \ldots, W-1,
+\tag{14}\]</span></span> and let <span class="math inline">\(\bftheta_i = \left( c_{i1}, \delta_{i2}, \ldots, \delta_{i,W-1} \right)'\)</span> follow a multivariate normal population distribution, estimated jointly with (and, if desired, correlated with) <span class="math inline">\(\bfbeta_i\)</span>. The exponentiated increments enforce monotonicity without constrained sampling. Identification at the individual level is necessarily partial — with <span class="math inline">\(T\)</span> tasks per consumer, individual cut points and individual preferences are jointly informed by only <span class="math inline">\(T\)</span> ordinal reports — so the hierarchical prior does real work here, shrinking individual scale usage toward the population norm. <a href="#sec-simstudy" class="quarto-xref">Section&nbsp;3</a> examines both the payoff to modeling cut-point heterogeneity when it is present in the data-generating process and the robustness of the common-cut-point model when it is not.</p>
+</section>
+</section>
+<section id="sec-identification" class="level3" data-number="2.7">
+<h3 data-number="2.7" class="anchored" data-anchor-id="sec-identification"><span class="header-section-number">2.7</span> Identification</h3>
+<p>Three normalizations do the identifying work. First, <span class="math inline">\(\x_{t0} = \mathbf{0}\)</span> anchors the location of utility: all inside-good utilities are measured relative to the (mean) outside good. Second, the unit Gumbel scale anchors the scale of utility, as in any logit model. Third, given these, the interior cut points are identified by the joint distribution of first and second responses across tasks that vary in attractiveness <span class="math inline">\(S_{it}\)</span>: tasks with more attractive inside goods shift the ordinal response distribution upward at a rate governed by <a href="#eq-cumlink" class="quarto-xref">Equation&nbsp;10</a>, and the cut points are pinned down by the levels at which those shifts occur. One practical caution follows directly: the design matrix must not contain a constant common to all inside goods (attributes should be dummy- or effects-coded against reference levels), since a common constant shifts <span class="math inline">\(\overline{\mu}_{it}\)</span> one-for-one against the cut points. In the heterogeneous-cut-point extension, the population means of <span class="math inline">\(\bftheta_i\)</span> are identified in the same way, while individual deviations are identified — and shrunk — through the hierarchy.</p>
+</section>
+<section id="sec-information" class="level3" data-number="2.8">
+<h3 data-number="2.8" class="anchored" data-anchor-id="sec-information"><span class="header-section-number">2.8</span> The Information Content of the Ordinal Response</h3>
+<p>How much does a <span class="math inline">\(W\)</span>-point second response add over a binary one? The question has a clean answer in terms of Fisher information, extending the efficiency analysis of <span class="citation" data-cites="Hung_2025_dual">Hung, Liu, et al. (<a href="#ref-Hung_2025_dual" role="doc-biblioref">2025</a>)</span> from binary to ordinal second responses.</p>
+<p>The per-task Fisher information about <span class="math inline">\(\bfbeta\)</span> decomposes into the familiar MNL term <span class="citation" data-cites="Huber_1996">(<a href="#ref-Huber_1996" role="doc-biblioref">Huber and Zwerina 1996</a>)</span> plus a second-response increment. Writing <span class="math inline">\(\pi_w = G(c_w - \overline{\mu}) - G(c_{w-1} - \overline{\mu})\)</span> and <span class="math inline">\(g = G'\)</span>, the second response contributes <span id="eq-fisher"><span class="math display">\[
+\mathcal{I}^{(2)}_{it}
+= \omega \left( \overline{\mu}_{it}; \mathbf{c} \right) \, \overline{\x}_{it} \, \overline{\x}_{it}',
+\qquad
+\omega = \sum_{w=1}^{W} \frac{ \left[ g \left( c_w - \overline{\mu} \right) - g \left( c_{w-1} - \overline{\mu} \right) \right]^2 }{ \pi_w },
+\tag{15}\]</span></span> where <span class="math inline">\(\overline{\x}_{it} = \sum_{j \in \mathcal{J}^+} \Pr\left(j^*_{it}=j\right) \x_{tj}\)</span> is the choice-probability-weighted average attribute vector (the gradient of <span class="math inline">\(\overline{\mu}_{it}\)</span> with respect to <span class="math inline">\(\bfbeta\)</span>). Two properties follow. First, the increment is positive semi-definite: the second response never destroys information, echoing the binary result of <span class="citation" data-cites="Hung_2025_dual">Hung, Liu, et al. (<a href="#ref-Hung_2025_dual" role="doc-biblioref">2025</a>)</span>. Second, <span class="math inline">\(\omega\)</span> is non-decreasing under refinement of the scale partition — coarsening an ordinal response is a garbling in the sense of sufficiency, so the binary response (<span class="math inline">\(W=2\)</span>) is the <em>least</em> informative member of the family, and information rises toward the continuous-report limit as <span class="math inline">\(W \to \infty\)</span>. The practical magnitudes — how much of the binary-to-continuous gap a five- or seven-point scale captures, and how the gains vary with task attractiveness — are quantified in <a href="#sec-simstudy" class="quarto-xref">Section&nbsp;3</a>.</p>
+<!-- TODO: verify placement — full derivation of @eq-fisher and the refinement argument in an appendix. -->
+</section>
+<section id="sec-estimation" class="level3" data-number="2.9">
+<h3 data-number="2.9" class="anchored" data-anchor-id="sec-estimation"><span class="header-section-number">2.9</span> Estimation</h3>
+<p>The aggregate (homogeneous-<span class="math inline">\(\bfbeta\)</span>) model is estimated by maximum likelihood: the log of <a href="#eq-joint" class="quarto-xref">Equation&nbsp;11</a> summed over consumers and tasks is smooth in <span class="math inline">\(\left( \bfbeta, \mathbf{c} \right)\)</span> after the monotonicity-preserving reparameterization of the cut points, and standard quasi-Newton methods converge quickly.</p>
+<p>The hierarchical model is estimated with a custom Markov chain Monte Carlo sampler, implemented in R with computational kernels in C++ (Rcpp), following the hybrid Gibbs architecture of <span class="citation" data-cites="Rossi_2005">Rossi et al. (<a href="#ref-Rossi_2005" role="doc-biblioref">2005</a>)</span>: (1) a random-walk Metropolis step for each <span class="math inline">\(\bfbeta_i\)</span> (and <span class="math inline">\(\bftheta_i\)</span> in the heterogeneous-cut-point extension) using the individual likelihood <span class="math inline">\(\prod_t \ell_{it}\)</span>; (2) a random-walk Metropolis step for the common cut-point block on the unconstrained scale; and (3) conjugate draws for the population moments <span class="math inline">\(\left( \overline{\bfbeta}, \Sigma_{\beta} \right)\)</span>. Model comparison uses the log marginal density approximated by the method of <span class="citation" data-cites="Newton_1994">Newton and Raftery (<a href="#ref-Newton_1994" role="doc-biblioref">1994</a>)</span>, matching the practice in <span class="citation" data-cites="Hung_2025_dual">Hung, Liu, et al. (<a href="#ref-Hung_2025_dual" role="doc-biblioref">2025</a>)</span> and permitting direct comparisons among Model A, Model B, the binary dual-response models, and the practitioner heuristics. Complete replication code, together with three worked-example notebooks that build from the simplest homogeneous two-attribute case to the full model with heterogeneous cut points, accompanies the paper.</p>
 </section>
 </section>
 <section id="sec-simstudy" class="level2" data-number="3">
 <h2 data-number="3" class="anchored" data-anchor-id="sec-simstudy"><span class="header-section-number">3</span> Simulation Study</h2>
+<p>The simulation study has four goals: (i) verify that the estimation routines recover the parameters of the data-generating process, for both the aggregate and hierarchical versions of the model; (ii) quantify what is lost by the two approaches practitioners currently apply to ordinal dual-response data — dichotomization and constant-probability weighting; (iii) probe robustness to the placement of the cut points, including data-generating processes in which respondents do <em>not</em> share a common interpretation of the scale; and (iv) quantify the information gains from finer ordinal scales, making the Fisher-information results of <a href="#sec-information" class="quarto-xref">Section&nbsp;2.8</a> concrete. Throughout, Model A (<a href="#sec-modelA" class="quarto-xref">Section&nbsp;2.3.1</a>) and Model B (<a href="#sec-modelB" class="quarto-xref">Section&nbsp;2.3.2</a>) are simulated and estimated in parallel, including cross-fit experiments in which data generated under one link are estimated under the other.</p>
+<!-- TODO: All numerical results in this section are produced by scripts in R/ and loaded from saved .rds output; regenerate with R/run_simstudy.R. -->
+<section id="sec-simdesign" class="level3" data-number="3.1">
+<h3 data-number="3.1" class="anchored" data-anchor-id="sec-simdesign"><span class="header-section-number">3.1</span> Design</h3>
+<p>The baseline design mirrors a typical commercial study. Each synthetic respondent completes <span class="math inline">\(T=12\)</span> choice tasks; each task presents <span class="math inline">\(J=4\)</span> inside goods described by <span class="math inline">\(P=8\)</span> attribute levels (dummy-coded from a small factorial, plus a continuous price term); the ordinal follow-up uses a <span class="math inline">\(W=5\)</span> point scale. Attribute levels are drawn to mimic a balanced fractional-factorial design. The true cut points place meaningful mass in every scale category at typical task attractiveness.</p>
+<!-- TODO: finalize and tabulate the true parameter values (beta vector, cut points on both the probability scale (Model A) and utility scale (Model B)), the number of Monte Carlo replications R, and the holdout design (e.g., 2 additional tasks per respondent withheld from estimation). Fixed, documented true values — not per-replication random draws. -->
+<p>Three families of estimators are applied to every simulated dataset:</p>
 <ol type="1">
-<li>Agg MNL</li>
+<li><strong>The proposed model</strong> (<a href="#eq-joint" class="quarto-xref">Equation&nbsp;11</a>), under the correct link and under the misspecified link (A estimated on B data and vice versa).</li>
+<li><strong>Binary benchmarks:</strong> the dual-response binary logit of <span class="citation" data-cites="Diener_2006">Diener et al. (<a href="#ref-Diener_2006" role="doc-biblioref">2006</a>)</span> and <span class="citation" data-cites="Hung_2025_dual">Hung, Liu, et al. (<a href="#ref-Hung_2025_dual" role="doc-biblioref">2025</a>)</span> applied to dichotomized data, with the scale collapsed at each possible cut point (top box, top two boxes, …), so the best-case and worst-case dichotomizations are both visible.</li>
+<li><strong>The constant-probability heuristic:</strong> scale points mapped to fixed purchase probabilities. We implement two versions — equal-interval probabilities (<span class="math inline">\(\Pr(y=w)=1/W\)</span> implied cut points) and cut points set to the observed marginal frequencies of the scale points — reflecting the variants encountered in practice.</li>
 </ol>
-<ul>
-<li>Simulate data (<span class="math inline">\(\bfbeta_i = \bfbeta\)</span>), then:</li>
-<li>recover parameters</li>
-<li>compare to dichotomized dual-response</li>
-<li>compare to constant-prob (if <span class="math inline">\(W=5\)</span> set <span class="math inline">\(\alpha\)</span>’s such that <span class="math inline">\(\Pr(y_i=w) = 1/5\)</span> )</li>
-<li>or, instead of 1/W do the observed frequency</li>
-</ul>
-<ol type="1">
-<li>HB MNL</li>
-</ol>
-<ul>
-<li>Same 4 things as above</li>
-</ul>
-<ol type="1">
-<li>Assessing <span class="math inline">\(\alpha\)</span> cut-points</li>
-</ol>
-<ul>
-<li>May need to try extreme values for some <span class="math inline">\(\alpha\)</span>’s</li>
-<li>What happens when different consumers have different interpretation of the <span class="math inline">\(W\)</span> categories such that <span class="math inline">\(\alpha\)</span>’s are not the same for all consumers?</li>
-</ul>
+<p>Performance is evaluated on four criteria, matching the decisions the model supports: parameter recovery (bias and root mean squared error for <span class="math inline">\(\bfbeta\)</span>, or for the individual-level <span class="math inline">\(\bfbeta_i\)</span> posteriors in the hierarchical case <span class="citation" data-cites="Sarrias_2020">(<a href="#ref-Sarrias_2020" role="doc-biblioref">Sarrias 2020</a>)</span>); in-sample model comparison via log marginal density <span class="citation" data-cites="Newton_1994">(<a href="#ref-Newton_1994" role="doc-biblioref">Newton and Raftery 1994</a>)</span>; holdout prediction (hit rates for the first response, and predicted versus actual distributions of the ordinal response, on withheld tasks); and predicted purchase-incidence shares, the quantity practitioners ultimately report to clients.</p>
+</section>
+<section id="sec-sim-agg" class="level3" data-number="3.2">
+<h3 data-number="3.2" class="anchored" data-anchor-id="sec-sim-agg"><span class="header-section-number">3.2</span> Aggregate Model</h3>
+<p>We first simulate with homogeneous preferences (<span class="math inline">\(\bfbeta_i = \bfbeta\)</span> for all <span class="math inline">\(i\)</span>) and estimate by maximum likelihood.</p>
+<!-- TODO: results — table of true vs. estimated beta and cut points with SEs across replications; figure of sampling distributions. Expected headline: consistent recovery of both beta and cut points; dichotomized estimator recovers beta with inflated variance and cannot recover the scale structure; constant-probability heuristic biased whenever its assumed probabilities disagree with the set-dependent mapping in @eq-modelA. -->
+</section>
+<section id="sec-sim-hb" class="level3" data-number="3.3">
+<h3 data-number="3.3" class="anchored" data-anchor-id="sec-sim-hb"><span class="header-section-number">3.3</span> Hierarchical Model</h3>
+<p>We then simulate with <span class="math inline">\(\bfbeta_i \sim \mathcal{N}(\overline{\bfbeta}, \Sigma_\beta)\)</span> and estimate the hierarchical Bayesian model with the MCMC sampler of <a href="#sec-estimation" class="quarto-xref">Section&nbsp;2.9</a>.</p>
+<!-- TODO: results — recovery of population moments (beta-bar, Sigma) and of individual-level part-worths; MCMC diagnostics (trace plots, acceptance rates) relegated to an appendix; comparison of individual-level posterior means against true individual betas, and against the binary-benchmark posteriors, showing the efficiency gain from the ordinal response at the individual level (fewer tasks needed for a given accuracy). -->
+</section>
+<section id="sec-sim-benchmarks" class="level3" data-number="3.4">
+<h3 data-number="3.4" class="anchored" data-anchor-id="sec-sim-benchmarks"><span class="header-section-number">3.4</span> The Cost of Current Practice</h3>
+<p>This subsection collects the comparisons that answer the practitioner’s question: <em>how much does the correct model actually matter?</em></p>
+<!-- TODO: results — (1) LMD comparison of proposed model vs. each dichotomization vs. constant-probability heuristic; (2) holdout hit rates and share predictions; (3) a figure showing RMSE of estimated purchase-incidence shares across methods, since purchase incidence is where dichotomization bites hardest; (4) sensitivity of the dichotomized estimator to WHERE the scale is cut — expected to be substantial, which is itself an argument against the practice (the analyst's arbitrary choice moves the answer). -->
+</section>
+<section id="sec-sim-cutpoints" class="level3" data-number="3.5">
+<h3 data-number="3.5" class="anchored" data-anchor-id="sec-sim-cutpoints"><span class="header-section-number">3.5</span> Cut-Point Placement and Scale-Usage Heterogeneity</h3>
+<p>Two robustness experiments target the cut points. First, <em>extreme placements</em>: data-generating processes in which one or more cut points sit far into the tails (e.g., a “very likely” category that is almost never used), which stress the estimation of the associated <span class="math inline">\(\alpha_w\)</span> or <span class="math inline">\(c_w\)</span> and mimic scales with too many points for the construct being measured. Second, <em>heterogeneous scale usage</em>: data generated with respondent-specific cut points <span class="math inline">\(\bftheta_i\)</span> as in <a href="#sec-hetcut" class="quarto-xref">Section&nbsp;2.6.1</a>, estimated (a) with the common-cut-point model, to measure the robustness of preference estimates to ignoring reporting heterogeneity, and (b) with the heterogeneous-cut-point model, to measure what the richer specification buys and how much data it needs.</p>
+<!-- TODO: results — recovery under extreme cut points (expect: slow-to-estimate tail cut points but unbiased betas); bias in beta and in purchase-share predictions when scale-usage heterogeneity is ignored; recovery of the theta_i hierarchy when it is modeled; practical guidance on T (tasks per respondent) needed for individual cut points to be worth estimating. -->
+</section>
+<section id="sec-sim-efficiency" class="level3" data-number="3.6">
+<h3 data-number="3.6" class="anchored" data-anchor-id="sec-sim-efficiency"><span class="header-section-number">3.6</span> Information Gains from Finer Scales</h3>
+<p>Finally, we evaluate <a href="#eq-fisher" class="quarto-xref">Equation&nbsp;15</a> numerically across <span class="math inline">\(W \in \lbrace 2, 3, 5, 7, 11 \rbrace\)</span>, holding the design fixed and placing cut points at population quantiles, to trace how the second response’s Fisher-information increment grows with scale refinement — the ordinal extension of the design-efficiency results in <span class="citation" data-cites="Brazell_2006">Brazell et al. (<a href="#ref-Brazell_2006" role="doc-biblioref">2006</a>)</span> and <span class="citation" data-cites="Hung_2025_dual">Hung, Liu, et al. (<a href="#ref-Hung_2025_dual" role="doc-biblioref">2025</a>)</span>. We report both the analytic D-efficiency gains and their finite-sample counterparts (RMSE ratios from the Monte Carlo replications), and translate them into the practitioner’s currency: the reduction in respondents (or tasks) required to match the accuracy of a binary dual-response study.</p>
+<!-- TODO: results — figure: information increment (and respondent-equivalents) as a function of W, with the binary case W=2 as baseline and the continuous-report limit as asymptote. Expected shape: steep gains from W=2 to W=5, diminishing returns beyond; exact numbers depend on task attractiveness (S_it), so show curves for unattractive/typical/attractive sets. -->
+</section>
 </section>
 <section id="sec-analysis" class="level2" data-number="4">
-<h2 data-number="4" class="anchored" data-anchor-id="sec-analysis"><span class="header-section-number">4</span> Empirical Analysis</h2>
-<p>add</p>
+<h2 data-number="4" class="anchored" data-anchor-id="sec-analysis"><span class="header-section-number">4</span> Empirical Application</h2>
+<p>We illustrate the model with data from a commercial choice-based conjoint study conducted in partnership with a consumer insights consultancy, in which each choice task was followed by an ordinal purchase-likelihood question.</p>
+<!-- TODO [DATA — Dan to locate]: this section is fully structured but awaits the GBK study data. Fill in: product category, sample size and recruitment/screening, number of tasks and alternatives per task, attribute list and levels, the exact wording and number of points (W) of the purchase-likelihood question, and fielding dates. -->
+<section id="sec-data" class="level3" data-number="4.1">
+<h3 data-number="4.1" class="anchored" data-anchor-id="sec-data"><span class="header-section-number">4.1</span> Data</h3>
+<!-- TODO: describe the study. Include (1) a table of attributes and levels; (2) descriptive statistics: distribution of the ordinal responses overall and by task order (any drift across tasks connects to @Hung_2025_nochoice); (3) model-free evidence that the ordinal response co-moves with task attractiveness — e.g., mean response plotted against the estimated inclusive value or against simple proxies like number of low-priced options — which is the reduced-form signature of @eq-cumlink and motivates the structural model. -->
+</section>
+<section id="sec-empirical-spec" class="level3" data-number="4.2">
+<h3 data-number="4.2" class="anchored" data-anchor-id="sec-empirical-spec"><span class="header-section-number">4.2</span> Model Specifications and Estimation</h3>
+<p>We estimate six specifications on the same data: Model A and Model B (<a href="#sec-model" class="quarto-xref">Section&nbsp;2</a>), each in aggregate and hierarchical form; the binary dual-response benchmark applied to the dichotomized scale (top-two-box); and the constant-probability heuristic. Hierarchical specifications use the sampler of <a href="#sec-estimation" class="quarto-xref">Section&nbsp;2.9</a>.</p>
+<!-- TODO: report MCMC settings (iterations, burn-in, thinning), convergence diagnostics (appendix), and holdout design (withheld tasks per respondent). -->
+</section>
+<section id="sec-empirical-results" class="level3" data-number="4.3">
+<h3 data-number="4.3" class="anchored" data-anchor-id="sec-empirical-results"><span class="header-section-number">4.3</span> Results</h3>
+<!-- TODO: results, mirroring the simulation-study structure so the reader can map findings across sections:
+(1) Model comparison: LMD for all specifications — headline question: which link (A vs. B) fits real respondents better, and how much does the ordinal model improve on the dichotomized binary model?
+(2) Parameter estimates: part-worths across specifications (expect: attribute part-worths broadly stable, in line with Brazell_2006 and Hung_2025_dual; differences concentrated in the outside-good/cut-point structure); estimated cut points with interpretation — what purchase probability does each scale label correspond to (Model A's alphas are directly interpretable here and are a selling point of the framework).
+(3) Predictive validity: holdout hit rates and predicted vs. actual ordinal response distributions.
+(4) Managerial quantities: purchase-incidence/share predictions across methods — show how much the dichotomization choice (top-box vs. top-two-box) moves the answer vs. the model-based estimate.
+(5) If task-order drift appears in the descriptives, a robustness fit with task-number effects, connecting to Hung_2025_nochoice. -->
+</section>
+<section id="sec-empirical-hetcut" class="level3" data-number="4.4">
+<h3 data-number="4.4" class="anchored" data-anchor-id="sec-empirical-hetcut"><span class="header-section-number">4.4</span> Scale-Usage Heterogeneity</h3>
+<!-- TODO: estimate the heterogeneous-cut-point extension (@sec-hetcut) on the empirical data; report the estimated dispersion of theta_i (how differently do real respondents use the scale?), the correlation between scale usage and preferences, and the effect on managerial quantities of accounting for it. -->
+</section>
 </section>
 <section id="sec-discussion" class="level2" data-number="5">
 <h2 data-number="5" class="anchored" data-anchor-id="sec-discussion"><span class="header-section-number">5</span> Discussion</h2>
-<p>Differs from <span class="citation" data-cites="Brazell_2006">(<a href="#ref-Brazell_2006" role="doc-biblioref">Brazell et al. 2006</a>)</span></p>
+<section id="what-the-behavioral-model-changes" class="level3" data-number="5.1">
+<h3 data-number="5.1" class="anchored" data-anchor-id="what-the-behavioral-model-changes"><span class="header-section-number">5.1</span> What the Behavioral Model Changes</h3>
+<p>The premise that the consumer observes everything about the inside goods but not the outside-good shock does more than motivate a likelihood; it reorganizes how the dual-response literature’s models relate to one another. In the binary literature, the choice between DR-2Max and DR-AnyMax was framed as a question about the second question’s wording — whether the respondent evaluates her selected option or the whole set <span class="citation" data-cites="Diener_2006">(<a href="#ref-Diener_2006" role="doc-biblioref">Diener et al. 2006</a>)</span> — and the shared-error Unified Model of <span class="citation" data-cites="Hung_2025_dual">Hung, Liu, et al. (<a href="#ref-Hung_2025_dual" role="doc-biblioref">2025</a>)</span> was motivated by the internal consistency of a single utility draw. Our framework arrives at the inclusive-value form from the primitive assumption about information: because the maximum of Gumbel utilities is independent of which good attains it, <em>any</em> coherent report about the best option’s standing against the outside good must depend on the task only through its inclusive value. The empirical success of the AnyMax/Unified form over DR-2Max, documented in both <span class="citation" data-cites="Diener_2006">Diener et al. (<a href="#ref-Diener_2006" role="doc-biblioref">2006</a>)</span> and <span class="citation" data-cites="Hung_2025_dual">Hung, Liu, et al. (<a href="#ref-Hung_2025_dual" role="doc-biblioref">2025</a>)</span>, is what this framework predicts. Where our account differs from <span class="citation" data-cites="Brazell_2006">Brazell et al. (<a href="#ref-Brazell_2006" role="doc-biblioref">2006</a>)</span> is in what the second response <em>is</em>: not a second choice from an augmented set, but a report about an unresolved comparison — which is what licenses asking for it on an ordinal scale in the first place.</p>
+<p>The distinction between Model A and Model B is, likewise, a substantive behavioral question dressed as a link function. Model A takes the respondent’s uncertainty literally — she reports a probability — while Model B assumes she resolves the outside-good draw and grades the outcome. Their binary special cases already separate the two: Model B recovers the standard logit second stage, while Model A implies a complementary log-log second stage even for yes/no data. Because the two links diverge mainly in the tails, discriminating between them requires either large samples or designs with wide variation in task attractiveness; the model comparison in <a href="#sec-analysis" class="quarto-xref">Section&nbsp;4</a> provides evidence from one commercial dataset, but we regard the question as open and worth testing on the many existing binary dual-response datasets, where the Model A binary case can be estimated with a one-line change to current code.</p>
+</section>
+<section id="implications-for-practice" class="level3" data-number="5.2">
+<h3 data-number="5.2" class="anchored" data-anchor-id="implications-for-practice"><span class="header-section-number">5.2</span> Implications for Practice</h3>
+<p>Three points bear directly on applied work. First, if an ordinal dual response has been fielded, dichotomizing it is costly and arbitrary: the simulation results in <a href="#sec-sim-benchmarks" class="quarto-xref">Section&nbsp;3.4</a> show that the analyst’s choice of where to cut the scale moves managerially relevant quantities, while the model uses every scale point and removes the choice. Second, constant-probability weighting has a specific, diagnosable flaw: the purchase probability that a scale point implies is not a constant — under <a href="#eq-modelA" class="quarto-xref">Equation&nbsp;7</a> it depends on the attractiveness of the displayed set through <span class="math inline">\(S_{it}\)</span> — so calibrations struck on one design will not transfer to another. Third, the information results in <a href="#sec-information" class="quarto-xref">Section&nbsp;2.8</a> and <a href="#sec-sim-efficiency" class="quarto-xref">Section&nbsp;3.6</a> give concrete design guidance: the follow-up question’s scale should be chosen the way sample sizes are chosen, by information budgeting. Our results suggest most of the binary-to-continuous information gap is captured by a five- to seven-point scale, after which respondent burden and sparsely used categories argue against finer partitions. <!-- TODO: confirm this claim against the final simulation numbers. --></p>
+</section>
+<section id="relation-to-the-outside-good-literature" class="level3" data-number="5.3">
+<h3 data-number="5.3" class="anchored" data-anchor-id="relation-to-the-outside-good-literature"><span class="header-section-number">5.3</span> Relation to the Outside-Good Literature</h3>
+<p>Our model holds the outside good’s <em>mean</em> utility fixed at zero and locates all action in the consumer’s uncertainty about its realization. Two adjacent strands suggest natural extensions. <span class="citation" data-cites="Hung_2025_dual">Hung, Liu, et al. (<a href="#ref-Hung_2025_dual" role="doc-biblioref">2025</a>)</span> show that a budget constraint applied to the second response — but not the forced choice — improves fit and materially changes equilibrium price predictions; the same asymmetric treatment is available here, censoring the ordinal report for options priced above a respondent-level budget, and the ordinal response should sharpen the identification of that budget since near-threshold options will earn lukewarm rather than merely negative reports. <span class="citation" data-cites="Hung_2025_nochoice">Hung, Kurz, et al. (<a href="#ref-Hung_2025_nochoice" role="doc-biblioref">2025</a>)</span> document that the no-choice option’s utility can drift over the course of a survey as respondents learn about the category; in our notation this is drift in the cut points (or in the outside-good location), and the task-order diagnostics of <a href="#sec-data" class="quarto-xref">Section&nbsp;4.1</a> carry over directly. More broadly, the opt-out literature’s warning that a single constant rarely captures heterogeneous non-purchase behavior <span class="citation" data-cites="Campbell_2019 Haaijer_2001">(<a href="#ref-Campbell_2019" role="doc-biblioref">Campbell and Erdem 2019</a>; <a href="#ref-Haaijer_2001" role="doc-biblioref">Haaijer et al. 2001</a>)</span> applies to the dual response as well; the heterogeneous-cut-point extension of <a href="#sec-hetcut" class="quarto-xref">Section&nbsp;2.6.1</a> is one response, and richer structures (e.g., serial non-purchasers as a latent class) are compatible with the framework.</p>
+</section>
+<section id="limitations" class="level3" data-number="5.4">
+<h3 data-number="5.4" class="anchored" data-anchor-id="limitations"><span class="header-section-number">5.4</span> Limitations</h3>
+<p>Four limitations qualify the results. First, the Gumbel error assumption is load-bearing: the factorization of the joint likelihood and the inclusive-value form of the second response both rest on max-stability, and relaxing the error family (e.g., toward mixed or nested structures within a task) would break the closed form, though not the framework — the second response would simply require simulation over the max distribution. Second, we treat tasks as independent draws, abstracting from learning, fatigue, and reference formation across the sequence <span class="citation" data-cites="Hung_2025_nochoice">(<a href="#ref-Hung_2025_nochoice" role="doc-biblioref">Hung, Kurz, et al. 2025</a>)</span>. Third, the common-cut-point model assumes a shared reading of the scale labels; the extension of <a href="#sec-hetcut" class="quarto-xref">Section&nbsp;2.6.1</a> relaxes this, but individual-level identification is necessarily thin with commercial task counts, and our recommendation to treat scale-usage heterogeneity as a robustness check rather than a default reflects that. Fourth, like all stated-preference methods, the model calibrates stated rather than revealed purchase behavior; the ordinal report inherits whatever hypothetical bias attends purchase-intent questions generally <span class="citation" data-cites="Morrison_1979">(<a href="#ref-Morrison_1979" role="doc-biblioref">Morrison 1979</a>)</span>, and linking the estimated cut points to realized purchase rates — the ordinal analogue of the calibration literature on binary intentions — is a natural next step.</p>
+</section>
 </section>
 <section id="sec-conclusion" class="level2" data-number="6">
 <h2 data-number="6" class="anchored" data-anchor-id="sec-conclusion"><span class="header-section-number">6</span> Conclusion</h2>
-<p>add</p>
+<p>Dual-response conjoint designs separate a question consumers find easy — which of these do you like best? — from one they find genuinely uncertain — would you actually buy it? This paper takes that uncertainty seriously as a modeling primitive. When the consumer observes everything about the displayed alternatives but not her valuation of the outside good, the natural follow-up question is ordinal, and the natural model is the one derived here: a multinomial logit for the forced choice joined to a cumulative-link ordinal model on the task’s inclusive value, with the link function determined by whether the respondent reports her purchase probability directly (Model A) or grades a resolved comparison (Model B). The framework nests the leading binary dual-response models as its two-point special case, so nothing is lost relative to current best practice; a <span class="math inline">\(W\)</span>-point scale strictly adds Fisher information, and the common practitioner shortcuts — dichotomizing the scale or assigning fixed purchase probabilities to its points — are shown to be, respectively, wasteful and internally inconsistent. Simulation evidence confirms that the aggregate and hierarchical Bayesian estimators recover the model’s parameters, including the cut points that give the scale labels quantitative meaning, and the empirical application demonstrates the model on commercial data. <!-- TODO: sharpen the two evidence claims once simulation and empirical results are final. --></p>
+<p>Beyond the specific model, the paper’s broader point is that response formats and statistical models should be developed together. The ordinal purchase-likelihood question earned its place in practice because it matches how respondents experience purchase decisions; it lacked only a likelihood. Supplying one turns an informal fielding habit into a measurement instrument — and opens a research agenda that includes calibrating estimated cut points against realized purchase behavior, exploiting the ordinal response to identify budget constraints, and optimal design of the scale itself.</p>
 </section>
 <section id="references" class="level2 unnumbered">
 <h2 class="unnumbered anchored" data-anchor-id="references">References</h2>
-<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="refs" class="references csl-bib-body hanging-indent" role="list">
+<div id="ref-Allenby_2019" class="csl-entry" role="listitem">
+Allenby, Greg M., Nino Hardt, and Peter E. Rossi. 2019. <span>“Economic Foundations of Conjoint Analysis.”</span> In <em>Handbook of the Economics of Marketing</em>, edited by Jean-Pierre Dubé and Peter E. Rossi, vol. 1. North-Holland.
+</div>
 <div id="ref-Brazell_2006" class="csl-entry" role="listitem">
 Brazell, Jeff D., Christopher G. Diener, Ekaterina Karniouchina, William L. Moore, Válerie Séverin, and Pierre-Francois Uldry. 2006. <span>“The No-Choice Option and Dual Response Choice Designs.”</span> <em>Marketing Letters</em> 17 (4): 255–68. <a href="https://doi.org/10.1007/s11002-006-7943-8">https://doi.org/10.1007/s11002-006-7943-8</a>.
+</div>
+<div id="ref-Campbell_2019" class="csl-entry" role="listitem">
+Campbell, Danny, and Seda Erdem. 2019. <span>“Including Opt-Out Options in Discrete Choice Experiments: Issues to Consider.”</span> <em>The Patient - Patient-Centered Outcomes Research</em> 12 (1): 1–14. <a href="https://doi.org/10.1007/s40271-018-0324-6">https://doi.org/10.1007/s40271-018-0324-6</a>.
 </div>
 <div id="ref-Cardell_1997" class="csl-entry" role="listitem">
 Cardell, N. Scott. 1997. <span>“Variance Components Structures for the Extreme-Value and Logistic Distributions with Application to Models of Heterogeneity.”</span> <em>Econometric Theory</em> 13 (2): 185–213. <a href="https://doi.org/10.1017/s0266466600005727">https://doi.org/10.1017/s0266466600005727</a>.
 </div>
+<div id="ref-Dhar_2003" class="csl-entry" role="listitem">
+Dhar, Ravi, and Itamar Simonson. 2003. <span>“The Effect of Forced Choice on Choice.”</span> <em>Journal of Marketing Research</em> 40 (2): 146–60. <a href="https://doi.org/10.1509/jmkr.40.2.146.19229">https://doi.org/10.1509/jmkr.40.2.146.19229</a>.
+</div>
+<div id="ref-Diener_2006" class="csl-entry" role="listitem">
+Diener, Christopher G., Bryan K. Orme, and David Yardley. 2006. <span>“Dual Response <span>‘None’</span> Approaches: Theory and Practice.”</span> <em>Proceedings of the Sawtooth Software Conference</em> (Sequim, WA), 157–67.
+</div>
+<div id="ref-Falco_2015" class="csl-entry" role="listitem">
+Falco, Paolo, William F. Maloney, Bob Rijkers, and Mauricio Sarrias. 2015. <span>“Heterogeneity in Subjective Wellbeing: An Application to Occupational Allocation in <span>Africa</span>.”</span> <em>Journal of Economic Behavior &amp; Organization</em> 111: 137–53. <a href="https://doi.org/10.1016/j.jebo.2014.12.022">https://doi.org/10.1016/j.jebo.2014.12.022</a>.
+</div>
+<div id="ref-Greene_2010" class="csl-entry" role="listitem">
+Greene, William H., and David A. Hensher. 2010. <span>“Ordered Choices and Heterogeneity in Attribute Processing.”</span> <em>Journal of Transport Economics and Policy</em> 44 (3): 331–64.
+</div>
+<div id="ref-Haaijer_2001" class="csl-entry" role="listitem">
+Haaijer, Rinus, Wagner A. Kamakura, and Michel Wedel. 2001. <span>“The <span>‘No-Choice’</span> Alternative in Conjoint Choice Experiments.”</span> <em>International Journal of Market Research</em> 43 (1): 93–106. <a href="https://doi.org/10.1177/147078530104300105">https://doi.org/10.1177/147078530104300105</a>.
+</div>
+<div id="ref-Huber_1996" class="csl-entry" role="listitem">
+Huber, Joel, and Klaus Zwerina. 1996. <span>“The Importance of Utility Balance in Efficient Choice Designs.”</span> <em>Journal of Marketing Research</em> 33 (3): 307–17. <a href="https://doi.org/10.1177/002224379603300305">https://doi.org/10.1177/002224379603300305</a>.
+</div>
+<div id="ref-Hung_2025_nochoice" class="csl-entry" role="listitem">
+Hung, Chien-Yu, Peter Kurz, Roger A. Bailey, Joel Huber, and Greg M. Allenby. 2025. <span>“Re-Examining the No-Choice Option in Conjoint Analysis.”</span> <em>Journal of Choice Modelling</em> 57: 100578. <a href="https://doi.org/10.1016/j.jocm.2025.100578">https://doi.org/10.1016/j.jocm.2025.100578</a>.
+</div>
+<div id="ref-Hung_2025_dual" class="csl-entry" role="listitem">
+Hung, Chien-Yu, Yueming Liu, Jeff D. Brazell, and Greg M. Allenby. 2025. <span>“Dual Response in Conjoint Analysis.”</span> <em>Marketing Letters</em>, ahead of print. <a href="https://doi.org/10.1007/s11002-025-09787-1">https://doi.org/10.1007/s11002-025-09787-1</a>.
+</div>
+<div id="ref-Juster_1966" class="csl-entry" role="listitem">
+Juster, F. Thomas. 1966. <span>“Consumer Buying Intentions and Purchase Probability: An Experiment in Survey Design.”</span> <em>Journal of the American Statistical Association</em> 61 (315): 658–96. <a href="https://doi.org/10.1080/01621459.1966.10480897">https://doi.org/10.1080/01621459.1966.10480897</a>.
+</div>
+<div id="ref-Marshall_2002" class="csl-entry" role="listitem">
+Marshall, Pablo, and Eric T. Bradlow. 2002. <span>“A Unified Approach to Conjoint Analysis Models.”</span> <em>Journal of the American Statistical Association</em> 97 (459): 674–82. <a href="https://doi.org/10.1198/016214502388618410">https://doi.org/10.1198/016214502388618410</a>.
+</div>
 <div id="ref-Mcfadden_1981" class="csl-entry" role="listitem">
-McFadden, Daniel L. 1981. <span>“Structural Discrete Probability Models Derived from Theories of Choice.”</span> In, 198–272. The MIT Press.
+McFadden, Daniel L. 1981. <em>Structural Discrete Probability Models Derived from Theories of Choice</em>. The MIT Press.
+</div>
+<div id="ref-Morrison_1979" class="csl-entry" role="listitem">
+Morrison, Donald G. 1979. <span>“Purchase Intentions and Purchase Behavior.”</span> <em>Journal of Marketing</em> 43 (2): 65–74. <a href="https://doi.org/10.1177/002224297904300207">https://doi.org/10.1177/002224297904300207</a>.
+</div>
+<div id="ref-Newton_1994" class="csl-entry" role="listitem">
+Newton, Michael A., and Adrian E. Raftery. 1994. <span>“Approximate <span>Bayesian</span> Inference with the Weighted Likelihood Bootstrap.”</span> <em>Journal of the Royal Statistical Society: Series B (Methodological)</em> 56 (1): 3–48. <a href="https://doi.org/10.1111/j.2517-6161.1994.tb01956.x">https://doi.org/10.1111/j.2517-6161.1994.tb01956.x</a>.
+</div>
+<div id="ref-Rossi_2005" class="csl-entry" role="listitem">
+Rossi, Peter E., Greg M. Allenby, and Robert McCulloch. 2005. <em>Bayesian Statistics and Marketing</em>. John Wiley &amp; Sons.
+</div>
+<div id="ref-Sarrias_2020" class="csl-entry" role="listitem">
+Sarrias, Mauricio. 2020. <span>“Individual-Specific Posterior Distributions from Mixed Logit Models: Properties, Limitations and Diagnostic Checks.”</span> <em>Journal of Choice Modelling</em> 36: 100224. <a href="https://doi.org/10.1016/j.jocm.2020.100224">https://doi.org/10.1016/j.jocm.2020.100224</a>.
+</div>
+<div id="ref-Sawtooth_2017" class="csl-entry" role="listitem">
+Sawtooth Software. 2017. <em>The <span>CBC</span> System for Choice-Based Conjoint Analysis, Version 9</em>. Technical Paper. Sawtooth Software, Inc.
+</div>
+<div id="ref-Schlereth_2017" class="csl-entry" role="listitem">
+Schlereth, Christian, and Bernd Skiera. 2017. <span>“Two New Features in Discrete Choice Experiments to Improve Willingness-to-Pay Estimation That Result in <span>SDR</span> and <span>SADR</span>: Separated (Adaptive) Dual Response.”</span> <em>Management Science</em> 63 (3): 829–42. <a href="https://doi.org/10.1287/mnsc.2015.2367">https://doi.org/10.1287/mnsc.2015.2367</a>.
+</div>
+<div id="ref-Train_2001" class="csl-entry" role="listitem">
+Train, Kenneth E. 2001. <em>A Comparison of Hierarchical <span>Bayes</span> and Maximum Simulated Likelihood for Mixed Logit</em>. Working Paper. University of California, Berkeley.
 </div>
 </div>
 </section>
@@ -356,267 +591,278 @@ McFadden, Daniel L. 1981. <span>“Structural Discrete Probability Models Derive
 <div id="quarto-appendix" class="default"><section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes"><h2 class="anchored quarto-appendix-heading">Footnotes</h2>
 
 <ol>
-<li id="fn1"><p>This can be motivated by a framework in which <span class="math inline">\(u_0 = 0\)</span> and <span class="math inline">\(u_{ij} = {\x_j}'\bfbeta_i + \eta_{ij} - \eta_0\)</span> for <span class="math inline">\(j \in \mathcal{J}^{+}_i\)</span>. Here, <span class="math inline">\(\eta_0\)</span> captures the consumer’s uncertainty about their future tastes. Given that utilities are ordinal and <span class="math inline">\(\eta_0\)</span> is a common shock, it plays no role in the choice among the most preferred inside good <span class="math inline">\(j^* \in \mathcal{J}^{+}_i\)</span>.<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn2"><p>We note that, while the parametrization of <span class="math inline">\(\eta_0 \sim \text{Gumbel}\left(0,1\right)\)</span> preserves symmetry among the <span class="math inline">\(J+1\)</span> goods and is thus a natural choice, the framework can easily accommodate an alternative distribution for <span class="math inline">\(\eta_0\)</span>. For example, one could use an affine function of individual characteristics to accommodate individual-level variation in the propensity to prefer the outside good.<a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn3"><p>See, e.g., <span class="citation" data-cites="Mcfadden_1981">(<a href="#ref-Mcfadden_1981" role="doc-biblioref">McFadden 1981</a>)</span> or <span class="citation" data-cites="Cardell_1997">(<a href="#ref-Cardell_1997" role="doc-biblioref">Cardell 1997</a>)</span>.<a href="#fnref3" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn1"><p>TODO: add citable source. The Baymard Institute maintains a running meta-analysis of cart-abandonment studies with an average of roughly 70%.<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn2"><p>We hold <span class="math inline">\(J\)</span> fixed across tasks and consumers to lighten notation; nothing in what follows requires it.<a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn3"><p>This can be motivated by a framework in which <span class="math inline">\(u_{it0} = 0\)</span> and <span class="math inline">\(u_{itj} = {\x_{tj}}'\bfbeta_i + \eta_{itj} - \eta_{it0}\)</span> for <span class="math inline">\(j \in \mathcal{J}^{+}\)</span>, where <span class="math inline">\(\eta_{it0}\)</span> captures the consumer’s uncertainty about her future tastes or circumstances at the moment of purchase. Because utilities are ordinal and <span class="math inline">\(\eta_{it0}\)</span> is a common shock, it plays no role in the comparison among inside goods.<a href="#fnref3" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn4"><p>While the parametrization <span class="math inline">\(\eta_{it0} \sim \text{Gumbel}\left(0,1\right)\)</span> preserves symmetry among the <span class="math inline">\(J+1\)</span> goods and is thus a natural choice, the framework easily accommodates alternative distributions for <span class="math inline">\(\eta_{it0}\)</span>. For example, an affine function of individual characteristics could accommodate individual-level variation in the propensity to prefer the outside good.<a href="#fnref4" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
 </ol>
-</section><section class="quarto-appendix-contents" id="quarto-citation"><h2 class="anchored quarto-appendix-heading">Citation</h2><div><div class="quarto-appendix-secondary-label">BibTeX citation:</div><pre class="sourceCode code-with-copy quarto-appendix-bibtex"><code class="sourceCode bibtex">@online{bhalerao2024,
+</section><section class="quarto-appendix-contents" id="quarto-citation"><h2 class="anchored quarto-appendix-heading">Citation</h2><div><div class="quarto-appendix-secondary-label">BibTeX citation:</div><pre class="sourceCode code-with-copy quarto-appendix-bibtex"><code class="sourceCode bibtex">@online{bhalerao2026,
   author = {Bhalerao, Prachi and Yavorsky, Dan and Zheng, Geoffery},
   title = {Outside {Good} {Uncertainty}},
-  date = {2024-10-03},
+  date = {2026-07-10},
   langid = {en},
-  abstract = {We provide a behavioral model in which consumers are able
-    to identify their most-preferred option among a set of alternatives,
-    but face uncertainty in their evalulation of the outside good. The
-    model rationalizes the use of a dual-response framework in
-    choice-based conjoint analysis and extends the evaluation of the
-    purchase decision from binary to ordinal. A simulation study
-    provides estimation routines for aggregate and Hierarhical Bayesian
-    versions of the model, and demonstrates the model’s superior
-    performance compared with the binary and heuristic approaches
-    currently used by practioners. We also provide an empirical example
-    from a choice-based conjoint analysis conducted in partnership with
-    a consumer insights consultancy.}
+  abstract = {We provide a behavioral model in which consumers can
+    identify their most-preferred option among a set of alternatives but
+    face uncertainty in their evaluation of the outside good. The model
+    rationalizes the dual-response format used in choice-based conjoint
+    analysis and extends the follow-up purchase question from binary to
+    ordinal, accommodating scales with any number of points. The
+    resulting likelihood couples a multinomial logit for the forced
+    choice with a cumulative-link ordinal model driven by the task’s
+    inclusive value, and it nests the leading binary dual-response
+    models as its two-point special case. We derive the information
+    gains from finer response scales, provide estimation routines for
+    aggregate and hierarchical Bayesian versions of the model —
+    including an extension with respondent-specific cut points — and
+    demonstrate the model’s superior performance relative to the
+    dichotomization and constant-probability heuristics currently used
+    by practitioners. An empirical application uses a choice-based
+    conjoint study conducted in partnership with a consumer insights
+    consultancy.}
 }
-</code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre><div class="quarto-appendix-secondary-label">For attribution, please cite this work as:</div><div id="ref-bhalerao2024" class="csl-entry quarto-appendix-citeas" role="listitem">
-Bhalerao, Prachi, Dan Yavorsky, and Geoffery Zheng. 2024. <span>“Outside
-Good Uncertainty.”</span> October 3, 2024.
+</code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre><div class="quarto-appendix-secondary-label">For attribution, please cite this work as:</div><div id="ref-bhalerao2026" class="csl-entry quarto-appendix-citeas" role="listitem">
+Bhalerao, Prachi, Dan Yavorsky, and Geoffery Zheng. 2026. <span>“Outside
+Good Uncertainty.”</span> July 10.
 </div></div></section></div></main>
 <!-- /main column -->
 <script id="quarto-html-after-body" type="application/javascript">
-window.document.addEventListener("DOMContentLoaded", function (event) {
-  const toggleBodyColorMode = (bsSheetEl) => {
-    const mode = bsSheetEl.getAttribute("data-mode");
-    const bodyEl = window.document.querySelector("body");
-    if (mode === "dark") {
-      bodyEl.classList.add("quarto-dark");
-      bodyEl.classList.remove("quarto-light");
-    } else {
-      bodyEl.classList.add("quarto-light");
-      bodyEl.classList.remove("quarto-dark");
-    }
-  }
-  const toggleBodyColorPrimary = () => {
-    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
-    if (bsSheetEl) {
-      toggleBodyColorMode(bsSheetEl);
-    }
-  }
-  toggleBodyColorPrimary();  
-  const icon = "";
-  const anchorJS = new window.AnchorJS();
-  anchorJS.options = {
-    placement: 'right',
-    icon: icon
-  };
-  anchorJS.add('.anchored');
-  const isCodeAnnotation = (el) => {
-    for (const clz of el.classList) {
-      if (clz.startsWith('code-annotation-')) {                     
-        return true;
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
       }
+      return false;
     }
-    return false;
-  }
-  const onCopySuccess = function(e) {
-    // button target
-    const button = e.trigger;
-    // don't keep focus
-    button.blur();
-    // flash "checked"
-    button.classList.add('code-copy-button-checked');
-    var currentTitle = button.getAttribute("title");
-    button.setAttribute("title", "Copied!");
-    let tooltip;
-    if (window.bootstrap) {
-      button.setAttribute("data-bs-toggle", "tooltip");
-      button.setAttribute("data-bs-placement", "left");
-      button.setAttribute("data-bs-title", "Copied!");
-      tooltip = new bootstrap.Tooltip(button, 
-        { trigger: "manual", 
-          customClass: "code-copy-button-tooltip",
-          offset: [0, -8]});
-      tooltip.show();    
-    }
-    setTimeout(function() {
-      if (tooltip) {
-        tooltip.hide();
-        button.removeAttribute("data-bs-title");
-        button.removeAttribute("data-bs-toggle");
-        button.removeAttribute("data-bs-placement");
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
       }
-      button.setAttribute("title", currentTitle);
-      button.classList.remove('code-copy-button-checked');
-    }, 1000);
-    // clear code selection
-    e.clearSelection();
-  }
-  const getTextToCopy = function(trigger) {
-      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
       for (const childEl of codeEl.children) {
         if (isCodeAnnotation(childEl)) {
           childEl.remove();
         }
       }
       return codeEl.innerText;
-  }
-  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
-    text: getTextToCopy
-  });
-  clipboard.on('success', onCopySuccess);
-  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
-    // For code content inside modals, clipBoardJS needs to be initialized with a container option
-    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
-    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
-      text: getTextToCopy,
-      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
     });
-    clipboardModal.on('success', onCopySuccess);
-  }
-    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
-    var mailtoRegex = new RegExp(/^mailto:/);
-      var filterRegex = new RegExp('/' + window.location.host + '/');
-    var isInternal = (href) => {
-        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
     }
-    // Inspect non-navigation links and adorn them if external
- 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
-    for (var i=0; i<links.length; i++) {
-      const link = links[i];
-      if (!isInternal(link.href)) {
-        // undo the damage that might have been done by quarto-nav.js in the case of
-        // links that we want to consider external
-        if (link.dataset.originalHref !== undefined) {
-          link.href = link.dataset.originalHref;
-        }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
       }
-    }
-  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
-    const config = {
-      allowHTML: true,
-      maxWidth: 500,
-      delay: 100,
-      arrow: false,
-      appendTo: function(el) {
-          return el.parentElement;
-      },
-      interactive: true,
-      interactiveBorder: 10,
-      theme: 'quarto',
-      placement: 'bottom-start',
-    };
-    if (contentFn) {
-      config.content = contentFn;
-    }
-    if (onTriggerFn) {
-      config.onTrigger = onTriggerFn;
-    }
-    if (onUntriggerFn) {
-      config.onUntrigger = onUntriggerFn;
-    }
-    window.tippy(el, config); 
-  }
-  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
-  for (var i=0; i<noterefs.length; i++) {
-    const ref = noterefs[i];
-    tippyHover(ref, function() {
-      // use id or data attribute instead here
-      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
-      try { href = new URL(href).hash; } catch {}
-      const id = href.replace(/^#\/?/, "");
-      const note = window.document.getElementById(id);
-      if (note) {
-        return note.innerHTML;
-      } else {
-        return "";
-      }
-    });
-  }
-  const xrefs = window.document.querySelectorAll('a.quarto-xref');
-  const processXRef = (id, note) => {
-    // Strip column container classes
-    const stripColumnClz = (el) => {
-      el.classList.remove("page-full", "page-columns");
-      if (el.children) {
-        for (const child of el.children) {
-          stripColumnClz(child);
-        }
-      }
-    }
-    stripColumnClz(note)
-    if (id === null || id.startsWith('sec-')) {
-      // Special case sections, only their first couple elements
-      const container = document.createElement("div");
-      if (note.children && note.children.length > 2) {
-        container.appendChild(note.children[0].cloneNode(true));
-        for (let i = 1; i < note.children.length; i++) {
-          const child = note.children[i];
-          if (child.tagName === "P" && child.innerText === "") {
-            continue;
-          } else {
-            container.appendChild(child.cloneNode(true));
-            break;
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
           }
         }
-        if (window.Quarto?.typesetMath) {
-          window.Quarto.typesetMath(container);
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
         }
-        return container.innerHTML
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
       } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
         if (window.Quarto?.typesetMath) {
           window.Quarto.typesetMath(note);
         }
-        return note.innerHTML;
-      }
-    } else {
-      // Remove any anchor links if they are present
-      const anchorLink = note.querySelector('a.anchorjs-link');
-      if (anchorLink) {
-        anchorLink.remove();
-      }
-      if (window.Quarto?.typesetMath) {
-        window.Quarto.typesetMath(note);
-      }
-      // TODO in 1.5, we should make sure this works without a callout special case
-      if (note.classList.contains("callout")) {
-        return note.outerHTML;
-      } else {
-        return note.innerHTML;
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
       }
     }
-  }
-  for (var i=0; i<xrefs.length; i++) {
-    const xref = xrefs[i];
-    tippyHover(xref, undefined, function(instance) {
-      instance.disable();
-      let url = xref.getAttribute('href');
-      let hash = undefined; 
-      if (url.startsWith('#')) {
-        hash = url;
-      } else {
-        try { hash = new URL(url).hash; } catch {}
-      }
-      if (hash) {
-        const id = hash.replace(/^#\/?/, "");
-        const note = window.document.getElementById(id);
-        if (note !== null) {
-          try {
-            const html = processXRef(id, note.cloneNode(true));
-            instance.setContent(html);
-          } finally {
-            instance.enable();
-            instance.show();
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
           }
         } else {
-          // See if we can fetch this
-          fetch(url.split('#')[0])
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
           .then(res => res.text())
           .then(html => {
             const parser = new DOMParser();
             const htmlDoc = parser.parseFromString(html, "text/html");
-            const note = htmlDoc.getElementById(id);
+            const note = htmlDoc.querySelector('main.content');
             if (note !== null) {
-              const html = processXRef(id, note);
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
               instance.setContent(html);
             } 
           }).finally(() => {
@@ -624,185 +870,161 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
             instance.show();
           });
         }
-      } else {
-        // See if we can fetch a full url (with no hash to target)
-        // This is a special case and we should probably do some content thinning / targeting
-        fetch(url)
-        .then(res => res.text())
-        .then(html => {
-          const parser = new DOMParser();
-          const htmlDoc = parser.parseFromString(html, "text/html");
-          const note = htmlDoc.querySelector('main.content');
-          if (note !== null) {
-            // This should only happen for chapter cross references
-            // (since there is no id in the URL)
-            // remove the first header
-            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
-              note.children[0].remove();
-            }
-            const html = processXRef(null, note);
-            instance.setContent(html);
-          } 
-        }).finally(() => {
-          instance.enable();
-          instance.show();
-        });
-      }
-    }, function(instance) {
-    });
-  }
-      let selectedAnnoteEl;
-      const selectorForAnnotation = ( cell, annotation) => {
-        let cellAttr = 'data-code-cell="' + cell + '"';
-        let lineAttr = 'data-code-annotation="' +  annotation + '"';
-        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
-        return selector;
-      }
-      const selectCodeLines = (annoteEl) => {
-        const doc = window.document;
-        const targetCell = annoteEl.getAttribute("data-target-cell");
-        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
-        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
-        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
-        const lineIds = lines.map((line) => {
-          return targetCell + "-" + line;
-        })
-        let top = null;
-        let height = null;
-        let parent = null;
-        if (lineIds.length > 0) {
-            //compute the position of the single el (top and bottom and make a div)
-            const el = window.document.getElementById(lineIds[0]);
-            top = el.offsetTop;
-            height = el.offsetHeight;
-            parent = el.parentElement.parentElement;
-          if (lineIds.length > 1) {
-            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
-            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
-            height = bottom - top;
-          }
-          if (top !== null && height !== null && parent !== null) {
-            // cook up a div (if necessary) and position it 
-            let div = window.document.getElementById("code-annotation-line-highlight");
-            if (div === null) {
-              div = window.document.createElement("div");
-              div.setAttribute("id", "code-annotation-line-highlight");
-              div.style.position = 'absolute';
-              parent.appendChild(div);
-            }
-            div.style.top = top - 2 + "px";
-            div.style.height = height + 4 + "px";
-            div.style.left = 0;
-            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
-            if (gutterDiv === null) {
-              gutterDiv = window.document.createElement("div");
-              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
-              gutterDiv.style.position = 'absolute';
-              const codeCell = window.document.getElementById(targetCell);
-              const gutter = codeCell.querySelector('.code-annotation-gutter');
-              gutter.appendChild(gutterDiv);
-            }
-            gutterDiv.style.top = top - 2 + "px";
-            gutterDiv.style.height = height + 4 + "px";
-          }
-          selectedAnnoteEl = annoteEl;
-        }
-      };
-      const unselectCodeLines = () => {
-        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
-        elementsIds.forEach((elId) => {
-          const div = window.document.getElementById(elId);
-          if (div) {
-            div.remove();
-          }
-        });
-        selectedAnnoteEl = undefined;
-      };
-        // Handle positioning of the toggle
-    window.addEventListener(
-      "resize",
-      throttle(() => {
-        elRect = undefined;
-        if (selectedAnnoteEl) {
-          selectCodeLines(selectedAnnoteEl);
-        }
-      }, 10)
-    );
-    function throttle(fn, ms) {
-    let throttle = false;
-    let timer;
-      return (...args) => {
-        if(!throttle) { // first call gets through
-            fn.apply(this, args);
-            throttle = true;
-        } else { // all the others get throttled
-            if(timer) clearTimeout(timer); // cancel #2
-            timer = setTimeout(() => {
-              fn.apply(this, args);
-              timer = throttle = false;
-            }, ms);
-        }
-      };
-    }
-      // Attach click handler to the DT
-      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
-      for (const annoteDlNode of annoteDls) {
-        annoteDlNode.addEventListener('click', (event) => {
-          const clickedEl = event.target;
-          if (clickedEl !== selectedAnnoteEl) {
-            unselectCodeLines();
-            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
-            if (activeEl) {
-              activeEl.classList.remove('code-annotation-active');
-            }
-            selectCodeLines(clickedEl);
-            clickedEl.classList.add('code-annotation-active');
-          } else {
-            // Unselect the line
-            unselectCodeLines();
-            clickedEl.classList.remove('code-annotation-active');
-          }
-        });
-      }
-  const findCites = (el) => {
-    const parentEl = el.parentElement;
-    if (parentEl) {
-      const cites = parentEl.dataset.cites;
-      if (cites) {
-        return {
-          el,
-          cites: cites.split(' ')
-        };
-      } else {
-        return findCites(el.parentElement)
-      }
-    } else {
-      return undefined;
-    }
-  };
-  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
-  for (var i=0; i<bibliorefs.length; i++) {
-    const ref = bibliorefs[i];
-    const citeInfo = findCites(ref);
-    if (citeInfo) {
-      tippyHover(citeInfo.el, function() {
-        var popup = window.document.createElement('div');
-        citeInfo.cites.forEach(function(cite) {
-          var citeDiv = window.document.createElement('div');
-          citeDiv.classList.add('hanging-indent');
-          citeDiv.classList.add('csl-entry');
-          var biblioDiv = window.document.getElementById('ref-' + cite);
-          if (biblioDiv) {
-            citeDiv.innerHTML = biblioDiv.innerHTML;
-          }
-          popup.appendChild(citeDiv);
-        });
-        return popup.innerHTML;
+      }, function(instance) {
       });
     }
-  }
-});
-</script>
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
 </div> <!-- /content -->
 
 
