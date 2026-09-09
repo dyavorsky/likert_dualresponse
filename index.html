@@ -2,14 +2,14 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.10.14">
+<meta name="generator" content="quarto-1.11.4">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Prachi Bhalerao">
 <meta name="author" content="Dan Yavorsky">
 <meta name="author" content="Geoffery Zheng">
-<meta name="dcterms.date" content="2026-07-10">
+<meta name="dcterms.date" content="2026-09-09">
 <meta name="keywords" content="choice-based conjoint analysis, dual response, stated preference elicitation, discrete choice methods, ordered choice, outside good">
 
 <title>Outside Good Uncertainty</title>
@@ -17,10 +17,13 @@
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
 */
-code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
-div.columns{display: flex; gap: min(4vw, 1.5em);}
-div.column{flex: auto; overflow-x: auto;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
 div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 ul.task-list{list-style: none;}
 ul.task-list li input[type="checkbox"] {
@@ -57,13 +60,16 @@ div.csl-indent {
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="site_libs/quarto-html/anchor.min.js"></script>
 <link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-7832d8100c30e5308af25d4a964213de.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-03d3dfde56ecdf7ec35882f3b46e7ba8.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-026b43eddac53d9c8001bc9214a409cd.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-6637c74bae20b611a26c1e446f3bbec3.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script src="site_libs/quarto-contrib/glightbox/glightbox.min.js"></script>
+<link href="site_libs/quarto-contrib/glightbox/glightbox.min.css" rel="stylesheet">
+<link href="site_libs/quarto-contrib/glightbox/lightbox.css" rel="stylesheet">
 
   <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
-  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
 
 <script type="text/javascript">
 const typesetMath = (el) => {
@@ -99,10 +105,10 @@ window.Quarto = {
 <meta name="citation_author" content="Prachi Bhalerao">
 <meta name="citation_author" content="Dan Yavorsky">
 <meta name="citation_author" content="Geoffery Zheng">
-<meta name="citation_publication_date" content="2026-07-10">
-<meta name="citation_cover_date" content="2026-07-10">
+<meta name="citation_publication_date" content="2026-09-09">
+<meta name="citation_cover_date" content="2026-09-09">
 <meta name="citation_year" content="2026">
-<meta name="citation_online_date" content="2026-07-10">
+<meta name="citation_online_date" content="2026-09-09">
 <meta name="citation_language" content="en">
 <meta name="citation_reference" content="citation_title=Structural analysis of discrete data with econometric applications;,citation_author=Charles F. Manski;,citation_author=Daniel McFadden;,citation_publication_date=1981;,citation_cover_date=1981;,citation_year=1981;,citation_isbn=9780262131599;">
 <meta name="citation_reference" content="citation_title=Structural discrete probability models derived from theories of choice;,citation_author=Daniel L. McFadden;,citation_publication_date=1981;,citation_cover_date=1981;,citation_year=1981;,citation_isbn=9780262131599;,citation_inbook_title=undefined;">
@@ -127,11 +133,16 @@ window.Quarto = {
 <meta name="citation_reference" content="citation_title=A comparison of hierarchical Bayes and maximum simulated likelihood for mixed logit;,citation_author=Kenneth E. Train;,citation_publication_date=2001;,citation_cover_date=2001;,citation_year=2001;,citation_technical_report_institution=University of California, Berkeley;">
 <meta name="citation_reference" content="citation_title=Individual-specific posterior distributions from mixed logit models: Properties, limitations and diagnostic checks;,citation_author=Mauricio Sarrias;,citation_publication_date=2020;,citation_cover_date=2020;,citation_year=2020;,citation_doi=10.1016/j.jocm.2020.100224;,citation_volume=36;,citation_journal_title=Journal of Choice Modelling;">
 <meta name="citation_reference" content="citation_title=Approximate Bayesian inference with the weighted likelihood bootstrap;,citation_author=Michael A. Newton;,citation_author=Adrian E. Raftery;,citation_publication_date=1994;,citation_cover_date=1994;,citation_year=1994;,citation_issue=1;,citation_doi=10.1111/j.2517-6161.1994.tb01956.x;,citation_volume=56;,citation_journal_title=Journal of the Royal Statistical Society: Series B (Methodological);">
+<meta name="citation_reference" content="citation_title=Simulating ratios of normalizing constants via a simple identity: A theoretical exploration;,citation_author=Xiao-Li Meng;,citation_author=Wing Hung Wong;,citation_publication_date=1996;,citation_cover_date=1996;,citation_year=1996;,citation_issue=4;,citation_volume=6;,citation_journal_title=Statistica Sinica;">
+<meta name="citation_reference" content="citation_title=Bridgesampling: An R package for estimating normalizing constants;,citation_author=Quentin F. Gronau;,citation_author=Henrik Singmann;,citation_author=Eric-Jan Wagenmakers;,citation_publication_date=2020;,citation_cover_date=2020;,citation_year=2020;,citation_issue=10;,citation_doi=10.18637/jss.v092.i10;,citation_volume=92;,citation_journal_title=Journal of Statistical Software;">
+<meta name="citation_reference" content="citation_title=Asymptotic equivalence of Bayes cross validation and widely applicable information criterion in singular learning theory;,citation_author=Sumio Watanabe;,citation_publication_date=2010;,citation_cover_date=2010;,citation_year=2010;,citation_volume=11;,citation_journal_title=Journal of Machine Learning Research;">
+<meta name="citation_reference" content="citation_title=Practical Bayesian model evaluation using leave-one-out cross-validation and WAIC;,citation_author=Aki Vehtari;,citation_author=Andrew Gelman;,citation_author=Jonah Gabry;,citation_publication_date=2017;,citation_cover_date=2017;,citation_year=2017;,citation_issue=5;,citation_doi=10.1007/s11222-016-9696-4;,citation_volume=27;,citation_journal_title=Statistics and Computing;">
+<meta name="citation_reference" content="citation_title=The generalized multinomial logit model: Accounting for scale and coefficient heterogeneity;,citation_author=Denzil G. Fiebig;,citation_author=Michael P. Keane;,citation_author=Jordan Louviere;,citation_author=Nada Wasi;,citation_publication_date=2010;,citation_cover_date=2010;,citation_year=2010;,citation_issue=3;,citation_doi=10.1287/mksc.1090.0508;,citation_volume=29;,citation_journal_title=Marketing Science;">
 <meta name="citation_reference" content="citation_title=The importance of utility balance in efficient choice designs;,citation_author=Joel Huber;,citation_author=Klaus Zwerina;,citation_publication_date=1996;,citation_cover_date=1996;,citation_year=1996;,citation_issue=3;,citation_doi=10.1177/002224379603300305;,citation_volume=33;,citation_journal_title=Journal of Marketing Research;">
 <meta name="citation_reference" content="citation_title=The role of the scale parameter in the estimation and comparison of multinomial logit models;,citation_author=Joffre Swait;,citation_author=Jordan Louviere;,citation_publication_date=1993;,citation_cover_date=1993;,citation_year=1993;,citation_issue=3;,citation_doi=10.1177/002224379303000303;,citation_volume=30;,citation_journal_title=Journal of Marketing Research;">
 </head>
 
-<body class="quarto-light">
+<body class="quarto-light"><a id="quarto-skip-link" class="visually-hidden-focusable" href="#quarto-document-content">Skip to main content</a>
 
 <header id="title-block-header" class="quarto-title-block default toc-left page-columns page-full">
   <div class="quarto-title-banner page-columns page-full">
@@ -179,7 +190,7 @@ window.Quarto = {
                 <div>
             <div class="quarto-title-meta-heading">Published</div>
             <div class="quarto-title-meta-contents">
-              <p class="date">July 10, 2026</p>
+              <p class="date">September 9, 2026</p>
             </div>
           </div>
           
@@ -208,7 +219,7 @@ window.Quarto = {
     </div>  </div>
 </header><div id="quarto-content" class="page-columns page-rows-contents page-layout-article toc-left">
 <div id="quarto-sidebar-toc-left" class="sidebar toc-left">
-  <nav id="TOC" role="doc-toc" class="toc-active">
+  <nav id="TOC" role="doc-toc" aria-labelledby="toc-title" class="toc-active">
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
@@ -219,20 +230,23 @@ window.Quarto = {
   <li><a href="#first-response-multinomial-logit" id="toc-first-response-multinomial-logit" class="nav-link" data-scroll-target="#first-response-multinomial-logit"><span class="header-section-number">2.2</span> First Response: Multinomial Logit</a></li>
   <li><a href="#second-response-an-ordinal-model-of-the-purchase-evaluation" id="toc-second-response-an-ordinal-model-of-the-purchase-evaluation" class="nav-link" data-scroll-target="#second-response-an-ordinal-model-of-the-purchase-evaluation"><span class="header-section-number">2.3</span> Second Response: An Ordinal Model of the Purchase Evaluation</a></li>
   <li><a href="#joint-likelihood" id="toc-joint-likelihood" class="nav-link" data-scroll-target="#joint-likelihood"><span class="header-section-number">2.4</span> Joint Likelihood</a></li>
-  <li><a href="#sec-nesting" id="toc-sec-nesting" class="nav-link" data-scroll-target="#sec-nesting"><span class="header-section-number">2.5</span> Special Cases and Relation to Existing Models</a></li>
-  <li><a href="#sec-heterogeneity" id="toc-sec-heterogeneity" class="nav-link" data-scroll-target="#sec-heterogeneity"><span class="header-section-number">2.6</span> Heterogeneity</a></li>
-  <li><a href="#sec-identification" id="toc-sec-identification" class="nav-link" data-scroll-target="#sec-identification"><span class="header-section-number">2.7</span> Identification</a></li>
-  <li><a href="#sec-information" id="toc-sec-information" class="nav-link" data-scroll-target="#sec-information"><span class="header-section-number">2.8</span> The Information Content of the Ordinal Response</a></li>
-  <li><a href="#sec-estimation" id="toc-sec-estimation" class="nav-link" data-scroll-target="#sec-estimation"><span class="header-section-number">2.9</span> Estimation</a></li>
+  <li><a href="#sec-toy" id="toc-sec-toy" class="nav-link" data-scroll-target="#sec-toy"><span class="header-section-number">2.5</span> The Model in Miniature</a></li>
+  <li><a href="#sec-nesting" id="toc-sec-nesting" class="nav-link" data-scroll-target="#sec-nesting"><span class="header-section-number">2.6</span> Special Cases and Relation to Existing Models</a></li>
+  <li><a href="#sec-heterogeneity" id="toc-sec-heterogeneity" class="nav-link" data-scroll-target="#sec-heterogeneity"><span class="header-section-number">2.7</span> Heterogeneity</a></li>
+  <li><a href="#sec-identification" id="toc-sec-identification" class="nav-link" data-scroll-target="#sec-identification"><span class="header-section-number">2.8</span> Identification</a></li>
+  <li><a href="#sec-spectests" id="toc-sec-spectests" class="nav-link" data-scroll-target="#sec-spectests"><span class="header-section-number">2.9</span> Specification Tests</a></li>
+  <li><a href="#sec-information" id="toc-sec-information" class="nav-link" data-scroll-target="#sec-information"><span class="header-section-number">2.10</span> The Information Content of the Ordinal Response</a></li>
+  <li><a href="#sec-estimation" id="toc-sec-estimation" class="nav-link" data-scroll-target="#sec-estimation"><span class="header-section-number">2.11</span> Estimation</a></li>
   </ul></li>
   <li><a href="#sec-simstudy" id="toc-sec-simstudy" class="nav-link" data-scroll-target="#sec-simstudy"><span class="header-section-number">3</span> Simulation Study</a>
   <ul class="collapse">
   <li><a href="#sec-simdesign" id="toc-sec-simdesign" class="nav-link" data-scroll-target="#sec-simdesign"><span class="header-section-number">3.1</span> Design</a></li>
-  <li><a href="#sec-sim-agg" id="toc-sec-sim-agg" class="nav-link" data-scroll-target="#sec-sim-agg"><span class="header-section-number">3.2</span> Aggregate Model</a></li>
-  <li><a href="#sec-sim-hb" id="toc-sec-sim-hb" class="nav-link" data-scroll-target="#sec-sim-hb"><span class="header-section-number">3.3</span> Hierarchical Model</a></li>
-  <li><a href="#sec-sim-benchmarks" id="toc-sec-sim-benchmarks" class="nav-link" data-scroll-target="#sec-sim-benchmarks"><span class="header-section-number">3.4</span> The Cost of Current Practice</a></li>
-  <li><a href="#sec-sim-cutpoints" id="toc-sec-sim-cutpoints" class="nav-link" data-scroll-target="#sec-sim-cutpoints"><span class="header-section-number">3.5</span> Cut-Point Placement and Scale-Usage Heterogeneity</a></li>
-  <li><a href="#sec-sim-efficiency" id="toc-sec-sim-efficiency" class="nav-link" data-scroll-target="#sec-sim-efficiency"><span class="header-section-number">3.6</span> Information Gains from Finer Scales</a></li>
+  <li><a href="#sec-sim-agg" id="toc-sec-sim-agg" class="nav-link" data-scroll-target="#sec-sim-agg"><span class="header-section-number">3.2</span> Parameter Recovery and Identification</a></li>
+  <li><a href="#sec-sim-benchmarks" id="toc-sec-sim-benchmarks" class="nav-link" data-scroll-target="#sec-sim-benchmarks"><span class="header-section-number">3.3</span> The Cost of Dichotomization</a></li>
+  <li><a href="#sec-sim-spectests" id="toc-sec-sim-spectests" class="nav-link" data-scroll-target="#sec-sim-spectests"><span class="header-section-number">3.4</span> Specification Tests: Size and Power</a></li>
+  <li><a href="#sec-sim-robust" id="toc-sec-sim-robust" class="nav-link" data-scroll-target="#sec-sim-robust"><span class="header-section-number">3.5</span> Misspecification Robustness</a></li>
+  <li><a href="#sec-sim-design" id="toc-sec-sim-design" class="nav-link" data-scroll-target="#sec-sim-design"><span class="header-section-number">3.6</span> Designing the Scale</a></li>
+  <li><a href="#sec-sim-counterfactual" id="toc-sec-sim-counterfactual" class="nav-link" data-scroll-target="#sec-sim-counterfactual"><span class="header-section-number">3.7</span> Economic Stakes: A Pricing Counterfactual</a></li>
   </ul></li>
   <li><a href="#sec-analysis" id="toc-sec-analysis" class="nav-link" data-scroll-target="#sec-analysis"><span class="header-section-number">4</span> Empirical Application</a>
   <ul class="collapse">
@@ -249,13 +263,21 @@ window.Quarto = {
   <li><a href="#limitations" id="toc-limitations" class="nav-link" data-scroll-target="#limitations"><span class="header-section-number">5.4</span> Limitations</a></li>
   </ul></li>
   <li><a href="#sec-conclusion" id="toc-sec-conclusion" class="nav-link" data-scroll-target="#sec-conclusion"><span class="header-section-number">6</span> Conclusion</a></li>
+  <li><a href="#sec-appendix-proofs" id="toc-sec-appendix-proofs" class="nav-link" data-scroll-target="#sec-appendix-proofs">Appendix A: Proofs</a>
+  <ul class="collapse">
+  <li><a href="#a.1-proof-of-lem-gumbel" id="toc-a.1-proof-of-lem-gumbel" class="nav-link" data-scroll-target="#a.1-proof-of-lem-gumbel">A.1 Proof of Lemma&nbsp;1</a></li>
+  <li><a href="#a.2-derivation-of-the-information-increment-eq-fisher" id="toc-a.2-derivation-of-the-information-increment-eq-fisher" class="nav-link" data-scroll-target="#a.2-derivation-of-the-information-increment-eq-fisher">A.2 Derivation of the information increment (Equation&nbsp;18)</a></li>
+  <li><a href="#a.3-monotonicity-of-omega-under-refinement" id="toc-a.3-monotonicity-of-omega-under-refinement" class="nav-link" data-scroll-target="#a.3-monotonicity-of-omega-under-refinement">A.3 Monotonicity of <span class="math inline">\(\omega\)</span> under refinement</a></li>
+  </ul></li>
+  <li><a href="#sec-appendix-estimation" id="toc-sec-appendix-estimation" class="nav-link" data-scroll-target="#sec-appendix-estimation">Appendix B: Estimation Details</a></li>
+  <li><a href="#sec-appendix-lmd" id="toc-sec-appendix-lmd" class="nav-link" data-scroll-target="#sec-appendix-lmd">Appendix C: Marginal-Likelihood Estimation</a></li>
   <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
   </ul>
 <div class="quarto-alternate-notebooks"><h2>Notebooks</h2><ul><li><a href="notebooks/example_discretechoice-preview.html"><i class="bi bi-journal-code"></i>Discrete Choice</a></li><li><a href="notebooks/example_likert-preview.html"><i class="bi bi-journal-code"></i>Likert Scale Dual Response</a></li></ul></div></nav>
 </div>
 <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
 </div>
-<main class="content quarto-banner-title-block" id="quarto-document-content">
+<main class="content quarto-banner-title-block" id="quarto-document-content" tabindex="-1">
 
 
 
@@ -330,7 +352,7 @@ p_{it} = \Pr \left( \eta_{it0} &lt; u^*_{it} \mid u^*_{it} \right) = F\left( u^*
 y_{it} = w
 \quad \Longleftrightarrow \quad
 p_{it} \in \left[ \alpha_{w-1}, \alpha_w \right).
-\tag{6}\]</span></span> We assume consumers share the definitions of the qualitative scale labels, so the <span class="math inline">\(\alpha_w\)</span> are common across consumers (we relax this in <a href="#sec-hetcut" class="quarto-xref">Section&nbsp;2.6.1</a>); the interior cut points are unobserved by the researcher and are estimated.</p>
+\tag{6}\]</span></span> We assume consumers share the definitions of the qualitative scale labels, so the <span class="math inline">\(\alpha_w\)</span> are common across consumers (we relax this in <a href="#sec-hetcut" class="quarto-xref">Section&nbsp;2.7.1</a>); the interior cut points are unobserved by the researcher and are estimated.</p>
 <p>Reporting <span class="math inline">\(y_{it}=w\)</span> is equivalent to reporting that <span class="math inline">\(u^*_{it} \in \left[ F^{-1}(\alpha_{w-1}), \, F^{-1}(\alpha_w) \right)\)</span>, an interval statement about the consumer’s best utility. From the researcher’s perspective, <span class="math inline">\(u^*_{it} \sim \text{Gumbel}(\overline{\mu}_{it},1)\)</span> by <a href="#lem-gumbel" class="quarto-xref">Lemma&nbsp;1</a>(i), so <span id="eq-modelA"><span class="math display">\[
 \begin{aligned}
 \Pr \left( y_{it} = w \right)
@@ -375,92 +397,422 @@ F \ \left(\text{standard Gumbel}\right) &amp; \text{Model A}, \\[2pt]
 \underbrace{\Big[ G \left( c_{y_{it}} - \overline{\mu}_{it} \right) - G \left( c_{y_{it}-1} - \overline{\mu}_{it} \right) \Big]}_{\text{ordinal purchase evaluation}},
 \tag{11}\]</span></span> with <span class="math inline">\(\mathbf{c} = (c_1, \ldots, c_{W-1})\)</span> and the full likelihood <span class="math inline">\(L_i = \prod_{t} \ell_{it}\)</span>. We emphasize that this factorization is not an <em>assumption</em> of independent errors across the two responses, as in the “DR-2Max” tradition <span class="citation" data-cites="Diener_2006 Sawtooth_2017">(<a href="#ref-Diener_2006" role="doc-biblioref">Diener et al. 2006</a>; <a href="#ref-Sawtooth_2017" role="doc-biblioref">Sawtooth Software 2017</a>)</span>; it is a <em>consequence</em> of the max-stability properties of the Gumbel family within a single, internally consistent utility draw. The same realized utilities generate both responses.</p>
 </section>
-<section id="sec-nesting" class="level3" data-number="2.5">
-<h3 data-number="2.5" class="anchored" data-anchor-id="sec-nesting"><span class="header-section-number">2.5</span> Special Cases and Relation to Existing Models</h3>
+<section id="sec-toy" class="level3" data-number="2.5">
+<h3 data-number="2.5" class="anchored" data-anchor-id="sec-toy"><span class="header-section-number">2.5</span> The Model in Miniature</h3>
+<p>Before turning to special cases, we make the machinery concrete with the smallest interesting instance of the model: two consumers with <em>identical</em> preferences, one attribute, one task each, and a three-point scale. The example is deliberately tiny, but it exhibits the model’s central mechanism — the two responses read two different features of the same utilities — in a form that can be followed with a hand calculator.</p>
+<p>Let both consumers share the scalar taste parameter <span class="math inline">\(\beta = 1\)</span>, which we treat as known for the arithmetic. Each faces one task with two inside goods described by a single attribute <span class="math inline">\(x\)</span>, answers the forced choice, and then reports on the three-point scale <span class="math inline">\(\mathcal{W} = \lbrace \text{"unlikely"}, \text{"unsure"}, \text{"likely"} \rbrace\)</span> with utility-scale cut points <span class="math inline">\(\mathbf{c} = (c_1, c_2) = (0, 2)\)</span>. (For Model A these correspond to probability-scale cut points <span class="math inline">\(\left( \alpha_1, \alpha_2 \right) = \left( F(0), F(2) \right) = (0.37, 0.87)\)</span>: the consumer answers “unsure” when her purchase probability lies between 37% and 87%.) The two tasks differ only in the <em>level</em> of the attribute, not its spread: consumer 1 faces an attractive pair, <span class="math inline">\(x = (2, 1)\)</span>, and consumer 2 an unattractive pair, <span class="math inline">\(x = (-1, -2)\)</span>.</p>
+<p>Walk through the model’s account of their behavior, giving both consumers the <em>same</em> realized shocks <span class="math inline">\(\eta = (0.30, -0.86)\)</span> on their two inside goods. Consumer 1’s utilities are <span class="math inline">\(u = (2.30, 0.14)\)</span>: she picks her first good and knows her best utility, <span class="math inline">\(u^* = 2.30\)</span>. She cannot resolve the outside-good shock <span class="math inline">\(\eta_0\)</span>, so under Model A she reports the bin containing her purchase probability <span class="math inline">\(p = F(2.30) = 0.90\)</span> — “likely.” Consumer 2’s utilities are <span class="math inline">\(u = (-0.70, -2.86)\)</span>: she also picks her first good, but her best utility is <span class="math inline">\(u^* = -0.70\)</span>, her purchase probability is <span class="math inline">\(F(-0.70) = 0.13\)</span>, and she reports “unlikely.” (Under Model B the consumers instead resolve <span class="math inline">\(\eta_0\)</span> — say <span class="math inline">\(\eta_0 = 0.10\)</span> — and grade <span class="math inline">\(u^* - \eta_0\)</span> against the same cut points: <span class="math inline">\(2.20\)</span> and <span class="math inline">\(-0.80\)</span>, again “likely” and “unlikely.”) The two consumers made <em>identical</em> first-response choices from <em>identical</em> shock realizations, yet gave opposite second responses.</p>
+<p>The researcher-side probabilities show that this is systematic, not an artifact of the particular draws (<a href="#tbl-toy" class="quarto-xref">Table&nbsp;1</a>). The forced-choice probabilities are <em>the same function of the data</em> for both consumers: the MNL depends only on the within-task difference <span class="math inline">\(x_1 - x_2 = 1\)</span>, so <span class="math inline">\(\Pr(\text{choose better good}) = \Lambda(\beta) = 0.73\)</span> in both tasks, and no quantity of forced-choice data could ever distinguish them. The tasks separate only through the inclusive value — <span class="math inline">\(S_1 = e^2 + e^1 = 10.11\)</span> versus <span class="math inline">\(S_2 = e^{-1} + e^{-2} = 0.50\)</span>, i.e., <span class="math inline">\(\overline{\mu}_1 = 2.31\)</span> versus <span class="math inline">\(\overline{\mu}_2 = -0.69\)</span> — which the cumulative-link stage reads against the cut points: the ordinal response distributions are near mirror images. (With <span class="math inline">\(c_1 = 0\)</span>, consumer 2’s probability of “unlikely” is <span class="math inline">\(\Lambda(-\overline{\mu}_2) = 1/(1+S_2) = 0.67\)</span> — precisely the familiar no-choice probability of the single-stage MNL, previewing the nesting results below.)</p>
+<div id="tbl-toy" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-toy-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;1: Two tasks that are indistinguishable in the forced choice and nearly opposite in the ordinal report (<span class="math inline">\(\beta = 1\)</span>, <span class="math inline">\(\mathbf{c} = (0,2)\)</span>, <span class="math inline">\(W = 3\)</span>).
+</figcaption>
+<div aria-describedby="tbl-toy-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 23%">
+<col style="width: 38%">
+<col style="width: 38%">
+</colgroup>
+<thead>
+<tr class="header">
+<th></th>
+<th style="text-align: center;">Consumer 1 (attractive task)</th>
+<th style="text-align: center;">Consumer 2 (unattractive task)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Attribute values <span class="math inline">\(x\)</span></td>
+<td style="text-align: center;"><span class="math inline">\((2,\ 1)\)</span></td>
+<td style="text-align: center;"><span class="math inline">\((-1,\ -2)\)</span></td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(\Pr(\text{choose better good})\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(0.73\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(0.73\)</span></td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(S = \sum_j e^{V_j}\)</span>, <span class="math inline">\(\ \overline{\mu} = \ln S\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(10.11\)</span>, <span class="math inline">\(\ 2.31\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(0.50\)</span>, <span class="math inline">\(\ -0.69\)</span></td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(\Pr(y = w)\)</span>, Model B</td>
+<td style="text-align: center;"><span class="math inline">\((0.09,\ 0.33,\ 0.58)\)</span></td>
+<td style="text-align: center;"><span class="math inline">\((0.67,\ 0.27,\ 0.06)\)</span></td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(\Pr(y = w)\)</span>, Model A</td>
+<td style="text-align: center;"><span class="math inline">\((0.00,\ 0.25,\ 0.75)\)</span></td>
+<td style="text-align: center;"><span class="math inline">\((0.60,\ 0.33,\ 0.07)\)</span></td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(\operatorname{E} \left[ p \mid y = \text{"unsure"} \right]\)</span>, Model A</td>
+<td style="text-align: center;"><span class="math inline">\(0.80\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(0.60\)</span></td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<p>The joint likelihood of the observed data — each consumer chose her better good; <span class="math inline">\(y_1 = \text{"likely"}\)</span>, <span class="math inline">\(y_2 = \text{"unlikely"}\)</span> — follows from <a href="#eq-joint" class="quarto-xref">Equation&nbsp;11</a> (shown here for Model B): <span id="eq-toylik"><span class="math display">\[
+L \left( \beta, c_1, c_2 \right)
+= \underbrace{\Lambda(\beta) \Big[ 1 - \Lambda \left( c_2 - \overline{\mu}_1(\beta) \right) \Big]}_{\text{consumer 1:} \ \ 0.73 \times 0.58}
+\times
+\underbrace{\Lambda(\beta) \, \Lambda \left( c_1 - \overline{\mu}_2(\beta) \right)}_{\text{consumer 2:} \ \ 0.73 \times 0.67},
+\tag{12}\]</span></span> with <span class="math inline">\(\overline{\mu}_1(\beta) = \beta + \ln \left( 1 + e^{\beta} \right)\)</span> and <span class="math inline">\(\overline{\mu}_2(\beta) = -2\beta + \ln \left( 1 + e^{\beta} \right)\)</span>. The example distills three general lessons.</p>
+<p>First, <em>the two responses divide the labor of identification</em>. The forced-choice factors read only utility <strong>differences</strong> — they identify <span class="math inline">\(\beta\)</span> from within-task attribute variation. The ordinal factors read utility <strong>levels</strong>, locating each task’s <span class="math inline">\(\overline{\mu}(\beta)\)</span> against the cut points. All information about demand — whether these consumers would actually buy — flows through the second response; all information about relative preference flows through the first. This is the division that <a href="#prp-ident" class="quarto-xref">Proposition&nbsp;1</a> formalizes: with repeated observations of tasks like these, <span class="math inline">\((\beta, c_1, c_2)\)</span> is identified because the stacked attribute vector <span class="math inline">\((2, 1, -1, -2)'\)</span> is not constant across the goods shown; shift every <span class="math inline">\(x\)</span> by a common amount and the choice factors in <a href="#eq-toylik" class="quarto-xref">Equation&nbsp;12</a> are untouched while the shift is absorbed one-for-one by the cut points.</p>
+<p>Second, <em>the meaning of a scale label is set-dependent</em>. The label “unsure” is fixed for the consumer — by construction it means <span class="math inline">\(p \in [0.37, 0.87)\)</span> — but what the researcher should infer from it depends on the task: the expected purchase probability of a consumer who answers “unsure” is <span class="math inline">\(0.80\)</span> in the attractive task and <span class="math inline">\(0.60\)</span> in the unattractive one (<a href="#tbl-toy" class="quarto-xref">Table&nbsp;1</a>, last row).<a href="#fn5" class="footnote-ref" id="fnref5" role="doc-noteref"><sup>5</sup></a> Any procedure that assigns a fixed purchase probability to each scale point — the constant-probability heuristic of <a href="#sec-nesting" class="quarto-xref">Section&nbsp;2.6</a> — is therefore internally inconsistent under the model, and the error compounds when calibrations struck on one design are transported to another.</p>
+<p>Third, <em>the links agree where tasks are ordinary and part ways where they are extreme</em>. Models A and B produce nearly identical distributions for the unattractive task but visibly different ones for the attractive task (<a href="#tbl-toy" class="quarto-xref">Table&nbsp;1</a>), a miniature of the general point from <a href="#sec-identification" class="quarto-xref">Section&nbsp;2.8</a> that discriminating between the links requires designs that vary task attractiveness.</p>
+</section>
+<section id="sec-nesting" class="level3" data-number="2.6">
+<h3 data-number="2.6" class="anchored" data-anchor-id="sec-nesting"><span class="header-section-number">2.6</span> Special Cases and Relation to Existing Models</h3>
 <p><strong>Binary dual response, Model B.</strong> Set <span class="math inline">\(W=2\)</span> with the single cut point <span class="math inline">\(c_1 = \gamma\)</span>. From <a href="#eq-modelB" class="quarto-xref">Equation&nbsp;9</a>, <span class="math inline">\(\Pr(\text{would buy}) = \Lambda\left( \overline{\mu}_{it} - \gamma \right) = S_{it} \big/ \left( e^{\gamma} + S_{it} \right)\)</span>, and the joint probabilities from <a href="#eq-joint" class="quarto-xref">Equation&nbsp;11</a> telescope: <span id="eq-collapseB"><span class="math display">\[
 \Pr \left( j, \text{buy} \right) = \frac{\exp \left( V_{itj} \right)}{e^{\gamma} + S_{it}},
 \qquad
 \Pr \left( j, \text{not buy} \right) = \frac{\exp \left( V_{itj} \right)}{S_{it}} \cdot \frac{e^{\gamma}}{e^{\gamma} + S_{it}}.
-\tag{12}\]</span></span> With <span class="math inline">\(\gamma = 0\)</span> these are <em>exactly</em> the joint probabilities of the “Unified Model” of <span class="citation" data-cites="Hung_2025_dual">Hung, Liu, et al. (<a href="#ref-Hung_2025_dual" role="doc-biblioref">2025</a>)</span> (their Eq. 4), which is in turn algebraically identical to the “DR-AnyMax” model of <span class="citation" data-cites="Diener_2006">Diener et al. (<a href="#ref-Diener_2006" role="doc-biblioref">2006</a>)</span>; and <a href="#eq-collapseB" class="quarto-xref">Equation&nbsp;12</a> with free <span class="math inline">\(\gamma\)</span> is the standard single-stage MNL with a no-choice alternative-specific constant <span class="citation" data-cites="Haaijer_2001">(<a href="#ref-Haaijer_2001" role="doc-biblioref">Haaijer et al. 2001</a>)</span>. Our ordinal model is thus a strict generalization of the leading binary dual-response model: at <span class="math inline">\(W=2\)</span>, Model B <em>is</em> that model, and for <span class="math inline">\(W&gt;2\)</span> the additional cut points are the only new parameters.</p>
+\tag{13}\]</span></span> With <span class="math inline">\(\gamma = 0\)</span> these are <em>exactly</em> the joint probabilities of the “Unified Model” of <span class="citation" data-cites="Hung_2025_dual">Hung, Liu, et al. (<a href="#ref-Hung_2025_dual" role="doc-biblioref">2025</a>)</span> (their Eq. 4), which is in turn algebraically identical to the “DR-AnyMax” model of <span class="citation" data-cites="Diener_2006">Diener et al. (<a href="#ref-Diener_2006" role="doc-biblioref">2006</a>)</span>; and <a href="#eq-collapseB" class="quarto-xref">Equation&nbsp;13</a> with free <span class="math inline">\(\gamma\)</span> is the standard single-stage MNL with a no-choice alternative-specific constant <span class="citation" data-cites="Haaijer_2001">(<a href="#ref-Haaijer_2001" role="doc-biblioref">Haaijer et al. 2001</a>)</span>. Our ordinal model is thus a strict generalization of the leading binary dual-response model: at <span class="math inline">\(W=2\)</span>, Model B <em>is</em> that model, and for <span class="math inline">\(W&gt;2\)</span> the additional cut points are the only new parameters.</p>
 <p><strong>Binary dual response, Model A.</strong> Set <span class="math inline">\(W=2\)</span> in <a href="#eq-modelA" class="quarto-xref">Equation&nbsp;7</a>: <span class="math inline">\(\Pr(\text{not buy}) = \alpha_1^{S_{it}} = F\left( c_1 - \overline{\mu}_{it}\right)\)</span>, a <em>complementary log-log</em> rather than logistic binary response. Model A therefore implies that even the familiar binary dual response is misspecified — mildly, given the proximity of the links — when consumers genuinely face outside-good uncertainty at the moment they answer. This observation gives the binary special case of Model A independent interest: it provides a one-parameter alternative to the binary logit second stage that can be tested on existing binary dual-response data.</p>
 <p><strong>DR-2Max.</strong> The other binary model in the literature, “DR-2Max” <span class="citation" data-cites="Diener_2006">(<a href="#ref-Diener_2006" role="doc-biblioref">Diener et al. 2006</a>)</span>, as implemented in Sawtooth Software’s CBC/HB <span class="citation" data-cites="Sawtooth_2017">(<a href="#ref-Sawtooth_2017" role="doc-biblioref">Sawtooth Software 2017</a>)</span>, models the second response as a binary logit on the <em>chosen good’s</em> deterministic utility: <span class="math inline">\(\Pr(\text{buy} \mid j^*) = e^{V_{itj^*}} \big/ \left( e^{V_{itj^*}} + e^{\gamma} \right)\)</span>. This requires drawing a fresh error for the chosen good in the second stage — the consumer who just declared <span class="math inline">\(j^*\)</span> best re-evaluates it from scratch. Under our framework such conditioning is unnecessary: by <a href="#lem-gumbel" class="quarto-xref">Lemma&nbsp;1</a>(ii) the distribution of the best utility does not depend on which good attained it, so the second response should depend on the set only through <span class="math inline">\(\overline{\mu}_{it}\)</span>. This distinction is testable, and the existing evidence favors the inclusive-value form: <span class="citation" data-cites="Diener_2006">Diener et al. (<a href="#ref-Diener_2006" role="doc-biblioref">2006</a>)</span> found DR-AnyMax fit dual-response data better than DR-2Max, and <span class="citation" data-cites="Hung_2025_dual">Hung, Liu, et al. (<a href="#ref-Hung_2025_dual" role="doc-biblioref">2025</a>)</span> reach the same conclusion for their Unified Model.</p>
-<p><strong>Practitioner heuristics for ordinal dual responses.</strong> When practitioners field an ordinal purchase-likelihood question today, common practice is either (i) <em>dichotomization</em> — collapse the scale at some point (e.g., top box or top two boxes) and estimate the binary model, discarding the ordinal information and hard-coding an arbitrary cut; or (ii) <em>constant-probability weighting</em> — map each scale point to a fixed purchase probability (e.g., “definitely would buy” <span class="math inline">\(= 0.9\)</span>) independent of the choice set. Both are nested within, or dominated by, <a href="#eq-joint" class="quarto-xref">Equation&nbsp;11</a>: dichotomization is <a href="#eq-collapseB" class="quarto-xref">Equation&nbsp;12</a> applied to a coarsened <span class="math inline">\(y_{it}\)</span>, and constant-probability weighting violates <a href="#eq-modelA" class="quarto-xref">Equation&nbsp;7</a>, under which the mapping from scale point to purchase probability necessarily depends on the attractiveness of the inside goods through <span class="math inline">\(S_{it}\)</span>. These two heuristics are the benchmarks in our simulation study (<a href="#sec-simstudy" class="quarto-xref">Section&nbsp;3</a>).</p>
+<p><strong>Practitioner heuristics for ordinal dual responses.</strong> When practitioners field an ordinal purchase-likelihood question today, common practice is either (i) <em>dichotomization</em> — collapse the scale at some point (e.g., top box or top two boxes) and estimate the binary model, discarding the ordinal information and hard-coding an arbitrary cut; or (ii) <em>constant-probability weighting</em> — map each scale point to a fixed purchase probability (e.g., “definitely would buy” <span class="math inline">\(= 0.9\)</span>) independent of the choice set. Both are nested within, or dominated by, <a href="#eq-joint" class="quarto-xref">Equation&nbsp;11</a>: dichotomization is <a href="#eq-collapseB" class="quarto-xref">Equation&nbsp;13</a> applied to a coarsened <span class="math inline">\(y_{it}\)</span>, and constant-probability weighting violates <a href="#eq-modelA" class="quarto-xref">Equation&nbsp;7</a>, under which the mapping from scale point to purchase probability necessarily depends on the attractiveness of the inside goods through <span class="math inline">\(S_{it}\)</span>. These two heuristics are the benchmarks in our simulation study (<a href="#sec-simstudy" class="quarto-xref">Section&nbsp;3</a>).</p>
 </section>
-<section id="sec-heterogeneity" class="level3" data-number="2.6">
-<h3 data-number="2.6" class="anchored" data-anchor-id="sec-heterogeneity"><span class="header-section-number">2.6</span> Heterogeneity</h3>
+<section id="sec-heterogeneity" class="level3" data-number="2.7">
+<h3 data-number="2.7" class="anchored" data-anchor-id="sec-heterogeneity"><span class="header-section-number">2.7</span> Heterogeneity</h3>
 <p>We accommodate preference heterogeneity with a standard hierarchical Bayesian specification <span class="citation" data-cites="Rossi_2005 Train_2001">(<a href="#ref-Rossi_2005" role="doc-biblioref">Rossi et al. 2005</a>; <a href="#ref-Train_2001" role="doc-biblioref">Train 2001</a>)</span>: <span id="eq-hb"><span class="math display">\[
 \bfbeta_i \iid \mathcal{N} \left( \overline{\bfbeta}, \Sigma_{\beta} \right),
-\tag{13}\]</span></span> with conjugate priors on <span class="math inline">\(\left( \overline{\bfbeta}, \Sigma_{\beta} \right)\)</span>. In the main model the cut points <span class="math inline">\(\mathbf{c}\)</span> are common across consumers: the scale labels (“very likely,” “somewhat likely,” …) are assumed to mean the same thing to everyone, while <em>preferences</em> vary.</p>
-<section id="sec-hetcut" class="level4" data-number="2.6.1">
-<h4 data-number="2.6.1" class="anchored" data-anchor-id="sec-hetcut"><span class="header-section-number">2.6.1</span> Heterogeneous Cut Points</h4>
+\tag{14}\]</span></span> with conjugate priors on <span class="math inline">\(\left( \overline{\bfbeta}, \Sigma_{\beta} \right)\)</span>. In the main model the cut points <span class="math inline">\(\mathbf{c}\)</span> are common across consumers: the scale labels (“very likely,” “somewhat likely,” …) are assumed to mean the same thing to everyone, while <em>preferences</em> vary.</p>
+<section id="sec-hetcut" class="level4" data-number="2.7.1">
+<h4 data-number="2.7.1" class="anchored" data-anchor-id="sec-hetcut"><span class="header-section-number">2.7.1</span> Heterogeneous Cut Points</h4>
 <p>The assumption of a shared reporting scale is convenient but contestable: a rich literature documents individual differences in the use of ordinal response scales <span class="citation" data-cites="Greene_2010 Falco_2015">(<a href="#ref-Greene_2010" role="doc-biblioref">Greene and Hensher 2010</a>; <a href="#ref-Falco_2015" role="doc-biblioref">Falco et al. 2015</a>)</span>. We therefore develop an extension with consumer-specific cut points. Parameterize <span id="eq-hetcutparam"><span class="math display">\[
 c_{i1} \in \mathbb{R},
 \qquad
 c_{iw} = c_{i,w-1} + \exp \left( \delta_{iw} \right) \ \text{for} \ w = 2, \ldots, W-1,
-\tag{14}\]</span></span> and let <span class="math inline">\(\bftheta_i = \left( c_{i1}, \delta_{i2}, \ldots, \delta_{i,W-1} \right)'\)</span> follow a multivariate normal population distribution, estimated jointly with (and, if desired, correlated with) <span class="math inline">\(\bfbeta_i\)</span>. The exponentiated increments enforce monotonicity without constrained sampling. Identification at the individual level is necessarily partial — with <span class="math inline">\(T\)</span> tasks per consumer, individual cut points and individual preferences are jointly informed by only <span class="math inline">\(T\)</span> ordinal reports — so the hierarchical prior does real work here, shrinking individual scale usage toward the population norm. <a href="#sec-simstudy" class="quarto-xref">Section&nbsp;3</a> examines both the payoff to modeling cut-point heterogeneity when it is present in the data-generating process and the robustness of the common-cut-point model when it is not.</p>
+\tag{15}\]</span></span> and let <span class="math inline">\(\bftheta_i = \left( c_{i1}, \delta_{i2}, \ldots, \delta_{i,W-1} \right)'\)</span> follow a multivariate normal population distribution, estimated jointly with (and, if desired, correlated with) <span class="math inline">\(\bfbeta_i\)</span>. The exponentiated increments enforce monotonicity without constrained sampling. Identification at the individual level is necessarily partial — with <span class="math inline">\(T\)</span> tasks per consumer, individual cut points and individual preferences are jointly informed by only <span class="math inline">\(T\)</span> ordinal reports — so the hierarchical prior does real work here, shrinking individual scale usage toward the population norm. <a href="#sec-simstudy" class="quarto-xref">Section&nbsp;3</a> examines both the payoff to modeling cut-point heterogeneity when it is present in the data-generating process and the robustness of the common-cut-point model when it is not.</p>
 </section>
 </section>
-<section id="sec-identification" class="level3" data-number="2.7">
-<h3 data-number="2.7" class="anchored" data-anchor-id="sec-identification"><span class="header-section-number">2.7</span> Identification</h3>
-<p>Three normalizations do the identifying work. First, <span class="math inline">\(\x_{t0} = \mathbf{0}\)</span> anchors the location of utility: all inside-good utilities are measured relative to the (mean) outside good. Second, the unit Gumbel scale anchors the scale of utility, as in any logit model. Third, given these, the interior cut points are identified by the joint distribution of first and second responses across tasks that vary in attractiveness <span class="math inline">\(S_{it}\)</span>: tasks with more attractive inside goods shift the ordinal response distribution upward at a rate governed by <a href="#eq-cumlink" class="quarto-xref">Equation&nbsp;10</a>, and the cut points are pinned down by the levels at which those shifts occur. One practical caution follows directly: the design matrix must not contain a constant common to all inside goods (attributes should be dummy- or effects-coded against reference levels), since a common constant shifts <span class="math inline">\(\overline{\mu}_{it}\)</span> one-for-one against the cut points. In the heterogeneous-cut-point extension, the population means of <span class="math inline">\(\bftheta_i\)</span> are identified in the same way, while individual deviations are identified — and shrunk — through the hierarchy.</p>
+<section id="sec-identification" class="level3" data-number="2.8">
+<h3 data-number="2.8" class="anchored" data-anchor-id="sec-identification"><span class="header-section-number">2.8</span> Identification</h3>
+<p>Because the second response depends on the choice set only through <span class="math inline">\(\overline{\mu}_{it}\)</span>, and because the cut points sit on the same utility scale as <span class="math inline">\(\overline{\mu}_{it}\)</span>, the model requires — and, given a suitable design, requires only — a location normalization. This subsection makes the requirement precise. Fix the aggregate model (<span class="math inline">\(\bfbeta_i = \bfbeta\)</span>) and let the data consist of tasks <span class="math inline">\(t=1,\ldots,n\)</span> with inside-good attribute vectors <span class="math inline">\(\lbrace \x_{tj} \rbrace_{j \in \mathcal{J}^+}\)</span> and responses <span class="math inline">\(\left( j^*_t, y_t \right)\)</span> generated by <a href="#eq-joint" class="quarto-xref">Equation&nbsp;11</a> with parameter <span class="math inline">\(\theta = \left( \bfbeta, \mathbf{c} \right) \in \mathbb{R}^P \times \mathcal{C}\)</span>, where <span class="math inline">\(\mathcal{C} = \lbrace \mathbf{c} : c_1 &lt; \cdots &lt; c_{W-1} \rbrace\)</span>. Call <span class="math inline">\(\theta\)</span> and <span class="math inline">\(\theta'\)</span> <em>observationally equivalent</em> if they imply the same joint probabilities <span class="math inline">\(\Pr_\theta \left( j^*_t = j, y_t = w \right)\)</span> for every task design in the support of the design distribution, and let <span class="math inline">\(X\)</span> denote the design matrix that stacks the rows <span class="math inline">\(\x_{tj}'\)</span> over all inside goods and tasks in that support.</p>
+<div id="prp-ident" class="theorem proposition">
+<p><span class="theorem-title"><strong>Proposition 1</strong></span> <span class="math inline">\(\theta = \left( \bfbeta, \mathbf{c} \right)\)</span> is identified if and only if the augmented matrix <span class="math inline">\(\left[ X \;\; \iota \right]\)</span> has full column rank <span class="math inline">\(P+1\)</span>, where <span class="math inline">\(\iota\)</span> is a conformable vector of ones. Equivalently: the only <span class="math inline">\(\left( v, \delta \right) \in \mathbb{R}^P \times \mathbb{R}\)</span> satisfying <span class="math inline">\(\x_{tj}'v = \delta\)</span> for every inside good <span class="math inline">\(j\)</span> and task <span class="math inline">\(t\)</span> is <span class="math inline">\(\left( v, \delta \right) = \left( \mathbf{0}, 0 \right)\)</span>.</p>
+</div>
+<div class="proof">
+<p><span class="proof-title"><em>Proof</em>. </span>(<em>Sufficiency.</em>) Suppose <span class="math inline">\(\theta\)</span> and <span class="math inline">\(\theta' = \left( \bfbeta', \mathbf{c}' \right)\)</span> are observationally equivalent. Marginalizing the joint probabilities over <span class="math inline">\(y\)</span> equates the MNL choice probabilities task by task, which implies <span class="math inline">\(\left( \x_{tj} - \x_{tk} \right)' \left( \bfbeta - \bfbeta' \right) = 0\)</span> for all <span class="math inline">\(j,k,t\)</span>; hence <span class="math inline">\(\x_{tj}' \left( \bfbeta - \bfbeta' \right) = a_t\)</span>, a constant within each task. Marginalizing over <span class="math inline">\(j\)</span> equates the cumulative ordinal probabilities: <span class="math inline">\(G \left( c_w - \overline{\mu}_t(\bfbeta) \right) = G \left( c'_w - \overline{\mu}_t(\bfbeta') \right)\)</span> for all <span class="math inline">\(w,t\)</span>. Since <span class="math inline">\(G\)</span> is strictly increasing (for both links in <a href="#eq-cumlink" class="quarto-xref">Equation&nbsp;10</a>), <span class="math inline">\(c_w - c'_w = \overline{\mu}_t(\bfbeta) - \overline{\mu}_t(\bfbeta')\)</span> for all <span class="math inline">\(w,t\)</span>; the left side is free of <span class="math inline">\(t\)</span> and the right side free of <span class="math inline">\(w\)</span>, so both equal a constant <span class="math inline">\(\delta\)</span>. Direct computation gives <span class="math inline">\(\overline{\mu}_t(\bfbeta') = \ln \sum_j \exp \left( V_{tj} - a_t \right) = \overline{\mu}_t(\bfbeta) - a_t\)</span>, so <span class="math inline">\(a_t = \delta\)</span> for every <span class="math inline">\(t\)</span>; that is, <span class="math inline">\(\x_{tj}' \left( \bfbeta - \bfbeta' \right) = \delta\)</span> for all <span class="math inline">\(j,t\)</span>. The rank condition then forces <span class="math inline">\(\bfbeta = \bfbeta'\)</span> and <span class="math inline">\(\delta = 0\)</span>, hence <span class="math inline">\(\mathbf{c} = \mathbf{c}'\)</span>. (<em>Necessity.</em>) If some <span class="math inline">\(\left( v, \delta \right) \ne \left( \mathbf{0}, 0 \right)\)</span> satisfies <span class="math inline">\(\x_{tj}'v = \delta\)</span> everywhere, then <span class="math inline">\(\theta' = \left( \bfbeta + v, \mathbf{c} + \delta \iota \right)\)</span> shifts every <span class="math inline">\(V_{tj}\)</span> and every cut point by <span class="math inline">\(\delta\)</span>, leaving the MNL probabilities (a within-task constant drops out) and the ordinal probabilities (<span class="math inline">\(G(c_w + \delta - (\overline{\mu}_t + \delta))\)</span>) unchanged, so <span class="math inline">\(\theta' \ne \theta\)</span> is observationally equivalent to <span class="math inline">\(\theta\)</span>. <span class="math inline">\(\square\)</span></p>
+</div>
+<p>Several remarks unpack the content of <a href="#prp-ident" class="quarto-xref">Proposition&nbsp;1</a>.</p>
+<p><strong>What the condition rules out.</strong> A violating direction <span class="math inline">\(\left( v, \delta \right)\)</span> is an attribute combination whose value is the same for every inside good ever shown. The leading case is an intercept: a column of ones in <span class="math inline">\(X\)</span> makes <span class="math inline">\(\left[ X \;\; \iota \right]\)</span> rank deficient by construction. The subtler case is a <em>hidden</em> intercept: if an attribute is dummy-coded with all <span class="math inline">\(L\)</span> of its levels included, every alternative carries exactly one of them, so the dummies sum to <span class="math inline">\(\iota\)</span> and the same invariance appears (shift all <span class="math inline">\(L\)</span> part-worths and all cut points equally). Attributes must therefore be coded against omitted reference levels (or effects-coded), and the design must contain no global constant. Notably, this requirement is <em>stricter</em> than in the single-stage MNL with a no-choice alternative, where a full set of brand dummies is identified because the no-choice row of zeros breaks the constancy <span class="citation" data-cites="Haaijer_2001">(<a href="#ref-Haaijer_2001" role="doc-biblioref">Haaijer et al. 2001</a>)</span>. In the dual-response model the outside good never appears as a design row — its role is absorbed by the cut points — so anything the design holds constant across inside goods is absorbed along with it.</p>
+<p><strong>What the normalizations do.</strong> The convention <span class="math inline">\(\x_{t0} = \mathbf{0}\)</span> with a <span class="math inline">\(\text{Gumbel}(0,1)\)</span> shock fixes the origin against which the cut points are measured: an outside-good alternative-specific constant would shift all cut points equally and is exactly the invariance in the proof, so it is subsumed rather than restricted. (Its visible trace is the binary case: at <span class="math inline">\(W=2\)</span>, Model B’s single cut point <span class="math inline">\(c_1\)</span> <em>is</em> the no-choice constant of <a href="#eq-collapseB" class="quarto-xref">Equation&nbsp;13</a>.) The unit Gumbel scale fixes the scale of <span class="math inline">\(\bfbeta\)</span>, as in any logit. Beyond these, the model imposes a genuine restriction rather than a normalization: the coefficient on <span class="math inline">\(\overline{\mu}_{it}\)</span> in <a href="#eq-cumlink" class="quarto-xref">Equation&nbsp;10</a> is fixed at <span class="math inline">\(1\)</span> by the theory — both responses are driven by the same utility draw — so estimating a free slope <span class="math inline">\(\lambda\)</span> on <span class="math inline">\(\overline{\mu}_{it}\)</span> and testing <span class="math inline">\(\lambda = 1\)</span> is an overidentification test of the behavioral model, not a required normalization.</p>
+<p><strong>Cut points versus the link.</strong> Given <span class="math inline">\(\bfbeta\)</span> (identified from the forced choice alone whenever <span class="math inline">\(X\)</span>’s within-task differences have full rank), the cut points are exactly identified even <em>without</em> variation in task attractiveness: <span class="math inline">\(c_w = \overline{\mu} + G^{-1} \left( \Pr(y \le w) \right)\)</span> pointwise. Variation in <span class="math inline">\(\overline{\mu}_{it}\)</span> across tasks therefore overidentifies <span class="math inline">\(\mathbf{c}\)</span> — and it is precisely what identifies the <em>link</em>: at a single value of <span class="math inline">\(\overline{\mu}\)</span>, any two strictly increasing links fit the <span class="math inline">\(W\)</span> category frequencies perfectly by relabeling cut points, so Models A and B are distinguishable only through how the ordinal distribution shifts as <span class="math inline">\(S_{it}\)</span> varies. Designs intended to compare the links should vary task attractiveness deliberately.</p>
+<p><strong>Population versus sample.</strong> Under <a href="#prp-ident" class="quarto-xref">Proposition&nbsp;1</a> every scale category has strictly positive probability in every task (<span class="math inline">\(G\)</span> is strictly increasing on <span class="math inline">\(\mathbb{R}\)</span> and the cut points are finite), so no support condition is needed for point identification. In finite samples, however, rarely used categories leave their adjacent cut points weakly identified, and near-violations of the rank condition (attribute combinations <em>nearly</em> constant across inside goods) manifest as an ill-conditioned information matrix. Both pathologies are visible in the smallest eigenvalues of the observed information, a diagnostic we report alongside the simulation results in <a href="#sec-simstudy" class="quarto-xref">Section&nbsp;3</a>.</p>
+<p><strong>The hierarchical model.</strong> With heterogeneous <span class="math inline">\(\bfbeta_i\)</span>, the argument applies respondent by respondent: individual-level identification requires the rank condition on each respondent’s own stacked design (their <span class="math inline">\(T \times J\)</span> rows), which rotating commercial designs typically satisfy. The hierarchy then supplies shrinkage, not identification of the model’s fixed features. In the heterogeneous-cut-point extension (<a href="#sec-hetcut" class="quarto-xref">Section&nbsp;2.7.1</a>) the same location tension reappears at the individual level — a respondent-specific utility shift trades off against <span class="math inline">\(c_{i1}\)</span> within that respondent’s likelihood — and is resolved by the same condition applied to the individual design, with the hierarchical prior doing real work when <span class="math inline">\(T\)</span> is small.</p>
+<p><strong>Numerical verification.</strong> We verify <a href="#prp-ident" class="quarto-xref">Proposition&nbsp;1</a> computationally (replication code accompanies the paper). Data simulated from the raw behavioral process — Gumbel utility draws, argmax, and the two reporting rules, not the derived likelihood — at three distinct parameter configurations for each model, on designs satisfying the rank condition, are recovered by maximum likelihood: across all configurations the true parameter vector lies inside the 95% likelihood-ratio confidence region, the observed information is well-conditioned, repeated-sampling bias is statistically indistinguishable from zero, and model-based standard errors match the empirical sampling variation. Appending an intercept column — the canonical violation — produces exactly the predicted failure: <span class="math inline">\(\left[ X \;\; \iota \right]\)</span> loses rank, the smallest eigenvalue of the observed information collapses to zero, and different starting values converge to different raw <span class="math inline">\(\left( \beta_{\text{const}}, \mathbf{c} \right)\)</span> on the flat ridge while agreeing, to numerical precision, on the identified combinations <span class="math inline">\(c_w - \beta_{\text{const}}\)</span> and the non-constant coordinates of <span class="math inline">\(\bfbeta\)</span>. The same exercise confirms the factorization in <a href="#eq-joint" class="quarto-xref">Equation&nbsp;11</a>: the empirical joint distribution of <span class="math inline">\(\left( j^*, y \right)\)</span> from one million behavioral draws is statistically indistinguishable from the product form.</p>
 </section>
-<section id="sec-information" class="level3" data-number="2.8">
-<h3 data-number="2.8" class="anchored" data-anchor-id="sec-information"><span class="header-section-number">2.8</span> The Information Content of the Ordinal Response</h3>
+<section id="sec-spectests" class="level3" data-number="2.9">
+<h3 data-number="2.9" class="anchored" data-anchor-id="sec-spectests"><span class="header-section-number">2.9</span> Specification Tests</h3>
+<p>Because the theory restricts more than it parameterizes, the model is overidentified in two directions that convert directly into one-degree-of-freedom specification tests. Both are computed from the aggregate likelihood at trivial cost, and both have well-behaved operating characteristics (<a href="#sec-simstudy" class="quarto-xref">Section&nbsp;3</a>).</p>
+<p><strong>The unit-slope test.</strong> The behavioral model fixes the coefficient on the inclusive value in the second stage at exactly one — the same utility draw generates both responses — so the natural one-parameter enlargement <span id="eq-lambda"><span class="math display">\[
+\Pr \left( y_{it} \le w \right) = G \left( c_w - \lambda \, \overline{\mu}_{it} \right)
+\tag{16}\]</span></span> nests the model at <span class="math inline">\(\lambda = 1\)</span>. A free <span class="math inline">\(\lambda\)</span> is identified by how the ordinal response distribution shifts as task attractiveness varies (<a href="#sec-identification" class="quarto-xref">Section&nbsp;2.8</a>), and departures are interpretable: <span class="math inline">\(\lambda &lt; 1\)</span> indicates the second response under-reacts to the quality of the displayed set (consistent with inattention to the set or with scale-use compression), while <span class="math inline">\(\lambda &gt; 1\)</span> indicates over-reaction. Testing <span class="math inline">\(H_0\!: \lambda = 1\)</span> by likelihood ratio or Wald is an overidentification test of the joint utility account, not a normalization check.</p>
+<p><strong>The conditioning test.</strong> The framework implies the second response depends on the choice set <em>only through</em> <span class="math inline">\(\overline{\mu}_{it}\)</span> (<a href="#lem-gumbel" class="quarto-xref">Lemma&nbsp;1</a>), whereas the DR-2Max tradition conditions on the chosen alternative’s utility. The enlargement <span id="eq-delta"><span class="math display">\[
+\Pr \left( y_{it} \le w \right) = G \left( c_w - \left[ \overline{\mu}_{it} + \delta \left( V_{itj^*} - \overline{\mu}_{it} \right) \right] \right)
+\tag{17}\]</span></span> spans the two: <span class="math inline">\(\delta = 0\)</span> is our model and <span class="math inline">\(\delta = 1\)</span> puts the full weight on the chosen option’s deterministic utility, the DR-2Max predictor. Both points are testable against the estimated <span class="math inline">\(\delta\)</span>, so the long-standing 2Max-versus-AnyMax question <span class="citation" data-cites="Diener_2006 Hung_2025_dual">(<a href="#ref-Diener_2006" role="doc-biblioref">Diener et al. 2006</a>; <a href="#ref-Hung_2025_dual" role="doc-biblioref">Hung, Liu, et al. 2025</a>)</span> becomes a parameter estimate rather than a model-selection exercise.</p>
+<p>We apply both tests to the empirical data in <a href="#sec-analysis" class="quarto-xref">Section&nbsp;4</a>. Their finite-sample size and power — including full power of the <span class="math inline">\(\delta\)</span> test against DR-2Max data at modest sample sizes — are documented in the simulation study.</p>
+</section>
+<section id="sec-information" class="level3" data-number="2.10">
+<h3 data-number="2.10" class="anchored" data-anchor-id="sec-information"><span class="header-section-number">2.10</span> The Information Content of the Ordinal Response</h3>
 <p>How much does a <span class="math inline">\(W\)</span>-point second response add over a binary one? The question has a clean answer in terms of Fisher information, extending the efficiency analysis of <span class="citation" data-cites="Hung_2025_dual">Hung, Liu, et al. (<a href="#ref-Hung_2025_dual" role="doc-biblioref">2025</a>)</span> from binary to ordinal second responses.</p>
 <p>The per-task Fisher information about <span class="math inline">\(\bfbeta\)</span> decomposes into the familiar MNL term <span class="citation" data-cites="Huber_1996">(<a href="#ref-Huber_1996" role="doc-biblioref">Huber and Zwerina 1996</a>)</span> plus a second-response increment. Writing <span class="math inline">\(\pi_w = G(c_w - \overline{\mu}) - G(c_{w-1} - \overline{\mu})\)</span> and <span class="math inline">\(g = G'\)</span>, the second response contributes <span id="eq-fisher"><span class="math display">\[
 \mathcal{I}^{(2)}_{it}
 = \omega \left( \overline{\mu}_{it}; \mathbf{c} \right) \, \overline{\x}_{it} \, \overline{\x}_{it}',
 \qquad
 \omega = \sum_{w=1}^{W} \frac{ \left[ g \left( c_w - \overline{\mu} \right) - g \left( c_{w-1} - \overline{\mu} \right) \right]^2 }{ \pi_w },
-\tag{15}\]</span></span> where <span class="math inline">\(\overline{\x}_{it} = \sum_{j \in \mathcal{J}^+} \Pr\left(j^*_{it}=j\right) \x_{tj}\)</span> is the choice-probability-weighted average attribute vector (the gradient of <span class="math inline">\(\overline{\mu}_{it}\)</span> with respect to <span class="math inline">\(\bfbeta\)</span>). Two properties follow. First, the increment is positive semi-definite: the second response never destroys information, echoing the binary result of <span class="citation" data-cites="Hung_2025_dual">Hung, Liu, et al. (<a href="#ref-Hung_2025_dual" role="doc-biblioref">2025</a>)</span>. Second, <span class="math inline">\(\omega\)</span> is non-decreasing under refinement of the scale partition — coarsening an ordinal response is a garbling in the sense of sufficiency, so the binary response (<span class="math inline">\(W=2\)</span>) is the <em>least</em> informative member of the family, and information rises toward the continuous-report limit as <span class="math inline">\(W \to \infty\)</span>. The practical magnitudes — how much of the binary-to-continuous gap a five- or seven-point scale captures, and how the gains vary with task attractiveness — are quantified in <a href="#sec-simstudy" class="quarto-xref">Section&nbsp;3</a>.</p>
+\tag{18}\]</span></span> where <span class="math inline">\(\overline{\x}_{it} = \sum_{j \in \mathcal{J}^+} \Pr\left(j^*_{it}=j\right) \x_{tj}\)</span> is the choice-probability-weighted average attribute vector (the gradient of <span class="math inline">\(\overline{\mu}_{it}\)</span> with respect to <span class="math inline">\(\bfbeta\)</span>). Two properties follow. First, the increment is positive semi-definite: the second response never destroys information, echoing the binary result of <span class="citation" data-cites="Hung_2025_dual">Hung, Liu, et al. (<a href="#ref-Hung_2025_dual" role="doc-biblioref">2025</a>)</span>. Second, <span class="math inline">\(\omega\)</span> is non-decreasing under refinement of the scale partition — coarsening an ordinal response is a garbling in the sense of sufficiency, so the binary response (<span class="math inline">\(W=2\)</span>) is the <em>least</em> informative member of the family, and information rises toward the continuous-report limit as <span class="math inline">\(W \to \infty\)</span>. The practical magnitudes — how much of the binary-to-continuous gap a five- or seven-point scale captures, and how the gains vary with task attractiveness — are quantified in <a href="#sec-simstudy" class="quarto-xref">Section&nbsp;3</a>.</p>
 <!-- TODO: verify placement — full derivation of @eq-fisher and the refinement argument in an appendix. -->
 </section>
-<section id="sec-estimation" class="level3" data-number="2.9">
-<h3 data-number="2.9" class="anchored" data-anchor-id="sec-estimation"><span class="header-section-number">2.9</span> Estimation</h3>
+<section id="sec-estimation" class="level3" data-number="2.11">
+<h3 data-number="2.11" class="anchored" data-anchor-id="sec-estimation"><span class="header-section-number">2.11</span> Estimation</h3>
 <p>The aggregate (homogeneous-<span class="math inline">\(\bfbeta\)</span>) model is estimated by maximum likelihood: the log of <a href="#eq-joint" class="quarto-xref">Equation&nbsp;11</a> summed over consumers and tasks is smooth in <span class="math inline">\(\left( \bfbeta, \mathbf{c} \right)\)</span> after the monotonicity-preserving reparameterization of the cut points, and standard quasi-Newton methods converge quickly.</p>
 <p>The hierarchical model is estimated with a custom Markov chain Monte Carlo sampler, implemented in R with computational kernels in C++ (Rcpp), following the hybrid Gibbs architecture of <span class="citation" data-cites="Rossi_2005">Rossi et al. (<a href="#ref-Rossi_2005" role="doc-biblioref">2005</a>)</span>: (1) a random-walk Metropolis step for each <span class="math inline">\(\bfbeta_i\)</span> (and <span class="math inline">\(\bftheta_i\)</span> in the heterogeneous-cut-point extension) using the individual likelihood <span class="math inline">\(\prod_t \ell_{it}\)</span>; (2) a random-walk Metropolis step for the common cut-point block on the unconstrained scale; and (3) conjugate draws for the population moments <span class="math inline">\(\left( \overline{\bfbeta}, \Sigma_{\beta} \right)\)</span>. Model comparison uses the log marginal density approximated by the method of <span class="citation" data-cites="Newton_1994">Newton and Raftery (<a href="#ref-Newton_1994" role="doc-biblioref">1994</a>)</span>, matching the practice in <span class="citation" data-cites="Hung_2025_dual">Hung, Liu, et al. (<a href="#ref-Hung_2025_dual" role="doc-biblioref">2025</a>)</span> and permitting direct comparisons among Model A, Model B, the binary dual-response models, and the practitioner heuristics. Complete replication code, together with three worked-example notebooks that build from the simplest homogeneous two-attribute case to the full model with heterogeneous cut points, accompanies the paper.</p>
 </section>
 </section>
 <section id="sec-simstudy" class="level2" data-number="3">
 <h2 data-number="3" class="anchored" data-anchor-id="sec-simstudy"><span class="header-section-number">3</span> Simulation Study</h2>
-<p>The simulation study has four goals: (i) verify that the estimation routines recover the parameters of the data-generating process, for both the aggregate and hierarchical versions of the model; (ii) quantify what is lost by the two approaches practitioners currently apply to ordinal dual-response data — dichotomization and constant-probability weighting; (iii) probe robustness to the placement of the cut points, including data-generating processes in which respondents do <em>not</em> share a common interpretation of the scale; and (iv) quantify the information gains from finer ordinal scales, making the Fisher-information results of <a href="#sec-information" class="quarto-xref">Section&nbsp;2.8</a> concrete. Throughout, Model A (<a href="#sec-modelA" class="quarto-xref">Section&nbsp;2.3.1</a>) and Model B (<a href="#sec-modelB" class="quarto-xref">Section&nbsp;2.3.2</a>) are simulated and estimated in parallel, including cross-fit experiments in which data generated under one link are estimated under the other.</p>
-<!-- TODO: All numerical results in this section are produced by scripts in R/ and loaded from saved .rds output; regenerate with R/run_simstudy.R. -->
+<p>The simulation program serves six purposes: verify that the estimators recover the model’s parameters and that the identification theory of <a href="#sec-identification" class="quarto-xref">Section&nbsp;2.8</a> bites where it says it does; quantify what dichotomization costs, in the aggregate and — where it matters more — at the individual level; establish the operating characteristics of the specification tests of <a href="#sec-spectests" class="quarto-xref">Section&nbsp;2.9</a>; probe robustness to the misspecifications a referee should worry about; turn the information results of <a href="#sec-information" class="quarto-xref">Section&nbsp;2.10</a> into design guidance; and attach economic stakes to the choice of estimator through a pricing counterfactual. All data are simulated from the <em>behavioral process</em> — raw Gumbel utility draws, the argmax, and the reporting rules — never from the derived likelihood, so parameter recovery validates the derivation and the code simultaneously. Every experiment is seeded and reproducible from the scripts in the replication archive.</p>
 <section id="sec-simdesign" class="level3" data-number="3.1">
 <h3 data-number="3.1" class="anchored" data-anchor-id="sec-simdesign"><span class="header-section-number">3.1</span> Design</h3>
-<p>The baseline design mirrors a typical commercial study. Each synthetic respondent completes <span class="math inline">\(T=12\)</span> choice tasks; each task presents <span class="math inline">\(J=4\)</span> inside goods described by <span class="math inline">\(P=8\)</span> attribute levels (dummy-coded from a small factorial, plus a continuous price term); the ordinal follow-up uses a <span class="math inline">\(W=5\)</span> point scale. Attribute levels are drawn to mimic a balanced fractional-factorial design. The true cut points place meaningful mass in every scale category at typical task attractiveness.</p>
-<!-- TODO: finalize and tabulate the true parameter values (beta vector, cut points on both the probability scale (Model A) and utility scale (Model B)), the number of Monte Carlo replications R, and the holdout design (e.g., 2 additional tasks per respondent withheld from estimation). Fixed, documented true values — not per-replication random draws. -->
-<p>Three families of estimators are applied to every simulated dataset:</p>
-<ol type="1">
-<li><strong>The proposed model</strong> (<a href="#eq-joint" class="quarto-xref">Equation&nbsp;11</a>), under the correct link and under the misspecified link (A estimated on B data and vice versa).</li>
-<li><strong>Binary benchmarks:</strong> the dual-response binary logit of <span class="citation" data-cites="Diener_2006">Diener et al. (<a href="#ref-Diener_2006" role="doc-biblioref">2006</a>)</span> and <span class="citation" data-cites="Hung_2025_dual">Hung, Liu, et al. (<a href="#ref-Hung_2025_dual" role="doc-biblioref">2025</a>)</span> applied to dichotomized data, with the scale collapsed at each possible cut point (top box, top two boxes, …), so the best-case and worst-case dichotomizations are both visible.</li>
-<li><strong>The constant-probability heuristic:</strong> scale points mapped to fixed purchase probabilities. We implement two versions — equal-interval probabilities (<span class="math inline">\(\Pr(y=w)=1/W\)</span> implied cut points) and cut points set to the observed marginal frequencies of the scale points — reflecting the variants encountered in practice.</li>
-</ol>
-<p>Performance is evaluated on four criteria, matching the decisions the model supports: parameter recovery (bias and root mean squared error for <span class="math inline">\(\bfbeta\)</span>, or for the individual-level <span class="math inline">\(\bfbeta_i\)</span> posteriors in the hierarchical case <span class="citation" data-cites="Sarrias_2020">(<a href="#ref-Sarrias_2020" role="doc-biblioref">Sarrias 2020</a>)</span>); in-sample model comparison via log marginal density <span class="citation" data-cites="Newton_1994">(<a href="#ref-Newton_1994" role="doc-biblioref">Newton and Raftery 1994</a>)</span>; holdout prediction (hit rates for the first response, and predicted versus actual distributions of the ordinal response, on withheld tasks); and predicted purchase-incidence shares, the quantity practitioners ultimately report to clients.</p>
+<p>The aggregate experiments use pooled tasks with <span class="math inline">\(J = 4\)</span> alternatives described by two 3-level attributes (dummy-coded against reference levels) and a continuous price-like attribute (<span class="math inline">\(P = 5\)</span>), a <span class="math inline">\(W = 5\)</span> scale, and both links, across four parameter configurations that vary the location and spread of the response distribution — including a <em>skewed</em> configuration with realistic bottom-heavy purchase intent (top-2-box share 18.4%). The hierarchical experiments use <span class="math inline">\(N = 300\)</span> respondents, <span class="math inline">\(T = 12\)</span> estimation tasks plus 2 holdouts, <span class="math inline">\(\bfbeta_i \sim \mathcal{N}(\overline{\bfbeta}, \Sigma)\)</span> with substantial heterogeneity, and the same attribute scheme.</p>
 </section>
 <section id="sec-sim-agg" class="level3" data-number="3.2">
-<h3 data-number="3.2" class="anchored" data-anchor-id="sec-sim-agg"><span class="header-section-number">3.2</span> Aggregate Model</h3>
-<p>We first simulate with homogeneous preferences (<span class="math inline">\(\bfbeta_i = \bfbeta\)</span> for all <span class="math inline">\(i\)</span>) and estimate by maximum likelihood.</p>
-<!-- TODO: results — table of true vs. estimated beta and cut points with SEs across replications; figure of sampling distributions. Expected headline: consistent recovery of both beta and cut points; dichotomized estimator recovers beta with inflated variance and cannot recover the scale structure; constant-probability heuristic biased whenever its assumed probabilities disagree with the set-dependent mapping in @eq-modelA. -->
+<h3 data-number="3.2" class="anchored" data-anchor-id="sec-sim-agg"><span class="header-section-number">3.2</span> Parameter Recovery and Identification</h3>
+<p><strong>Aggregate.</strong> Three parameter configurations per link, each simulated once at 20{,}000 tasks and estimated by maximum likelihood: in every case the true parameter vector lies inside the 95% likelihood-ratio confidence region, the observed information is strongly positive definite, and the probability-scale cut points of Model A recover to within a percentage point (e.g., a true <span class="math inline">\(\alpha_1 = 0.02\)</span> in the stress configuration is estimated at 0.0196). Repeated-sampling behavior matches the asymptotics: across 40 independent datasets per link at <span class="math inline">\(n = 5{,}000\)</span>, no parameter shows significant bias (max <span class="math inline">\(|t| = 2.05\)</span> over 18 tests) and model-based standard errors match the empirical sampling variation (mean calibration ratio 1.008); quadrupling <span class="math inline">\(n\)</span> shrinks the largest observed bias in proportion, as <span class="math inline">\(O(1/n)\)</span> requires.</p>
+<p><strong>The identification condition is sharp.</strong> Appending an intercept — the canonical violation of <a href="#prp-ident" class="quarto-xref">Proposition&nbsp;1</a> — makes the rank check fail, collapses the smallest eigenvalue of the observed information from roughly <span class="math inline">\(10^{3}\)</span> to <span class="math inline">\(10^{-6}\)</span>, and produces exactly the predicted flat ridge: different starting values converge to different raw <span class="math inline">\((\beta_{\text{const}}, \mathbf{c})\)</span> with identical likelihoods, while agreeing to four decimal places on the identified combinations <span class="math inline">\(c_w - \beta_{\text{const}}\)</span> and on every non-constant coordinate of <span class="math inline">\(\bfbeta\)</span>.</p>
+<p><strong>The factorization is exact.</strong> The empirical joint distribution of (first response, second response) over one million behavioral draws of a fixed task is statistically indistinguishable from the product form of <a href="#eq-joint" class="quarto-xref">Equation&nbsp;11</a> for both links (maximum absolute deviation at Monte Carlo noise; <span class="math inline">\(\chi^2\)</span> goodness-of-fit <span class="math inline">\(p\)</span>-values of 0.06 and 0.23).</p>
+<p><strong>Hierarchical.</strong> The MCMC sampler of <a href="#sec-estimation" class="quarto-xref">Section&nbsp;2.11</a> recovers population means, covariances, and cut points on synthetic panels for both links, and its posterior uncertainty is calibrated: across 20 replications (Model B; 8 for Model A), 90% central posterior intervals cover the truth at 89% and 83% respectively, with 50% intervals at 51% and 43%. As an independent check of the hierarchy machinery, the forced-choice-only special case of our sampler agrees with an established hierarchical-MNL implementation on identical data to within 0.008 on every population parameter.</p>
 </section>
-<section id="sec-sim-hb" class="level3" data-number="3.3">
-<h3 data-number="3.3" class="anchored" data-anchor-id="sec-sim-hb"><span class="header-section-number">3.3</span> Hierarchical Model</h3>
-<p>We then simulate with <span class="math inline">\(\bfbeta_i \sim \mathcal{N}(\overline{\bfbeta}, \Sigma_\beta)\)</span> and estimate the hierarchical Bayesian model with the MCMC sampler of <a href="#sec-estimation" class="quarto-xref">Section&nbsp;2.9</a>.</p>
-<!-- TODO: results — recovery of population moments (beta-bar, Sigma) and of individual-level part-worths; MCMC diagnostics (trace plots, acceptance rates) relegated to an appendix; comparison of individual-level posterior means against true individual betas, and against the binary-benchmark posteriors, showing the efficiency gain from the ordinal response at the individual level (fewer tasks needed for a given accuracy). -->
+<section id="sec-sim-benchmarks" class="level3" data-number="3.3">
+<h3 data-number="3.3" class="anchored" data-anchor-id="sec-sim-benchmarks"><span class="header-section-number">3.3</span> The Cost of Dichotomization</h3>
+<p>Collapsing the <span class="math inline">\(W\)</span>-point response at a cut point yields a correctly specified binary dual-response model — dichotomization costs efficiency, never consistency (bias tests confirm this in every cell) — so the comparison is precision, computed two ways: exactly, from the Fisher information; and by paired Monte Carlo, fitting the ordinal model and the binary model to the <em>same</em> simulated datasets so that all differences are attributable to the coarsened second response.</p>
+<p><strong>Aggregate: modest at a lucky cut, material at an unlucky one.</strong> <a href="#tbl-dichot" class="quarto-xref">Table&nbsp;2</a> reports exact variance ratios (equivalently, the extra sample the binary analyst needs) for the top-2-box convention and for the worst fixed cut, by configuration. Top-2-box dichotomization costs 4%–15% extra sample for the preference parameters while discarding 27%–52% of the second response’s own information; the worst cuts cost up to 33%. The analyst must commit to the cut before seeing the data; the ordinal model is uniformly within about 2% of the full-information benchmark. Aggregate demand-<em>prediction</em> ratios are small (1.01–1.07) because prediction variance is dominated by the forced-choice stage both estimators share — an honest caveat that the individual-level results below overturn.</p>
+<div class="cell">
+<div id="tbl-dichot" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-dichot-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;2: Exact asymptotic variance ratios versus the full 5-point model (extra sample required for equal precision), and the share of the second response’s information each coarsening retains. Top-2-box=the literature’s default dichotomization.
+</figcaption>
+<div aria-describedby="tbl-dichot-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<table class="cell caption-top table table-sm table-striped small">
+<colgroup>
+<col style="width: 15%">
+<col style="width: 18%">
+<col style="width: 18%">
+<col style="width: 26%">
+<col style="width: 21%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">configuration</th>
+<th style="text-align: right;">top-2-box, beta</th>
+<th style="text-align: right;">worst cut, beta</th>
+<th style="text-align: right;">omega share, top-2-box</th>
+<th style="text-align: right;">omega share, worst</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">set1_moderate</td>
+<td style="text-align: right;">1.041</td>
+<td style="text-align: right;">1.091</td>
+<td style="text-align: right;">0.73</td>
+<td style="text-align: right;">0.38</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">set2_negative</td>
+<td style="text-align: right;">1.088</td>
+<td style="text-align: right;">1.119</td>
+<td style="text-align: right;">0.59</td>
+<td style="text-align: right;">0.40</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">set3_stress</td>
+<td style="text-align: right;">1.152</td>
+<td style="text-align: right;">1.327</td>
+<td style="text-align: right;">0.59</td>
+<td style="text-align: right;">0.19</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">set4_skewed</td>
+<td style="text-align: right;">1.080</td>
+<td style="text-align: right;">1.125</td>
+<td style="text-align: right;">0.48</td>
+<td style="text-align: right;">0.20</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</figure>
+</div>
+</div>
+<p><strong>Individual level: the gaps widen.</strong> In the hierarchical setting — the model practitioners actually estimate — each respondent contributes only <span class="math inline">\(T = 12\)</span> ordinal reports, and the pooled cut points no longer rescue the coarsened second stage. Across 20 paired replications, top-2-box dichotomization inflates the variance of the shared cut point by a factor of 1.09, individual-level purchase-probability prediction error by 1.19 in variance terms, and individual part-worth RMSE by 4.2% — with identical forced-choice data. Holdout hit rates are statistically indistinguishable (0.511 vs.&nbsp;0.510), as they should be: the first response carries the ranking information, and what dichotomization damages is precisely the demand margin the dual response exists to measure.</p>
 </section>
-<section id="sec-sim-benchmarks" class="level3" data-number="3.4">
-<h3 data-number="3.4" class="anchored" data-anchor-id="sec-sim-benchmarks"><span class="header-section-number">3.4</span> The Cost of Current Practice</h3>
-<p>This subsection collects the comparisons that answer the practitioner’s question: <em>how much does the correct model actually matter?</em></p>
-<!-- TODO: results — (1) LMD comparison of proposed model vs. each dichotomization vs. constant-probability heuristic; (2) holdout hit rates and share predictions; (3) a figure showing RMSE of estimated purchase-incidence shares across methods, since purchase incidence is where dichotomization bites hardest; (4) sensitivity of the dichotomized estimator to WHERE the scale is cut — expected to be substantial, which is itself an argument against the practice (the analyst's arbitrary choice moves the answer). -->
+<section id="sec-sim-spectests" class="level3" data-number="3.4">
+<h3 data-number="3.4" class="anchored" data-anchor-id="sec-sim-spectests"><span class="header-section-number">3.4</span> Specification Tests: Size and Power</h3>
+<p><a href="#tbl-spec" class="quarto-xref">Table&nbsp;3</a> summarizes the operating characteristics of the tests from <a href="#sec-spectests" class="quarto-xref">Section&nbsp;2.9</a> over 300 (size) and 150 (power) replications per cell. Both tests hold their nominal 5% size, the estimators of <span class="math inline">\(\lambda\)</span> and <span class="math inline">\(\delta\)</span> are unbiased, and two results deserve emphasis: the conditioning test rejects the DR-2Max second stage in <em>every</em> replication at both sample sizes — the 2Max-versus-inclusive-value question does not require large data to settle — and when the data truly come from a DR-2Max process, <span class="math inline">\(\hat\delta\)</span> lands on 1 (mean 1.00) and our model is rejected with power 100%, so the test is informative in both directions.</p>
+<div class="cell">
+<div id="tbl-spec" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-spec-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;3: Rejection rates of nominal-5% likelihood-ratio specification tests. Under the null (top rows), the lambda and delta tests hold size while ‘delta=1’ shows power against DR-2Max; under the alternatives (bottom rows), the targeted test rejects while the others stay quiet.
+</figcaption>
+<div aria-describedby="tbl-spec-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<table class="cell caption-top table table-sm table-striped small">
+<colgroup>
+<col style="width: 26%">
+<col style="width: 6%">
+<col style="width: 20%">
+<col style="width: 18%">
+<col style="width: 27%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">cell</th>
+<th style="text-align: right;">n</th>
+<th style="text-align: right;">reject lambda=1</th>
+<th style="text-align: right;">reject delta=0</th>
+<th style="text-align: right;">reject delta=1 (2Max)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">size B</td>
+<td style="text-align: right;">1200</td>
+<td style="text-align: right;">0.067</td>
+<td style="text-align: right;">0.050</td>
+<td style="text-align: right;">1.000</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">size B</td>
+<td style="text-align: right;">3600</td>
+<td style="text-align: right;">0.063</td>
+<td style="text-align: right;">0.027</td>
+<td style="text-align: right;">1.000</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">size A</td>
+<td style="text-align: right;">3600</td>
+<td style="text-align: right;">0.047</td>
+<td style="text-align: right;">0.033</td>
+<td style="text-align: right;">1.000</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">power lambda=0.7</td>
+<td style="text-align: right;">3600</td>
+<td style="text-align: right;">0.993</td>
+<td style="text-align: right;">0.053</td>
+<td style="text-align: right;">1.000</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">power lambda=1.3</td>
+<td style="text-align: right;">3600</td>
+<td style="text-align: right;">0.993</td>
+<td style="text-align: right;">0.060</td>
+<td style="text-align: right;">1.000</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">power lambda=0.7</td>
+<td style="text-align: right;">1200</td>
+<td style="text-align: right;">0.640</td>
+<td style="text-align: right;">0.053</td>
+<td style="text-align: right;">1.000</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">power 2max (delta=1)</td>
+<td style="text-align: right;">3600</td>
+<td style="text-align: right;">0.067</td>
+<td style="text-align: right;">1.000</td>
+<td style="text-align: right;">0.073</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">power 2max (delta=1)</td>
+<td style="text-align: right;">1200</td>
+<td style="text-align: right;">0.060</td>
+<td style="text-align: right;">1.000</td>
+<td style="text-align: right;">0.053</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</figure>
+</div>
+</div>
 </section>
-<section id="sec-sim-cutpoints" class="level3" data-number="3.5">
-<h3 data-number="3.5" class="anchored" data-anchor-id="sec-sim-cutpoints"><span class="header-section-number">3.5</span> Cut-Point Placement and Scale-Usage Heterogeneity</h3>
-<p>Two robustness experiments target the cut points. First, <em>extreme placements</em>: data-generating processes in which one or more cut points sit far into the tails (e.g., a “very likely” category that is almost never used), which stress the estimation of the associated <span class="math inline">\(\alpha_w\)</span> or <span class="math inline">\(c_w\)</span> and mimic scales with too many points for the construct being measured. Second, <em>heterogeneous scale usage</em>: data generated with respondent-specific cut points <span class="math inline">\(\bftheta_i\)</span> as in <a href="#sec-hetcut" class="quarto-xref">Section&nbsp;2.6.1</a>, estimated (a) with the common-cut-point model, to measure the robustness of preference estimates to ignoring reporting heterogeneity, and (b) with the heterogeneous-cut-point model, to measure what the richer specification buys and how much data it needs.</p>
-<!-- TODO: results — recovery under extreme cut points (expect: slow-to-estimate tail cut points but unbiased betas); bias in beta and in purchase-share predictions when scale-usage heterogeneity is ignored; recovery of the theta_i hierarchy when it is modeled; practical guidance on T (tasks per respondent) needed for individual cut points to be worth estimating. -->
+<section id="sec-sim-robust" class="level3" data-number="3.5">
+<h3 data-number="3.5" class="anchored" data-anchor-id="sec-sim-robust"><span class="header-section-number">3.5</span> Misspecification Robustness</h3>
+<p>Four deliberate misspecifications, each fit with the (now wrong) standard model on hierarchical panels:</p>
+<ul>
+<li><strong>Wrong link.</strong> Fitting Model B to Model A data and vice versa moves holdout purchase-probability predictions by at most 0.025 on the probability scale (versus 0.019 under the correct link), and WAIC selects the true link in 100% of replications at this design’s attractiveness spread. Link misspecification is a second-order concern for demand; it matters for extrapolation into the tails.</li>
+<li><strong>Ignored scale-usage heterogeneity.</strong> With respondent-specific cut points in the data-generating process (dispersion 0.35 on <span class="math inline">\(c_{i1}\)</span>), the common-cut model loses almost nothing: individual part-worth RMSE 0.532 versus 0.535 for the heterogeneous-cut model, with prediction and hit-rate differences equally negligible. At commercial task counts the extension of <a href="#sec-hetcut" class="quarto-xref">Section&nbsp;2.7.1</a> is robustness insurance and a diagnostic, not a default — exactly what the identification discussion anticipated.</li>
+<li><strong>Non-Gumbel shocks.</strong> With variance-matched normal first-stage errors, preference recovery and demand prediction are essentially unimpaired (individual RMSE 0.514, prediction RMSE 0.110); the misspecification is absorbed almost entirely by the cut-point locations (the top-2-box cut shifts by 0.63), which is where a structural-interpretation caveat belongs.</li>
+<li><strong>Task-order drift.</strong> When the outside good drifts across the sequence (linear drift, and Hung-style probabilistic updating as in <span class="citation" data-cites="Hung_2025_nochoice">Hung, Kurz, et al. (<a href="#ref-Hung_2025_nochoice" role="doc-biblioref">2025</a>)</span>), the static model’s cut points absorb the average drift while part-worths remain accurate, and the simple order diagnostic — residual exceedance regressed on task position — detects the drift reliably (mean <span class="math inline">\(|t| = 5.1\)</span> under linear drift).</li>
+</ul>
 </section>
-<section id="sec-sim-efficiency" class="level3" data-number="3.6">
-<h3 data-number="3.6" class="anchored" data-anchor-id="sec-sim-efficiency"><span class="header-section-number">3.6</span> Information Gains from Finer Scales</h3>
-<p>Finally, we evaluate <a href="#eq-fisher" class="quarto-xref">Equation&nbsp;15</a> numerically across <span class="math inline">\(W \in \lbrace 2, 3, 5, 7, 11 \rbrace\)</span>, holding the design fixed and placing cut points at population quantiles, to trace how the second response’s Fisher-information increment grows with scale refinement — the ordinal extension of the design-efficiency results in <span class="citation" data-cites="Brazell_2006">Brazell et al. (<a href="#ref-Brazell_2006" role="doc-biblioref">2006</a>)</span> and <span class="citation" data-cites="Hung_2025_dual">Hung, Liu, et al. (<a href="#ref-Hung_2025_dual" role="doc-biblioref">2025</a>)</span>. We report both the analytic D-efficiency gains and their finite-sample counterparts (RMSE ratios from the Monte Carlo replications), and translate them into the practitioner’s currency: the reduction in respondents (or tasks) required to match the accuracy of a binary dual-response study.</p>
-<!-- TODO: results — figure: information increment (and respondent-equivalents) as a function of W, with the binary case W=2 as baseline and the continuous-report limit as asymptote. Expected shape: steep gains from W=2 to W=5, diminishing returns beyond; exact numbers depend on task attractiveness (S_it), so show curves for unattractive/typical/attractive sets. -->
+<section id="sec-sim-design" class="level3" data-number="3.6">
+<h3 data-number="3.6" class="anchored" data-anchor-id="sec-sim-design"><span class="header-section-number">3.6</span> Designing the Scale</h3>
+<p>The information results of <a href="#sec-information" class="quarto-xref">Section&nbsp;2.10</a> become concrete design advice (<a href="#fig-infoW" class="quarto-xref">Figure&nbsp;1</a>). With cut points at equal expected shares, a binary follow-up captures 71% (logistic link) or 46% (Gumbel link) of the continuous-report information limit; five points capture 95% and 78%; the increment beyond seven points is small. Cut <em>placement</em> matters as much as cut <em>count</em> for the Gumbel link: information-optimal cuts recover a further 15% over equal-share placement, whereas the logistic link is nearly indifferent — and label sets that produce the skewed usage typical of fielded purchase-intent scales cost 29% (Gumbel) and 4% (logistic) relative to optimal.</p>
+<p>Discriminating between the two links, by contrast, is governed by the <em>attractiveness variation</em> of the design, exactly as <a href="#sec-identification" class="quarto-xref">Section&nbsp;2.8</a> predicts. At this design’s natural inclusive-value spread, marginal-density comparisons select the true link in every replication from <span class="math inline">\(n = 1{,}800\)</span> tasks upward. On deliberately “squashed” designs — identical attribute variation, but the inclusive value equalized across tasks — the data carry <em>no</em> information about the link (either link fits the category frequencies exactly by relabeling cut points), and selection degenerates into an artifact of the curvature correction: the same link is chosen essentially always, regardless of the truth (P(correct <span class="math inline">\(\mid\)</span> A true) = 0.00, P(correct <span class="math inline">\(\mid\)</span> B true) = 0.97 at <span class="math inline">\(n = 7{,}200\)</span>). Studies intending to test the behavioral story must engineer high- and low-attractiveness tasks; studies that only need demand can ignore the distinction.</p>
+<div id="cell-fig-infoW" class="cell">
+<div class="cell-output-display">
+<div id="fig-infoW" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-infoW-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="R/output/figs/info_by_W.png" class="lightbox" data-gallery="quarto-lightbox-gallery-1" title="Figure&nbsp;1: Share of the continuous-report information captured by a W-point second response (cut points at equal expected shares). The binary response is the least informative member of the family; most of the gap closes by five points."><img src="R/output/figs/info_by_W.png" class="img-fluid figure-img"></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-infoW-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: Share of the continuous-report information captured by a W-point second response (cut points at equal expected shares). The binary response is the least informative member of the family; most of the gap closes by five points.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="sec-sim-counterfactual" class="level3" data-number="3.7">
+<h3 data-number="3.7" class="anchored" data-anchor-id="sec-sim-counterfactual"><span class="header-section-number">3.7</span> Economic Stakes: A Pricing Counterfactual</h3>
+<p>Finally, we push each estimator through the decision it exists to inform. A synthetic market — five brands, a quality attribute, wide price variation, heterogeneous preferences calibrated to own-price elasticities of about -1.9 — generates <span class="math inline">\(W = 5\)</span> dual-response data (<span class="math inline">\(N = 500\)</span>, <span class="math inline">\(T = 12\)</span>); each estimator’s demand system then sets Nash equilibrium prices (damped best responses; multi-start verified). Demand is defined identically for all systems as top-2-box purchase, so the well-placed binary estimator is answering exactly the right question; posterior-predictive demand uses full parameter draws.</p>
+<div class="cell">
+<div id="tbl-counterfactual" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-counterfactual-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;4: Nash-pricing distortions by estimator: mean and max absolute equilibrium-price error versus the true equilibrium; error in the system’s own profit forecast at its equilibrium; and realized profit forgone relative to pricing at the true equilibrium.
+</figcaption>
+<div aria-describedby="tbl-counterfactual-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<table class="cell caption-top table table-sm table-striped small">
+<colgroup>
+<col style="width: 11%">
+<col style="width: 26%">
+<col style="width: 25%">
+<col style="width: 20%">
+<col style="width: 15%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">system</th>
+<th style="text-align: right;">mean |price err| %</th>
+<th style="text-align: right;">max |price err| %</th>
+<th style="text-align: right;">profit forecast err %</th>
+<th style="text-align: right;">profit forgone %</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">ordinal</td>
+<td style="text-align: right;">1.11</td>
+<td style="text-align: right;">2.13</td>
+<td style="text-align: right;">-2.98</td>
+<td style="text-align: right;">0.37</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">bin_t2b</td>
+<td style="text-align: right;">1.10</td>
+<td style="text-align: right;">2.38</td>
+<td style="text-align: right;">-2.47</td>
+<td style="text-align: right;">-0.31</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">bin_top</td>
+<td style="text-align: right;">2.57</td>
+<td style="text-align: right;">5.73</td>
+<td style="text-align: right;">-59.29</td>
+<td style="text-align: right;">-0.84</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">heur_juster</td>
+<td style="text-align: right;">4.84</td>
+<td style="text-align: right;">8.52</td>
+<td style="text-align: right;">105.82</td>
+<td style="text-align: right;">2.18</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">heur_t2b</td>
+<td style="text-align: right;">4.84</td>
+<td style="text-align: right;">8.52</td>
+<td style="text-align: right;">52.94</td>
+<td style="text-align: right;">2.18</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</figure>
+</div>
+</div>
+<p>Three lessons (<a href="#tbl-counterfactual" class="quarto-xref">Table&nbsp;4</a>). First, the full ordinal model prices the market almost exactly. Second, the <em>well-placed</em> binary dual response also prices well — consistent with the efficiency analysis — but the analyst does not get to choose the placement after the fact: dichotomizing at the top box misprices by up to 5.7% and misstates its own profit forecast by 59%, because a top-box model can only answer a top-box question. Third, the constant-probability heuristic is the expensive shortcut: its purchase incidence cannot respond to price, so it underprices systematically (its equilibrium is the inside-good-only equilibrium — the calibration constant cancels from every best response) and overstates forecast profits by 106%. The heuristic’s failure is structural, not statistical: no amount of data fixes it.</p>
 </section>
 </section>
 <section id="sec-analysis" class="level2" data-number="4">
@@ -473,7 +825,8 @@ c_{iw} = c_{i,w-1} + \exp \left( \delta_{iw} \right) \ \text{for} \ w = 2, \ldot
 </section>
 <section id="sec-empirical-spec" class="level3" data-number="4.2">
 <h3 data-number="4.2" class="anchored" data-anchor-id="sec-empirical-spec"><span class="header-section-number">4.2</span> Model Specifications and Estimation</h3>
-<p>We estimate six specifications on the same data: Model A and Model B (<a href="#sec-model" class="quarto-xref">Section&nbsp;2</a>), each in aggregate and hierarchical form; the binary dual-response benchmark applied to the dichotomized scale (top-two-box); and the constant-probability heuristic. Hierarchical specifications use the sampler of <a href="#sec-estimation" class="quarto-xref">Section&nbsp;2.9</a>.</p>
+<p>We estimate six specifications on the same data: Model A and Model B (<a href="#sec-model" class="quarto-xref">Section&nbsp;2</a>), each in aggregate and hierarchical form; the binary dual-response benchmark applied to the dichotomized scale (top-two-box); and the constant-probability heuristic. Hierarchical specifications use the sampler of <a href="#sec-estimation" class="quarto-xref">Section&nbsp;2.11</a>.</p>
+<p><strong>Pre-specified test battery.</strong> Before any model comparison, we commit to the three specification tests of <a href="#sec-spectests" class="quarto-xref">Section&nbsp;2.9</a> on the aggregate fit: the unit-slope test (<span class="math inline">\(\lambda = 1\)</span>), the conditioning test (<span class="math inline">\(\delta = 0\)</span>), and the DR-2Max test (<span class="math inline">\(\delta = 1\)</span>) — whose operating characteristics are established in <a href="#sec-sim-spectests" class="quarto-xref">Section&nbsp;3.4</a> — together with the A-versus-B link comparison by holdout likelihood and WAIC. We also pre-commit to re-running the pricing counterfactual of <a href="#sec-sim-counterfactual" class="quarto-xref">Section&nbsp;3.7</a> on the empirical posteriors, replacing the synthetic market with the study’s own category structure.</p>
 <!-- TODO: report MCMC settings (iterations, burn-in, thinning), convergence diagnostics (appendix), and holdout design (withheld tasks per respondent). -->
 </section>
 <section id="sec-empirical-results" class="level3" data-number="4.3">
@@ -499,21 +852,110 @@ c_{iw} = c_{i,w-1} + \exp \left( \delta_{iw} \right) \ \text{for} \ w = 2, \ldot
 </section>
 <section id="implications-for-practice" class="level3" data-number="5.2">
 <h3 data-number="5.2" class="anchored" data-anchor-id="implications-for-practice"><span class="header-section-number">5.2</span> Implications for Practice</h3>
-<p>Three points bear directly on applied work. First, if an ordinal dual response has been fielded, dichotomizing it is costly and arbitrary: the simulation results in <a href="#sec-sim-benchmarks" class="quarto-xref">Section&nbsp;3.4</a> show that the analyst’s choice of where to cut the scale moves managerially relevant quantities, while the model uses every scale point and removes the choice. Second, constant-probability weighting has a specific, diagnosable flaw: the purchase probability that a scale point implies is not a constant — under <a href="#eq-modelA" class="quarto-xref">Equation&nbsp;7</a> it depends on the attractiveness of the displayed set through <span class="math inline">\(S_{it}\)</span> — so calibrations struck on one design will not transfer to another. Third, the information results in <a href="#sec-information" class="quarto-xref">Section&nbsp;2.8</a> and <a href="#sec-sim-efficiency" class="quarto-xref">Section&nbsp;3.6</a> give concrete design guidance: the follow-up question’s scale should be chosen the way sample sizes are chosen, by information budgeting. Our results suggest most of the binary-to-continuous information gap is captured by a five- to seven-point scale, after which respondent burden and sparsely used categories argue against finer partitions. <!-- TODO: confirm this claim against the final simulation numbers. --></p>
+<p>Four points bear directly on applied work. First, if an ordinal dual response has been fielded, dichotomizing it is costly and arbitrary: the analyst’s choice of cut is made before seeing the data, the penalty ranges from a few percent of sample at a lucky cut to a third of it at an unlucky one (<a href="#sec-sim-benchmarks" class="quarto-xref">Section&nbsp;3.3</a>), the damage concentrates at the individual level where hierarchical estimation lives, and a dichotomized model can answer questions only at its own threshold — the pricing counterfactual’s top-box analyst misstates the profit forecast by more than half for exactly that reason. Second, constant-probability weighting has a <em>structural</em> flaw, not a statistical one: beyond the set-dependence of scale-point meaning (<a href="#eq-modelA" class="quarto-xref">Equation&nbsp;7</a> and <a href="#tbl-toy" class="quarto-xref">Table&nbsp;1</a>), a fixed purchase incidence cancels out of every pricing first-order condition, so the heuristic’s price recommendations ignore the no-buy margin entirely — no amount of data fixes this. Third, the information results in <a href="#sec-information" class="quarto-xref">Section&nbsp;2.10</a> and <a href="#sec-sim-design" class="quarto-xref">Section&nbsp;3.6</a> give concrete design guidance: five scale points capture most of the binary-to-continuous information gap (about 95% under the logistic link, 78% under the Gumbel link, versus 71% and 46% for binary), gains beyond seven points are small, and — for the Gumbel link especially — <em>where</em> the labels place the cut points matters as much as how many there are. Fourth, studies that intend to test the behavioral model (the link, the unit slope) should engineer variation in task attractiveness; designs without it cannot discriminate the links even in principle (<a href="#sec-identification" class="quarto-xref">Section&nbsp;2.8</a>), a fact our squashed-design experiment confirms empirically.</p>
 </section>
 <section id="relation-to-the-outside-good-literature" class="level3" data-number="5.3">
 <h3 data-number="5.3" class="anchored" data-anchor-id="relation-to-the-outside-good-literature"><span class="header-section-number">5.3</span> Relation to the Outside-Good Literature</h3>
-<p>Our model holds the outside good’s <em>mean</em> utility fixed at zero and locates all action in the consumer’s uncertainty about its realization. Two adjacent strands suggest natural extensions. <span class="citation" data-cites="Hung_2025_dual">Hung, Liu, et al. (<a href="#ref-Hung_2025_dual" role="doc-biblioref">2025</a>)</span> show that a budget constraint applied to the second response — but not the forced choice — improves fit and materially changes equilibrium price predictions; the same asymmetric treatment is available here, censoring the ordinal report for options priced above a respondent-level budget, and the ordinal response should sharpen the identification of that budget since near-threshold options will earn lukewarm rather than merely negative reports. <span class="citation" data-cites="Hung_2025_nochoice">Hung, Kurz, et al. (<a href="#ref-Hung_2025_nochoice" role="doc-biblioref">2025</a>)</span> document that the no-choice option’s utility can drift over the course of a survey as respondents learn about the category; in our notation this is drift in the cut points (or in the outside-good location), and the task-order diagnostics of <a href="#sec-data" class="quarto-xref">Section&nbsp;4.1</a> carry over directly. More broadly, the opt-out literature’s warning that a single constant rarely captures heterogeneous non-purchase behavior <span class="citation" data-cites="Campbell_2019 Haaijer_2001">(<a href="#ref-Campbell_2019" role="doc-biblioref">Campbell and Erdem 2019</a>; <a href="#ref-Haaijer_2001" role="doc-biblioref">Haaijer et al. 2001</a>)</span> applies to the dual response as well; the heterogeneous-cut-point extension of <a href="#sec-hetcut" class="quarto-xref">Section&nbsp;2.6.1</a> is one response, and richer structures (e.g., serial non-purchasers as a latent class) are compatible with the framework.</p>
+<p>Our model holds the outside good’s <em>mean</em> utility fixed at zero and locates all action in the consumer’s uncertainty about its realization. Two adjacent strands suggest natural extensions. <span class="citation" data-cites="Hung_2025_dual">Hung, Liu, et al. (<a href="#ref-Hung_2025_dual" role="doc-biblioref">2025</a>)</span> show that a budget constraint applied to the second response — but not the forced choice — improves fit and materially changes equilibrium price predictions; the same asymmetric treatment is available here, censoring the ordinal report for options priced above a respondent-level budget, and the ordinal response should sharpen the identification of that budget since near-threshold options will earn lukewarm rather than merely negative reports. <span class="citation" data-cites="Hung_2025_nochoice">Hung, Kurz, et al. (<a href="#ref-Hung_2025_nochoice" role="doc-biblioref">2025</a>)</span> document that the no-choice option’s utility can drift over the course of a survey as respondents learn about the category; in our notation this is drift in the cut points (or in the outside-good location), and the task-order diagnostics of <a href="#sec-data" class="quarto-xref">Section&nbsp;4.1</a> carry over directly. More broadly, the opt-out literature’s warning that a single constant rarely captures heterogeneous non-purchase behavior <span class="citation" data-cites="Campbell_2019 Haaijer_2001">(<a href="#ref-Campbell_2019" role="doc-biblioref">Campbell and Erdem 2019</a>; <a href="#ref-Haaijer_2001" role="doc-biblioref">Haaijer et al. 2001</a>)</span> applies to the dual response as well; the heterogeneous-cut-point extension of <a href="#sec-hetcut" class="quarto-xref">Section&nbsp;2.7.1</a> is one response, and richer structures (e.g., serial non-purchasers as a latent class) are compatible with the framework.</p>
 </section>
 <section id="limitations" class="level3" data-number="5.4">
 <h3 data-number="5.4" class="anchored" data-anchor-id="limitations"><span class="header-section-number">5.4</span> Limitations</h3>
-<p>Four limitations qualify the results. First, the Gumbel error assumption is load-bearing: the factorization of the joint likelihood and the inclusive-value form of the second response both rest on max-stability, and relaxing the error family (e.g., toward mixed or nested structures within a task) would break the closed form, though not the framework — the second response would simply require simulation over the max distribution. Second, we treat tasks as independent draws, abstracting from learning, fatigue, and reference formation across the sequence <span class="citation" data-cites="Hung_2025_nochoice">(<a href="#ref-Hung_2025_nochoice" role="doc-biblioref">Hung, Kurz, et al. 2025</a>)</span>. Third, the common-cut-point model assumes a shared reading of the scale labels; the extension of <a href="#sec-hetcut" class="quarto-xref">Section&nbsp;2.6.1</a> relaxes this, but individual-level identification is necessarily thin with commercial task counts, and our recommendation to treat scale-usage heterogeneity as a robustness check rather than a default reflects that. Fourth, like all stated-preference methods, the model calibrates stated rather than revealed purchase behavior; the ordinal report inherits whatever hypothetical bias attends purchase-intent questions generally <span class="citation" data-cites="Morrison_1979">(<a href="#ref-Morrison_1979" role="doc-biblioref">Morrison 1979</a>)</span>, and linking the estimated cut points to realized purchase rates — the ordinal analogue of the calibration literature on binary intentions — is a natural next step.</p>
+<p>Four limitations qualify the results. First, the Gumbel error assumption is load-bearing: the factorization of the joint likelihood and the inclusive-value form of the second response both rest on max-stability, and relaxing the error family (e.g., toward mixed or nested structures within a task) would break the closed form, though not the framework — the second response would simply require simulation over the max distribution. Our robustness experiments soften the concern in one direction: with variance-matched normal shocks, preference and demand estimates are essentially unimpaired, the misspecification being absorbed by the cut-point locations — so structural interpretation of the cut points deserves more caution than the demand quantities built from them. Second, we treat tasks as independent draws, abstracting from learning, fatigue, and reference formation across the sequence <span class="citation" data-cites="Hung_2025_nochoice">(<a href="#ref-Hung_2025_nochoice" role="doc-biblioref">Hung, Kurz, et al. 2025</a>)</span>; the task-order diagnostic of <a href="#sec-sim-robust" class="quarto-xref">Section&nbsp;3.5</a> detects such drift reliably when present. Third, the common-cut-point model assumes a shared reading of the scale labels; the extension of <a href="#sec-hetcut" class="quarto-xref">Section&nbsp;2.7.1</a> relaxes this, but individual-level identification is thin at commercial task counts, and our simulations find that ignoring moderate scale-usage heterogeneity costs little — the extension earns its keep as insurance and as a diagnostic, not as a default. Fourth, like all stated-preference methods, the model calibrates stated rather than revealed purchase behavior; the ordinal report inherits whatever hypothetical bias attends purchase-intent questions generally <span class="citation" data-cites="Morrison_1979">(<a href="#ref-Morrison_1979" role="doc-biblioref">Morrison 1979</a>)</span>, and linking the estimated cut points to realized purchase rates — the ordinal analogue of the calibration literature on binary intentions — is a natural next step. A separate methodological caution, documented in Appendix C, is that harmonic-mean marginal-likelihood estimates are optimistic; we therefore anchor model comparisons in holdout likelihood and WAIC alongside the conventional estimator.</p>
 </section>
 </section>
 <section id="sec-conclusion" class="level2" data-number="6">
 <h2 data-number="6" class="anchored" data-anchor-id="sec-conclusion"><span class="header-section-number">6</span> Conclusion</h2>
 <p>Dual-response conjoint designs separate a question consumers find easy — which of these do you like best? — from one they find genuinely uncertain — would you actually buy it? This paper takes that uncertainty seriously as a modeling primitive. When the consumer observes everything about the displayed alternatives but not her valuation of the outside good, the natural follow-up question is ordinal, and the natural model is the one derived here: a multinomial logit for the forced choice joined to a cumulative-link ordinal model on the task’s inclusive value, with the link function determined by whether the respondent reports her purchase probability directly (Model A) or grades a resolved comparison (Model B). The framework nests the leading binary dual-response models as its two-point special case, so nothing is lost relative to current best practice; a <span class="math inline">\(W\)</span>-point scale strictly adds Fisher information, and the common practitioner shortcuts — dichotomizing the scale or assigning fixed purchase probabilities to its points — are shown to be, respectively, wasteful and internally inconsistent. Simulation evidence confirms that the aggregate and hierarchical Bayesian estimators recover the model’s parameters, including the cut points that give the scale labels quantitative meaning, and the empirical application demonstrates the model on commercial data. <!-- TODO: sharpen the two evidence claims once simulation and empirical results are final. --></p>
 <p>Beyond the specific model, the paper’s broader point is that response formats and statistical models should be developed together. The ordinal purchase-likelihood question earned its place in practice because it matches how respondents experience purchase decisions; it lacked only a likelihood. Supplying one turns an informal fielding habit into a measurement instrument — and opens a research agenda that includes calibrating estimated cut points against realized purchase behavior, exploiting the ordinal response to identify budget constraints, and optimal design of the scale itself.</p>
+</section>
+<section id="sec-appendix-proofs" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="sec-appendix-proofs">Appendix A: Proofs</h2>
+<section id="a.1-proof-of-lem-gumbel" class="level3 unnumbered">
+<h3 class="unnumbered anchored" data-anchor-id="a.1-proof-of-lem-gumbel">A.1 Proof of <a href="#lem-gumbel" class="quarto-xref">Lemma&nbsp;1</a></h3>
+<p>Let <span class="math inline">\(u_j = V_j + \eta_j\)</span> with <span class="math inline">\(\eta_j \iid \text{Gumbel}(0,1)\)</span> for <span class="math inline">\(j \in \mathcal{J}^+\)</span>, so <span class="math inline">\(u_j\)</span> has CDF <span class="math inline">\(F_j(t) = \exp\left( -e^{-(t - V_j)} \right)\)</span> and density <span class="math inline">\(f_j(t) = e^{-(t-V_j)} \exp\left( -e^{-(t-V_j)} \right)\)</span>. For any <span class="math inline">\(j\)</span> and any <span class="math inline">\(u\)</span>, <span class="math display">\[
+\Pr \left( j^* = j, \; u^* \le u \right)
+= \int_{-\infty}^{u} f_j(t) \prod_{k \ne j} F_k(t) \, dt
+= \int_{-\infty}^{u} e^{V_j} e^{-t} \exp \left( -e^{-t} S \right) dt,
+\]</span> using <span class="math inline">\(\prod_{k \ne j} F_k(t) = \exp\left( -e^{-t} \left( S - e^{V_j} \right) \right)\)</span> with <span class="math inline">\(S = \sum_{k} e^{V_k}\)</span>, and collecting terms. Substituting <span class="math inline">\(s = e^{-t} S\)</span> (so <span class="math inline">\(ds = -e^{-t} S \, dt\)</span>) gives <span class="math display">\[
+\Pr \left( j^* = j, \; u^* \le u \right)
+= \frac{e^{V_j}}{S} \int_{e^{-u} S}^{\infty} e^{-s} \, ds
+= \underbrace{\frac{e^{V_j}}{S}}_{\Pr\left(j^*=j\right)} \; \times \; \underbrace{\exp \left( -S e^{-u} \right)}_{F_{\text{Gumbel}\left(\overline{\mu},1\right)}(u)}.
+\]</span> Letting <span class="math inline">\(u \to \infty\)</span> delivers the MNL choice probability; summing over <span class="math inline">\(j\)</span> delivers <span class="math inline">\(u^* \sim \text{Gumbel}(\overline{\mu}, 1)\)</span> with <span class="math inline">\(\overline{\mu} = \ln S\)</span>; and the factorization of the joint law for every <span class="math inline">\((j, u)\)</span> is precisely the independence of <span class="math inline">\(j^*\)</span> and <span class="math inline">\(u^*\)</span>. <span class="math inline">\(\square\)</span></p>
+</section>
+<section id="a.2-derivation-of-the-information-increment-eq-fisher" class="level3 unnumbered">
+<h3 class="unnumbered anchored" data-anchor-id="a.2-derivation-of-the-information-increment-eq-fisher">A.2 Derivation of the information increment (<a href="#eq-fisher" class="quarto-xref">Equation&nbsp;18</a>)</h3>
+<p>The second response contributes the multinomial log-likelihood <span class="math inline">\(\ell = \sum_w \mathbb{1}\lbrace y = w \rbrace \ln \pi_w\)</span> with <span class="math inline">\(\pi_w = G(c_w - \overline{\mu}) - G(c_{w-1} - \overline{\mu})\)</span>. Since <span class="math inline">\(\partial \overline{\mu} / \partial \bfbeta = \sum_j \Pr(j^* = j) \, \x_j = \overline{\x}\)</span>, the score with respect to <span class="math inline">\(\bfbeta\)</span> in category <span class="math inline">\(w\)</span> is <span class="math inline">\(- \left[ g_w - g_{w-1} \right] / \pi_w \cdot \overline{\x}\)</span>, writing <span class="math inline">\(g_w = g \left( c_w - \overline{\mu} \right)\)</span> and <span class="math inline">\(g = G'\)</span> (with <span class="math inline">\(g_0 = g_W = 0\)</span>). The information is the expected outer product of the score: <span class="math display">\[
+\mathcal{I}^{(2)} = \sum_{w=1}^{W} \pi_w \left( \frac{g_w - g_{w-1}}{\pi_w} \right)^2 \overline{\x} \, \overline{\x}'
+= \left[ \sum_{w=1}^{W} \frac{ \left( g_w - g_{w-1} \right)^2 }{ \pi_w } \right] \overline{\x} \, \overline{\x}'
+= \omega \left( \overline{\mu}; \mathbf{c} \right) \overline{\x} \, \overline{\x}'. \qquad \square
+\]</span> The joint information over <span class="math inline">\(\left( \bfbeta, \mathbf{c} \right)\)</span>, including the cut-point blocks used by the estimation code, follows from the same score with <span class="math inline">\(\partial \pi_w / \partial c_m = g_w \mathbb{1}\lbrace m = w \rbrace - g_{w-1} \mathbb{1}\lbrace m = w-1 \rbrace\)</span>.</p>
+</section>
+<section id="a.3-monotonicity-of-omega-under-refinement" class="level3 unnumbered">
+<h3 class="unnumbered anchored" data-anchor-id="a.3-monotonicity-of-omega-under-refinement">A.3 Monotonicity of <span class="math inline">\(\omega\)</span> under refinement</h3>
+<p>Let <span class="math inline">\(\mathcal{C}'\)</span> be a coarsening of the partition <span class="math inline">\(\mathcal{C}\)</span> obtained by merging adjacent categories <span class="math inline">\(w\)</span> and <span class="math inline">\(w+1\)</span>. The merged cell contributes <span class="math inline">\(\left( g_{w+1} - g_{w-1} \right)^2 / \left( \pi_w + \pi_{w+1} \right)\)</span> to <span class="math inline">\(\omega'\)</span>, while the two original cells contribute <span class="math inline">\(\left( g_w - g_{w-1} \right)^2 / \pi_w + \left( g_{w+1} - g_w \right)^2 / \pi_{w+1}\)</span> to <span class="math inline">\(\omega\)</span>. Writing <span class="math inline">\(a = g_w - g_{w-1}\)</span>, <span class="math inline">\(b = g_{w+1} - g_w\)</span>, <span class="math inline">\(u = \pi_w\)</span>, <span class="math inline">\(v = \pi_{w+1}\)</span>, the Cauchy–Schwarz inequality in Engel form gives <span class="math display">\[
+\frac{(a + b)^2}{u + v} \;\le\; \frac{a^2}{u} + \frac{b^2}{v},
+\]</span> so each merge weakly decreases <span class="math inline">\(\omega\)</span>, and any coarsening — being a finite sequence of adjacent merges — does the same. The binary response is the coarsest member of the family and hence the least informative; conversely, as the mesh of the partition goes to zero the interval score converges to the exact-observation score and <span class="math inline">\(\omega \to \int \left( g' \right)^2 / g \, dz\)</span>, the Fisher information of the latent’s location (equal to <span class="math inline">\(1\)</span> for the standard Gumbel and <span class="math inline">\(1/3\)</span> for the standard logistic). <span class="math inline">\(\square\)</span></p>
+</section>
+</section>
+<section id="sec-appendix-estimation" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="sec-appendix-estimation">Appendix B: Estimation Details</h2>
+<p><strong>Aggregate model.</strong> The likelihood is maximized over the working parameters <span class="math inline">\(\left( \bfbeta, c_1, \ln(c_2 - c_1), \ldots, \ln(c_{W-1} - c_{W-2}) \right)\)</span>, which enforce cut-point monotonicity without constraints; standard errors for the cut points follow by the delta method. Interval probabilities are computed with tail-stable expressions (<span class="math inline">\(\Lambda(h)\Lambda(-l)(1 - e^{l-h})\)</span> for the logistic link and <span class="math inline">\(e^{-e^{-h}}\left(1 - e^{-(e^{-l} - e^{-h})}\right)\)</span> for the Gumbel link) so that extreme cut points do not lose precision to cancellation.</p>
+<p><strong>Hierarchical model.</strong> The sampler is a random-walk Metropolis-within-Gibbs in the style of <span class="citation" data-cites="Rossi_2005">Rossi et al. (<a href="#ref-Rossi_2005" role="doc-biblioref">2005</a>)</span> with three blocks per iteration: (1) all respondents’ <span class="math inline">\(\bfbeta_i\)</span> (and, in the heterogeneous-cut-point extension, <span class="math inline">\(\bftheta_i\)</span>) are updated simultaneously by independent normal random-walk proposals with covariance <span class="math inline">\(s_i^2 \Sigma\)</span>; (2) the common cut-point block is updated by a random-walk proposal on the unconstrained scale; (3) the population moments <span class="math inline">\(\left( \overline{\bfbeta}, \Sigma \right)\)</span> are drawn from their conjugate normal and inverse-Wishart conditionals. Priors: <span class="math inline">\(\overline{\bfbeta} \sim \mathcal{N}\left( \mathbf{0}, 100 I \right)\)</span>, <span class="math inline">\(\Sigma \sim \text{IW}\left( \dim + 3, (\dim + 3) I \right)\)</span>, and <span class="math inline">\(\mathcal{N}(0, 100 I)\)</span> on the transformed cut points. Step sizes are initialized at <span class="math inline">\(2.93/\sqrt{\dim}\)</span> and adapted only during burn-in toward acceptance rates of <span class="math inline">\(0.23\)</span> (individual blocks) and <span class="math inline">\(0.30\)</span> (cut-point block). Unless noted, we run 30{,}000 iterations, discard 10{,}000, and keep every 10th draw.</p>
+<p>The sampler was validated four ways (replication code accompanies the paper): parameter recovery on synthetic panels for both links; repeated-sampling coverage of 50% and 90% posterior intervals at nominal rates; agreement of the forced-choice-only special case with an independent hierarchical-MNL implementation (posterior means matching to less than 0.01 on all hyperparameters on common data); and convergence of the posterior toward the aggregate MLE when the data are generated without heterogeneity.</p>
+</section>
+<section id="sec-appendix-lmd" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="sec-appendix-lmd">Appendix C: Marginal-Likelihood Estimation</h2>
+<p>Model comparisons in the paper report the log marginal density (LMD). For hierarchical models we follow the standard practice in this literature <span class="citation" data-cites="Hung_2025_dual">(<a href="#ref-Hung_2025_dual" role="doc-biblioref">Hung, Liu, et al. 2025</a>)</span> and use the harmonic-mean estimator of <span class="citation" data-cites="Newton_1994">Newton and Raftery (<a href="#ref-Newton_1994" role="doc-biblioref">1994</a>)</span>, complemented by two quantities that do not rely on it: the WAIC computed from pointwise per-respondent likelihoods <span class="citation" data-cites="Watanabe_2010 Vehtari_2017">(<a href="#ref-Watanabe_2010" role="doc-biblioref">Watanabe 2010</a>; <a href="#ref-Vehtari_2017" role="doc-biblioref">Vehtari et al. 2017</a>)</span> and the log posterior-predictive density of held-out tasks. The reason for the complements is that the harmonic-mean estimator is optimistic. In the aggregate model — where the parameter space is small enough for exact methods — we can quantify this directly: bridge sampling <span class="citation" data-cites="Meng_1996 Gronau_2020">(<a href="#ref-Meng_1996" role="doc-biblioref">Meng and Wong 1996</a>; <a href="#ref-Gronau_2020" role="doc-biblioref">Gronau et al. 2020</a>)</span> and a Laplace approximation agree with each other to well under one log point, while the Newton–Raftery estimate exceeds them by dozens of log points, and trimming the smallest-likelihood draws widens rather than closes the gap:</p>
+<div class="cell">
+<div id="tbl-lmd-check" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-lmd-check-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;5: Aggregate-model log marginal density by estimator (simulated data, n = 3,600 tasks; from R/hb_validation.R).
+</figcaption>
+<div aria-describedby="tbl-lmd-check-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<table class="cell caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: left;">estimator</th>
+<th style="text-align: right;">log marginal density</th>
+<th style="text-align: right;">vs.&nbsp;bridge</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">bridge</td>
+<td style="text-align: right;">-9844.14</td>
+<td style="text-align: right;">0.00</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">laplace</td>
+<td style="text-align: right;">-9844.15</td>
+<td style="text-align: right;">-0.01</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">NR</td>
+<td style="text-align: right;">-9801.78</td>
+<td style="text-align: right;">42.36</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">NR trim 5%</td>
+<td style="text-align: right;">-9799.63</td>
+<td style="text-align: right;">44.51</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">NR trim 20%</td>
+<td style="text-align: right;">-9798.42</td>
+<td style="text-align: right;">45.73</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</figure>
+</div>
+</div>
+<p>Because the bias is similar for models of similar dimension, Newton–Raftery <em>rankings</em> between the ordinal and binary dual-response models are typically preserved — but we treat the WAIC and holdout comparisons as primary whenever the two disagree.</p>
 </section>
 <section id="references" class="level2 unnumbered">
 <h2 class="unnumbered anchored" data-anchor-id="references">References</h2>
@@ -542,6 +984,9 @@ Falco, Paolo, William F. Maloney, Bob Rijkers, and Mauricio Sarrias. 2015. <span
 <div id="ref-Greene_2010" class="csl-entry" role="listitem">
 Greene, William H., and David A. Hensher. 2010. <span>“Ordered Choices and Heterogeneity in Attribute Processing.”</span> <em>Journal of Transport Economics and Policy</em> 44 (3): 331–64.
 </div>
+<div id="ref-Gronau_2020" class="csl-entry" role="listitem">
+Gronau, Quentin F., Henrik Singmann, and Eric-Jan Wagenmakers. 2020. <span>“Bridgesampling: An <span>R</span> Package for Estimating Normalizing Constants.”</span> <em>Journal of Statistical Software</em> 92 (10): 1–29. <a href="https://doi.org/10.18637/jss.v092.i10">https://doi.org/10.18637/jss.v092.i10</a>.
+</div>
 <div id="ref-Haaijer_2001" class="csl-entry" role="listitem">
 Haaijer, Rinus, Wagner A. Kamakura, and Michel Wedel. 2001. <span>“The <span>‘No-Choice’</span> Alternative in Conjoint Choice Experiments.”</span> <em>International Journal of Market Research</em> 43 (1): 93–106. <a href="https://doi.org/10.1177/147078530104300105">https://doi.org/10.1177/147078530104300105</a>.
 </div>
@@ -563,6 +1008,9 @@ Marshall, Pablo, and Eric T. Bradlow. 2002. <span>“A Unified Approach to Conjo
 <div id="ref-Mcfadden_1981" class="csl-entry" role="listitem">
 McFadden, Daniel L. 1981. <em>Structural Discrete Probability Models Derived from Theories of Choice</em>. The MIT Press.
 </div>
+<div id="ref-Meng_1996" class="csl-entry" role="listitem">
+Meng, Xiao-Li, and Wing Hung Wong. 1996. <span>“Simulating Ratios of Normalizing Constants via a Simple Identity: A Theoretical Exploration.”</span> <em>Statistica Sinica</em> 6 (4): 831–60.
+</div>
 <div id="ref-Morrison_1979" class="csl-entry" role="listitem">
 Morrison, Donald G. 1979. <span>“Purchase Intentions and Purchase Behavior.”</span> <em>Journal of Marketing</em> 43 (2): 65–74. <a href="https://doi.org/10.1177/002224297904300207">https://doi.org/10.1177/002224297904300207</a>.
 </div>
@@ -572,9 +1020,6 @@ Newton, Michael A., and Adrian E. Raftery. 1994. <span>“Approximate <span>Baye
 <div id="ref-Rossi_2005" class="csl-entry" role="listitem">
 Rossi, Peter E., Greg M. Allenby, and Robert McCulloch. 2005. <em>Bayesian Statistics and Marketing</em>. John Wiley &amp; Sons.
 </div>
-<div id="ref-Sarrias_2020" class="csl-entry" role="listitem">
-Sarrias, Mauricio. 2020. <span>“Individual-Specific Posterior Distributions from Mixed Logit Models: Properties, Limitations and Diagnostic Checks.”</span> <em>Journal of Choice Modelling</em> 36: 100224. <a href="https://doi.org/10.1016/j.jocm.2020.100224">https://doi.org/10.1016/j.jocm.2020.100224</a>.
-</div>
 <div id="ref-Sawtooth_2017" class="csl-entry" role="listitem">
 Sawtooth Software. 2017. <em>The <span>CBC</span> System for Choice-Based Conjoint Analysis, Version 9</em>. Technical Paper. Sawtooth Software, Inc.
 </div>
@@ -583,6 +1028,12 @@ Schlereth, Christian, and Bernd Skiera. 2017. <span>“Two New Features in Discr
 </div>
 <div id="ref-Train_2001" class="csl-entry" role="listitem">
 Train, Kenneth E. 2001. <em>A Comparison of Hierarchical <span>Bayes</span> and Maximum Simulated Likelihood for Mixed Logit</em>. Working Paper. University of California, Berkeley.
+</div>
+<div id="ref-Vehtari_2017" class="csl-entry" role="listitem">
+Vehtari, Aki, Andrew Gelman, and Jonah Gabry. 2017. <span>“Practical <span>Bayesian</span> Model Evaluation Using Leave-One-Out Cross-Validation and <span>WAIC</span>.”</span> <em>Statistics and Computing</em> 27 (5): 1413–32. <a href="https://doi.org/10.1007/s11222-016-9696-4">https://doi.org/10.1007/s11222-016-9696-4</a>.
+</div>
+<div id="ref-Watanabe_2010" class="csl-entry" role="listitem">
+Watanabe, Sumio. 2010. <span>“Asymptotic Equivalence of <span>Bayes</span> Cross Validation and Widely Applicable Information Criterion in Singular Learning Theory.”</span> <em>Journal of Machine Learning Research</em> 11: 3571–94.
 </div>
 </div>
 </section>
@@ -595,11 +1046,12 @@ Train, Kenneth E. 2001. <em>A Comparison of Hierarchical <span>Bayes</span> and 
 <li id="fn2"><p>We hold <span class="math inline">\(J\)</span> fixed across tasks and consumers to lighten notation; nothing in what follows requires it.<a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
 <li id="fn3"><p>This can be motivated by a framework in which <span class="math inline">\(u_{it0} = 0\)</span> and <span class="math inline">\(u_{itj} = {\x_{tj}}'\bfbeta_i + \eta_{itj} - \eta_{it0}\)</span> for <span class="math inline">\(j \in \mathcal{J}^{+}\)</span>, where <span class="math inline">\(\eta_{it0}\)</span> captures the consumer’s uncertainty about her future tastes or circumstances at the moment of purchase. Because utilities are ordinal and <span class="math inline">\(\eta_{it0}\)</span> is a common shock, it plays no role in the comparison among inside goods.<a href="#fnref3" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
 <li id="fn4"><p>While the parametrization <span class="math inline">\(\eta_{it0} \sim \text{Gumbel}\left(0,1\right)\)</span> preserves symmetry among the <span class="math inline">\(J+1\)</span> goods and is thus a natural choice, the framework easily accommodates alternative distributions for <span class="math inline">\(\eta_{it0}\)</span>. For example, an affine function of individual characteristics could accommodate individual-level variation in the propensity to prefer the outside good.<a href="#fnref4" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn5"><p>The conditional expectation is <span class="math inline">\(\operatorname{E} \left[ F(u^*) \mid u^* \in [c_1, c_2) \right]\)</span> with <span class="math inline">\(u^* \sim \text{Gumbel}(\overline{\mu}, 1)\)</span>, which has the closed form <span class="math inline">\(\frac{S}{S+1} \left[ e^{-(S+1)e^{-c_2}} - e^{-(S+1)e^{-c_1}} \right] \big/ \left[ e^{-S e^{-c_2}} - e^{-S e^{-c_1}} \right]\)</span>.<a href="#fnref5" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
 </ol>
 </section><section class="quarto-appendix-contents" id="quarto-citation"><h2 class="anchored quarto-appendix-heading">Citation</h2><div><div class="quarto-appendix-secondary-label">BibTeX citation:</div><pre class="sourceCode code-with-copy quarto-appendix-bibtex"><code class="sourceCode bibtex">@online{bhalerao2026,
   author = {Bhalerao, Prachi and Yavorsky, Dan and Zheng, Geoffery},
   title = {Outside {Good} {Uncertainty}},
-  date = {2026-07-10},
+  date = {2026-09-09},
   langid = {en},
   abstract = {We provide a behavioral model in which consumers can
     identify their most-preferred option among a set of alternatives but
@@ -622,7 +1074,7 @@ Train, Kenneth E. 2001. <em>A Comparison of Hierarchical <span>Bayes</span> and 
 }
 </code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre><div class="quarto-appendix-secondary-label">For attribution, please cite this work as:</div><div id="ref-bhalerao2026" class="csl-entry quarto-appendix-citeas" role="listitem">
 Bhalerao, Prachi, Dan Yavorsky, and Geoffery Zheng. 2026. <span>“Outside
-Good Uncertainty.”</span> July 10.
+Good Uncertainty.”</span> September 9.
 </div></div></section></div></main>
 <!-- /main column -->
 <script id="quarto-html-after-body" type="application/javascript">
@@ -1026,6 +1478,38 @@ Good Uncertainty.”</span> July 10.
   });
   </script>
 </div> <!-- /content -->
+<script>var lightboxQuarto = GLightbox({"closeEffect":"zoom","descPosition":"bottom","loop":false,"openEffect":"zoom","selector":".lightbox"});
+(function() {
+  let previousOnload = window.onload;
+  window.onload = () => {
+    if (previousOnload) {
+      previousOnload();
+    }
+    lightboxQuarto.on('slide_before_load', (data) => {
+      const { slideIndex, slideNode, slideConfig, player, trigger } = data;
+      const href = trigger.getAttribute('href');
+      if (href !== null) {
+        const imgEl = window.document.querySelector(`a[href="${href}"] img`);
+        if (imgEl !== null) {
+          const srcAttr = imgEl.getAttribute("src");
+          if (srcAttr && srcAttr.startsWith("data:")) {
+            slideConfig.href = srcAttr;
+          }
+        }
+      } 
+    });
+  
+    lightboxQuarto.on('slide_after_load', (data) => {
+      const { slideIndex, slideNode, slideConfig, player, trigger } = data;
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(slideNode);
+      }
+    });
+  
+  };
+  
+})();
+          </script>
 
 
 
