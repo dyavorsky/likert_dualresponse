@@ -178,9 +178,9 @@
 \newcommand*\listoflistings{\listof{codelisting}{List of Listings}}
 \usepackage{amsthm}
 \theoremstyle{plain}
-\newtheorem{proposition}{Proposition}[section]
-\theoremstyle{plain}
 \newtheorem{lemma}{Lemma}[section]
+\theoremstyle{plain}
+\newtheorem{proposition}{Proposition}[section]
 \theoremstyle{remark}
 \AtBeginDocument{\renewcommand*{\proofname}{Proof}}
 \newtheorem*{remark}{Remark}
@@ -203,7 +203,7 @@
 \makeatother
 \hypersetup{
   pdftitle={Outside Good Uncertainty},
-  pdfauthor={Prachi Bhalerao; Dan Yavorsky; Geoffery Zheng},
+  pdfauthor={Dan Yavorsky; Geoffery Zheng},
   pdfkeywords={\xmpquote{choice-based conjoint analysis, dual response,
 stated preference elicitation, discrete choice methods, ordered choice,
 outside good}},
@@ -223,185 +223,188 @@ outside good}},
 }
 \makeatother
 \subtitle{Ordinal Dual Response in Choice-Based Conjoint Analysis}
-\author{Prachi Bhalerao \and Dan Yavorsky \and Geoffery Zheng}
-\date{2026-09-09}
+\author{Dan Yavorsky \and Geoffery Zheng}
+\date{2026-09-13}
 \begin{document}
 \maketitle
 \begin{abstract}
-We provide a behavioral model in which consumers can identify their
+We present a behavioral model in which consumers identify their
 most-preferred option among a set of alternatives but face uncertainty
 in their evaluation of the outside good. The model rationalizes the
 dual-response format used in choice-based conjoint analysis and extends
-the follow-up purchase question from binary to ordinal, accommodating
-scales with any number of points. The resulting likelihood couples a
-multinomial logit for the forced choice with a cumulative-link ordinal
-model driven by the task's inclusive value, and it nests the leading
-binary dual-response models as its two-point special case. We derive the
-information gains from finer response scales, provide estimation
-routines for aggregate and hierarchical Bayesian versions of the model
---- including an extension with respondent-specific cut points --- and
-demonstrate the model's superior performance relative to the
-dichotomization and constant-probability heuristics currently used by
-practitioners. An empirical application uses a choice-based conjoint
-study conducted in partnership with a consumer insights consultancy.
+the follow-up purchase question from binary to ordinal. The resulting
+likelihood function combines a multinomial logit for the forced choice
+with a cumulative-link ordinal model driven by the task's inclusive
+value. The link is logistic or Gumbel, depending on whether the
+respondent resolves her uncertainty before answering, and the binary
+dual-response model is a special case. We derive how much information a
+finer response scale adds, provide estimation routines for both
+aggregate and hierarchical Bayesian versions of the model, and show that
+the model outperforms both dichotomizing the scale into a binary
+response and assigning fixed purchase probabilities to each scale point.
+We apply the model to a choice-based conjoint study conducted in
+partnership with a consumer insights consultancy.
 \end{abstract}
 
 
   \newcommand{\x}{\mathbf{x}}
   \newcommand{\bfbeta}{\boldsymbol{\beta}}
+  \newcommand{\betabar}{\bar{\bfbeta}}
   \newcommand{\bftheta}{\boldsymbol{\theta}}
   \newcommand{\iid}{\stackrel{iid}{\sim}}
 
 \section{Introduction}\label{sec-intro}
 
-Consumers are good at telling us which product they like best. They are
-considerably less certain about whether they would actually buy it. A
-shopper can pick a preferred bluetooth speaker from a shelf of a dozen
---- or a preferred color from a dozen options of the same model --- and
-still hesitate at the moment of purchase; industry trackers consistently
-estimate that roughly seven in ten online shopping carts are abandoned
-before checkout.\footnote{TODO: add citable source. The Baymard
-  Institute maintains a running meta-analysis of cart-abandonment
-  studies with an average of roughly 70\%.} The comparison among
-displayed alternatives and the commitment to purchase are different
-cognitive acts: the former is a choice among fully described options in
-front of the consumer, while the latter requires her to weigh the winner
-against an outside option --- keep the money, wait for a sale, buy
-elsewhere, do without --- whose value she has not yet fully resolved.
-Survey respondents reflect this distinction naturally. Asked ``which of
-these would you choose?'', they answer readily; asked ``would you buy
-it?'', many prefer to answer ``probably'' than to commit to yes or no.
-Uncertainty about a purchase \emph{feels natural}, and stated
-purchase-likelihood scales have been a fixture of marketing research for
-over half a century (Juster 1966; Morrison 1979).
+Consumers are good at indicating which product they like best. They are
+often less certain about whether they would buy it. Choice-based
+conjoint analysis, the workhorse of stated-preference measurement in
+marketing (Allenby et al. 2019), has developed a device for separating
+these two: the dual-response format (Brazell et al. 2006). In each task,
+the respondent first makes a forced choice among the displayed product
+profiles and then answers a follow-up question about whether she would
+actually purchase her selection. This format was introduced to address a
+practical problem with the traditional no-choice option. When ``none of
+these'' appears alongside the profiles in a traditional conjoint task,
+each time it is chosen contributes nothing to estimating attribute
+preferences. The dual-response design recovers that lost information
+because the forced choice always reveals preference among profiles,
+while still measuring demand for the category through the follow-up
+question, without systematically biasing the preference estimates
+(Brazell et al. 2006; Dhar and Simonson 2003). Following its
+implementation in Sawtooth Software's widely used choice-based conjoint
+(CBC) system (Diener et al. 2006; Sawtooth Software 2017), the
+dual-response format became a standard practice in commercial conjoint
+research.
 
-Choice-based conjoint analysis, the workhorse of stated-preference
-measurement in marketing (Allenby et al. 2019), has developed its own
-device for separating these two acts: the \emph{dual-response} design.
-In each task the respondent first makes a forced choice among the
-displayed product profiles, and then answers a follow-up question about
-whether she would actually purchase her selection. The design was
-introduced to solve a practical problem with the traditional no-choice
-option. When ``none of these'' appears alongside the profiles in a
-single-stage task, every task in which it is chosen contributes nothing
-to the estimation of attribute preferences, and the efficiency loss
-grows with no-choice incidence (Brazell et al. 2006). The dual response
-recovers that lost information --- the forced choice always reveals
-preference among profiles --- while still measuring demand for the
-category through the follow-up question, and it does so without
-systematically biasing preference estimates (Brazell et al. 2006; Dhar
-and Simonson 2003). Following its implementation in Sawtooth Software's
-widely used CBC system (Diener et al. 2006; Sawtooth Software 2017), the
-dual-response format became standard practice in commercial conjoint
-research, and it has continued to attract methodological attention, from
-willingness-to-pay measurement (Schlereth and Skiera 2017) to the recent
-behavioral and econometric re-examinations of Hung, Liu, et al. (2025)
-and Hung, Kurz, et al. (2025).
+The two questions the format separates ask for different things. The
+profiles on the screen provide all available information, and thus the
+respondent can compare them and pick one. Whether she would buy the one
+she picked is a hypothetical about a future purchase occasion. The
+follow-up question in dual-response conjoint is canonically binary:
+``would you buy the option you selected above?'', answered yes or no,
+and the models correspondingly pair a multinomial logit for the forced
+choice with a binary logit for the purchase question (Diener et al.
+2006; Hung, Liu, et al. 2025). But the binary question asks her to
+resolve something she may not yet have resolved. That future
+hypothetical asks the respondent to face a state that has not yet been
+realized, so what she holds is a probability rather than a decision
+(Manski 1990). A finer scale would ask instead for her degree of
+conviction rather than a verdict, and would also be more informative.
+The natural extension is therefore an ordinal dual-response follow-up,
+``how likely are you to buy the option you selected above?'', answered
+on a five-, seven-, or eleven-point scale from ``very unlikely'' to
+``very likely.'' The model we develop pairs a multinomial logit for the
+forced choice with a cumulative-link model for the ordinal report.
 
-Practice, however, has quietly moved beyond the models available to
-analyze it. The canonical dual-response question is binary --- ``would
-you buy the option you selected above? (yes/no)'' --- and the canonical
-models are correspondingly binary: a multinomial logit for the forced
-choice paired with a binary logit for the purchase question (Diener et
-al. 2006; Hung, Liu, et al. 2025). But many applied researchers instead
-field an \emph{ordinal} follow-up --- ``how likely are you to buy the
-option you selected above?'', answered on a five- or seven- or
-eleven-point scale from ``very unlikely'' to ``very likely.'' The
-ordinal format is attractive precisely because purchase uncertainty
-feels natural to respondents: it lets them express a degree of
-conviction rather than forcing a resolution they have not reached. It is
-also, as we show, more informative. Yet there is no statistical model
-for it. Analysts confronted with ordinal dual-response data today either
-\emph{dichotomize} the scale at an arbitrary point (top box or top two
-boxes count as ``buy'') and estimate the binary model, or apply
-\emph{constant-probability weights} that map each scale point to a fixed
-purchase probability regardless of what was on the screen. The first
-discards information the researcher paid to collect and hard-codes an
-arbitrary cut; the second, as our model makes precise, ignores the fact
-that the meaning of ``somewhat likely'' depends on how attractive the
-displayed alternatives were.
+We start from a simple behavioral premise: the consumer can rank the
+goods in front of her because she observes everything relevant about
+them, but she faces genuine uncertainty about the outside good, and
+therefore about whether she would purchase. An ordinal scale is the
+instrument that allows her to report her probability of purchase, and
+the premise also provides a closed-form expression for the likelihood:
+the maximum of Gumbel utilities is itself Gumbel with location equal to
+the log-sum inclusive value, and it is independent of which alternative
+attains it, so the two responses factor.
 
-This paper provides the missing model. We start from a simple behavioral
-premise: the consumer can rank the goods in front of her because she
-observes everything relevant about them, but she faces genuine
-uncertainty about the outside good --- the not-yet-arrived purchase
-occasion that the follow-up question asks her to imagine. This premise
-does three things at once. It \emph{rationalizes the dual-response
-design}: the forced choice is the question the consumer can answer with
-certainty, and the follow-up is the question about which she is
-uncertain, so the design cleanly partitions what she knows from what she
-does not. It \emph{rationalizes the ordinal format}: a consumer who has
-not resolved her outside-good uncertainty holds a purchase
-\emph{probability}, and an ordinal scale is exactly an instrument for
-reporting a probability in bins. And it \emph{delivers a likelihood}:
-because the maximum of Gumbel utilities is itself Gumbel --- with
-location equal to the log-sum inclusive value --- and is independent of
-which alternative attains it, the joint probability of the pair (chosen
-profile, ordinal report) factors into a multinomial logit times a
-cumulative-link ordinal model driven by the inclusive value of the task.
+Within this framework, the consumer can do one of two things when the
+follow-up question arrives: she can report the purchase probability she
+still holds, or she can resolve her uncertainty about the outside good
+and grade the resulting comparison. We model both. Model A takes the
+first route: she reports that probability, and the scale's categories
+are the intervals in which she reports. Model B takes the second, which
+is what the binary dual-response literature implicitly assumes. Each
+route implies a different link function for the ordinal stage: carrying
+the uncertainty into the report under Model A yields a Gumbel,
+complementary-log-log type link, while resolving it first under Model B
+yields the familiar ordered logit. The behavioral assumption therefore
+implies the link. The two variants carry the same number of parameters,
+so we can estimate both and let the data indicate which model better
+describes respondent behavior. We report both models throughout, since
+the two links give nearly identical predictions except when the
+displayed alternatives are unusually attractive or unusually
+unattractive. The pricing counterfactuals in Section~\ref{sec-simstudy}
+emphasize those cases.
 
-Within this framework we develop two variants that differ only in how
-literally the respondent carries her uncertainty into the report. In
-Model A she reports the purchase probability itself, binned by cut
-points on the unit interval; the implied ordinal likelihood has a Gumbel
-(complementary log-log type) link. In Model B she behaves as the binary
-literature implicitly assumes --- resolving the outside-good draw and
-grading the resulting utility difference --- which yields a standard
-ordered logit link. The two variants have identical parameter counts and
-are numerically close, but they carry different behavioral
-interpretations, and their binary special cases differ in an instructive
-way. With a two-point scale, Model B collapses \emph{exactly} to the
-``Unified Model'' of Hung, Liu, et al. (2025) --- equivalently the
-DR-AnyMax model of Diener et al. (2006), and, after telescoping, the
-standard single-stage multinomial logit with a no-choice constant
-(Haaijer et al. 2001). Our model is thus a strict generalization of the
-leading binary dual-response model: practitioners who adopt it lose
-nothing at \(W=2\) and gain the ability to use every scale point of a
-richer follow-up. Model A's binary case, by contrast, implies that even
-the familiar yes/no follow-up should be analyzed with a complementary
-log-log rather than logistic link when respondents remain genuinely
-uncertain --- a one-line modification of existing practice that is
-testable on existing data.
+We show that, with a two-point scale, Model B is the ``Unified Model''
+of Hung, Liu, et al. (2025), equivalently the DR-AnyMax model of Diener
+et al. (2006), and once the inclusive value cancels, the standard
+single-stage multinomial logit with a no-choice constant (Haaijer et al.
+2001). Model A's binary case does something different. It is a
+complementary log-log binary response, so even the familiar yes/no
+follow-up is misspecified (if mildly) when respondents remain genuinely
+uncertain at the moment they answer. Whether that misspecification is
+real can be tested on existing data: refit the second stage of any
+binary dual-response study with a complementary log-log link instead of
+a logit, and compare.
 
-We make four contributions. First, the behavioral model itself: a
+Those results concern the two-point case. With more scale points,
+current practice reduces an ordinal answer to something the binary model
+accepts, either by dichotomizing the scale at an arbitrary point (top
+box or top two boxes count as ``buy'') or by assigning each scale point
+a fixed purchase probability. The first discards the information the
+finer scale was meant to capture, and the second ignores that the
+meaning of ``somewhat likely'' depends on how attractive the displayed
+alternatives were.
+
+We make four contributions. First, we develop the behavioral model: a
 utility-theoretic account of dual-response conjoint in which
-outside-good uncertainty is the primitive, which rationalizes the
+outside-good uncertainty is the primitive. That premise rationalizes the
 design, selects the link function, and nests the existing binary models
-as the two-point special case. Second, an analysis of the information
-content of the ordinal follow-up: we derive the Fisher-information
-increment contributed by a \(W\)-point second response and show it is
-positive semi-definite and non-decreasing in scale refinement, extending
-the binary efficiency results of Brazell et al. (2006) and Hung, Liu, et
-al. (2025) and giving design guidance on the choice of \(W\). Third,
-estimation machinery: maximum likelihood for the aggregate model and a
-custom Markov chain Monte Carlo sampler for the hierarchical Bayesian
-model with heterogeneous preferences --- including an extension with
-respondent-specific cut points that accommodates individual differences
-in scale usage (Greene and Hensher 2010; Falco et al. 2015) --- with
-complete replication code in R. Fourth, evidence: a simulation study
-demonstrating parameter recovery and quantifying the losses from
-dichotomization and constant-probability weighting, and an empirical
-application to a commercial choice-based conjoint study with an ordinal
-dual response conducted in partnership with a consumer insights
-consultancy.
+as the two-point special case. Second, we analyze the information
+content of the ordinal follow-up: we derive the information a second
+response of a given length contributes and show that it is always
+non-negative and never falls when the scale is made finer, extending the
+binary efficiency results of Brazell et al. (2006) and Hung, Liu, et al.
+(2025) and providing design guidance on how many scale points to use.
+Third, we provide estimation routines: maximum likelihood for the
+aggregate model and a custom Markov chain Monte Carlo sampler for the
+hierarchical Bayesian model with heterogeneous preferences, including an
+extension with respondent-specific cut points that accommodates
+individual differences in scale usage (Greene and Hensher 2010; Falco et
+al. 2015). We provide complete replication code in R. Fourth, we supply
+evidence: a simulation study demonstrating parameter recovery and
+quantifying the losses from dichotomization and constant-probability
+weighting, and an empirical application to a commercial choice-based
+conjoint study with an ordinal dual response conducted in partnership
+with a consumer insights consultancy.
 
-Our work sits at the intersection of three literatures. The
-dual-response and no-choice literature in marketing established the
-design's efficiency rationale and its estimation conventions (Brazell et
-al. 2006; Diener et al. 2006; Haaijer et al. 2001; Schlereth and Skiera
-2017; Hung, Liu, et al. 2025), and recent work shows the outside good
-remains the format's active research frontier --- including evidence
-that its utility can drift over the course of a survey (Hung, Kurz, et
-al. 2025). The opt-out literature in choice modeling catalogs how
-misspecifying the outside option distorts welfare and share predictions
-(Campbell and Erdem 2019). And a literature on ordered and mixed
-response formats in preference measurement --- from unified treatments
-of ratings, rankings, and choices (Marshall and Bradlow 2002) to
-ordered-choice models with reporting heterogeneity (Greene and Hensher
-2010; Falco et al. 2015) --- supplies tools we adapt to the
-dual-response setting. To our knowledge, no prior work provides a
-utility-consistent joint model of a forced choice and an ordinal
-purchase evaluation.
+Several literatures stand behind the model. Marketing work on
+dual-response and no-choice designs established why asking two questions
+beats adding ``none of these'' to the list of products: the preference
+information in a task survives even when the respondent would not buy.
+That work settled the conventions for estimating such models (Brazell et
+al. 2006; Diener et al. 2006; Haaijer et al. 2001; Hung, Liu, et al.
+2025), and it continues to refine the design. Schlereth and Skiera
+(2017) separate the forced and the free questions into blocks and add an
+adaptive rule for choosing which free questions to ask, which limits
+context effects and extreme response behavior when willingness to pay is
+the target. The appeal of the no-buy option also shifts as a respondent
+works through a long survey (Hung, Kurz, et al. 2025). The opt-out
+literature in choice modeling documents the consequences of getting the
+no-buy option wrong: predicted market shares and estimates of the value
+consumers get from a product both come out distorted (Campbell and Erdem
+2019).
+
+The separation of the two decisions is older than the dual-response
+design. Demand models fit to supermarket scanner data have long
+estimated whether a household buys in a category separately from which
+brand it picks, joining the two stages through the inclusive value of
+the brand-choice stage (Gupta 1988; Bucklin and Gupta 1992). Our second
+response uses that device on survey data. Our statistical tools come
+from work on ordered and mixed response formats, from frameworks that
+handle ratings, rankings, and choices together (Marshall and Bradlow
+2002) to ordered-choice models that let different people use the same
+scale differently (Greene and Hensher 2010; Falco et al. 2015). A
+further literature explains why the follow-up should ask for a
+probability. A yes/no question forces a rounding to zero or one, and
+Manski (2004) argues that economists should elicit the probability
+itself. Marketing research made the same case earlier: Juster (1966)
+replaced the yes/no buying-intentions question with an eleven-point
+probability scale, and Morrison (1979) showed that stated intentions
+predict purchases only probabilistically, and that the mapping from one
+to the other depends on context. To our knowledge, no prior work derives
+the forced choice and the ordinal purchase answer from a single account
+of the consumer.
 
 The remainder of the paper proceeds as follows. Section~\ref{sec-model}
 develops the behavioral model, derives the joint likelihood, establishes
@@ -410,7 +413,10 @@ estimation results. Section~\ref{sec-simstudy} reports the simulation
 study. Section~\ref{sec-analysis} presents the empirical application.
 Section~\ref{sec-discussion} discusses implications for practice,
 including guidance on scale design, and Section~\ref{sec-conclusion}
-concludes.
+concludes. Appendix A collects the proofs, Appendices B and C give the
+sampler and marginal-likelihood details, Appendix D extends the model to
+choice sets whose alternatives are correlated, and Appendix E gives the
+implementation in Apollo.
 
 \section{Model}\label{sec-model}
 
@@ -418,8 +424,8 @@ concludes.
 
 Consumer \(i=1,\ldots,N\) faces choice tasks \(t=1,\ldots,T\). Each task
 presents a set of ``inside'' goods
-\(\mathcal{J}^{+} = \lbrace 1,2,\ldots,J \rbrace\) alongside the
-ever-present ``outside'' good \(j=0\), so that the full choice set is
+\(\mathcal{J}^{+} = \lbrace 1,2,\ldots,J \rbrace\) alongside an
+``outside'' good \(j=0\), so that the full choice set is
 \(\mathcal{J} = \lbrace 0,1,2,\ldots,J \rbrace\).\footnote{We hold \(J\)
   fixed across tasks and consumers to lighten notation; nothing in what
   follows requires it.} Consumer \(i\) derives utility \(u_{itj}\) from
@@ -437,13 +443,13 @@ component, but the linear specification is not required.
 The outside good is special in two respects. First, it is associated
 with a zero vector of characteristics (\(\x_{t0} = \mathbf{0}\)), so
 that \(V_{it0}=0\); this is the standard normalization that anchors the
-location of utility (Haaijer et al. 2001). Second --- and this is the
-central behavioral assumption of the paper --- the consumer observes
-\(\eta_{itj}\) for all inside goods but \emph{does not} observe
-\(\eta_{it0}\). The inside goods are described completely on the screen
-in front of her; the outside good stands in for a purchase occasion that
-has not yet arrived, and her evaluation of it is uncertain.\footnote{This
-  can be motivated by a framework in which \(u_{it0} = 0\) and
+location of utility (Haaijer et al. 2001). Second, and this is the
+paper's central behavioral assumption, the consumer observes
+\(\eta_{itj}\) for all inside goods but does not observe \(\eta_{it0}\).
+She has nothing left to learn about the inside goods in front of her;
+the outside good stands in for a purchase occasion that has not yet
+arrived, and her evaluation of it is uncertain.\footnote{This can be
+  motivated by a framework in which \(u_{it0} = 0\) and
   \(u_{itj} = {\x_{tj}}'\bfbeta_i + \eta_{itj} - \eta_{it0}\) for
   \(j \in \mathcal{J}^{+}\), where \(\eta_{it0}\) captures the
   consumer's uncertainty about her future tastes or circumstances at the
@@ -465,23 +471,31 @@ In each task the consumer provides two responses:
   \textbf{First response (choice).} She reports her preferred inside
   good, \begin{equation}\protect\phantomsection\label{eq-firstresponse}{
   j^*_{it} = \underset{j \in \mathcal{J}^+}{\operatorname{arg max}} \ u_{itj}.
-  }\end{equation} This is a \emph{forced} choice: the outside good is
-  not among the options.
+  }\end{equation} This is a forced choice: the outside good is not among
+  the options.
 \item
   \textbf{Second response (ordinal purchase evaluation).} She reports a
   value \(y_{it}\) on a discrete ordinal scale
   \(w \in \mathcal{W} = \lbrace 1, \ldots, W \rbrace\) (e.g., ``very
   unlikely'' to ``very likely'' on a five-point scale) that
-  characterizes her evaluation of purchasing \(j^*_{it}\) --- that is,
-  of choosing \(j^*_{it}\) over the outside good. The binary
-  dual-response format of Brazell et al. (2006) and Diener et al. (2006)
-  is the special case \(W=2\).
+  characterizes her evaluation of purchasing \(j^*_{it}\), that is, of
+  choosing it over the outside good. The binary dual-response format of
+  Brazell et al. (2006) and Diener et al. (2006) is the special case
+  \(W=2\).
 \end{enumerate}
 
 We model \(\eta_{itj} \iid \text{Gumbel} \left( 0,1 \right)\),
 independent of \(\x_{tj}\) and independent across goods, tasks, and
-consumers. Two classical properties of the Gumbel family organize
-everything that follows (McFadden 1981; Cardell 1997).
+consumers. This is the logit kernel of conjoint analysis (McFadden 1981;
+Train 2009). The independence across goods is stronger than our
+derivation needs. Appendix D shows that Lemma~\ref{lem-gumbel} holds for
+any generalized extreme value error structure once \(S_{it}\) is
+replaced by the GEV generator, so the following results carry over to
+correlated alternatives, but for exposition we proceed with the
+independent errors assumption.
+
+Two classical properties of the Gumbel family are used throughout
+(McFadden 1981; Cardell 1997).
 
 \begin{lemma}[]\protect\hypertarget{lem-gumbel}{}\label{lem-gumbel}
 
@@ -506,10 +520,11 @@ define \(u^*_{it} = \max_{j \in \mathcal{J}^+} u_{itj}\). Then
 
 \end{lemma}
 
-Property (ii) is what makes the dual-response likelihood tractable:
-whatever the consumer tells us about the level of her best utility (the
-second response) is independent of which good delivered it (the first
-response), conditional on the deterministic utilities.
+Property (ii) makes the dual-response likelihood tractable: whatever the
+consumer tells us about the level of her best utility (the second
+response) is independent of which good delivered it (the first
+response), conditional on the deterministic utilities. Proofs are in
+Appendix A.
 
 \subsection{First Response: Multinomial
 Logit}\label{first-response-multinomial-logit}
@@ -522,8 +537,8 @@ Under the Gumbel assumption,
 = \frac{\exp \left( V_{itj} \right)}{S_{it}},
 }\end{equation} the multinomial logit over inside goods only. Note that
 the outside good does not appear: the forced choice is uncontaminated by
-the consumer's uncertain evaluation of the outside good, which is
-precisely the design's appeal (Brazell et al. 2006).
+the consumer's uncertain evaluation of the outside good, which is the
+design's appeal (Brazell et al. 2006).
 
 \subsection{Second Response: An Ordinal Model of the Purchase
 Evaluation}\label{second-response-an-ordinal-model-of-the-purchase-evaluation}
@@ -539,10 +554,10 @@ both depend on the choice set only through the inclusive value
 \subsubsection{Model A: Reporting a Purchase
 Probability}\label{sec-modelA}
 
-Under Model A the consumer takes her uncertainty about the outside good
-seriously and reports a \emph{probability}. She knows \(u^*_{it}\) (she
-just identified \(j^*_{it}\)) but does not know \(\eta_{it0}\), so from
-her perspective the probability that she would follow through and
+Under Model A the consumer carries her uncertainty about the outside
+good into her answer and reports a probability. She knows \(u^*_{it}\)
+(she just identified \(j^*_{it}\)) but does not know \(\eta_{it0}\), so
+from her perspective the probability that she would follow through and
 purchase \(j^*_{it}\) is
 \begin{equation}\protect\phantomsection\label{eq-purchprob}{
 p_{it} = \Pr \left( \eta_{it0} < u^*_{it} \mid u^*_{it} \right) = F\left( u^*_{it} \right),
@@ -577,7 +592,20 @@ when \(c = F^{-1}(\alpha) = -\ln(-\ln \alpha)\). The second-response
 probabilities are differences of powers of the cut points, with the
 exponent \(S_{it} = e^{\overline{\mu}_{it}}\) summarizing the
 attractiveness of the task's inside goods: the more attractive the set,
-the more probability mass shifts toward high scale points.
+the more probability mass shifts toward high scale points.\footnote{Equivalently,
+  from the researcher's perspective the consumer's purchase probability
+  is Beta distributed,
+  \(p_{it} \sim \text{Beta}\left(S_{it}, 1\right)\). The Gumbel family
+  is max-stable, so a shift in location is a power of the distribution
+  function, \(F_{\text{Gumbel}(\overline{\mu},1)}(z) = F(z)^{S}\) with
+  \(S = e^{\overline{\mu}}\), and therefore
+  \(\Pr \left( p_{it} \le a \right) = \Pr \left( u^*_{it} \le F^{-1}(a) \right) = a^{S_{it}}\),
+  which is the \(\text{Beta}(S,1)\) distribution function on \([0,1]\).
+  Equation~\ref{eq-modelA} is that distribution function differenced
+  across the cut points. Its mean,
+  \(\operatorname{E}\left[ p_{it} \right] = S_{it} \big/ \left( S_{it}+1 \right) = \Lambda \left( \overline{\mu}_{it} \right)\),
+  is the factor that appears in the conditional expectation of
+  Section~\ref{sec-toy}.}
 
 \subsubsection{Model B: Grading a Resolved Comparison}\label{sec-modelB}
 
@@ -585,11 +613,10 @@ Under Model B the consumer behaves as the binary dual-response
 literature implicitly assumes: she resolves (or acts as if she resolves)
 the outside-good shock and evaluates the realized utility difference \[
 d_{it} = u^*_{it} - \eta_{it0}.
-\] Rather than reporting only its sign --- the binary ``would you buy
-it?'' --- she grades its magnitude on the \(W\)-point scale: fix
-utility-scale cut points
-\(-\infty = c_0 < c_1 < \cdots < c_{W-1} < c_W = \infty\) and suppose
-\begin{equation}\protect\phantomsection\label{eq-reportruleB}{
+\] The binary question asks only for the sign of \(d_{it}\). Here she
+grades its magnitude on the \(W\)-point scale: fix utility-scale cut
+points \(-\infty = c_0 < c_1 < \cdots < c_{W-1} < c_W = \infty\) and
+suppose \begin{equation}\protect\phantomsection\label{eq-reportruleB}{
 y_{it} = w
 \quad \Longleftrightarrow \quad
 d_{it} \in \left[ c_{w-1}, c_w \right).
@@ -620,16 +647,14 @@ G = \begin{cases}
 F \ \left(\text{standard Gumbel}\right) & \text{Model A}, \\[2pt]
 \Lambda \ \left(\text{standard logistic}\right) & \text{Model B}.
 \end{cases}
-}\end{equation} The behavioral story pins down the link: a consumer who
-\emph{carries} her outside-good uncertainty into the report (Model A)
-generates a Gumbel --- i.e., complementary log-log type --- link, while
-a consumer who \emph{resolves} it and grades the outcome (Model B)
-generates the familiar logistic link. The two links are numerically
-close over most of their range and diverge in the tails; which better
+}\end{equation} The behavioral story determines the link function. A
+consumer who carries her outside-good uncertainty into the report (Model
+A) generates a Gumbel, or complementary log-log, link, whereas a
+consumer who resolves it and grades the outcome (Model B) generates the
+familiar logistic link. The two links are numerically close over most of
+their range and diverge in the tails. Which link function better
 describes respondents is an empirical question we take up in
-Section~\ref{sec-simstudy} and Section~\ref{sec-analysis}. Both are
-estimable at identical parameter counts (\(W-1\) interior cut points),
-so the comparison is a clean, non-nested horse race between links.
+Section~\ref{sec-simstudy} and Section~\ref{sec-analysis}.
 
 \subsection{Joint Likelihood}\label{joint-likelihood}
 
@@ -645,25 +670,24 @@ and Equation~\ref{eq-cumlink}:
 \; \times \;
 \underbrace{\Big[ G \left( c_{y_{it}} - \overline{\mu}_{it} \right) - G \left( c_{y_{it}-1} - \overline{\mu}_{it} \right) \Big]}_{\text{ordinal purchase evaluation}},
 }\end{equation} with \(\mathbf{c} = (c_1, \ldots, c_{W-1})\) and the
-full likelihood \(L_i = \prod_{t} \ell_{it}\). We emphasize that this
-factorization is not an \emph{assumption} of independent errors across
-the two responses, as in the ``DR-2Max'' tradition (Diener et al. 2006;
-Sawtooth Software 2017); it is a \emph{consequence} of the max-stability
-properties of the Gumbel family within a single, internally consistent
-utility draw. The same realized utilities generate both responses.
+full likelihood \(L_i = \prod_{t} \ell_{it}\). This factorization is not
+an assumption of independent errors across the two responses, as in the
+``DR-2Max'' tradition (Diener et al. 2006; Sawtooth Software 2017); it
+is a consequence of Lemma~\ref{lem-gumbel}(ii), the independence of the
+argmax and the maximum, which holds within a single utility draw and so
+requires no second draw for the follow-up question. The same realized
+utilities generate both responses.
 
 \subsection{The Model in Miniature}\label{sec-toy}
 
 Before turning to special cases, we make the machinery concrete with the
-smallest interesting instance of the model: two consumers with
-\emph{identical} preferences, one attribute, one task each, and a
-three-point scale. The example is deliberately tiny, but it exhibits the
-model's central mechanism --- the two responses read two different
-features of the same utilities --- in a form that can be followed with a
-hand calculator.
+smallest interesting instance of the model: two respondents with
+identical preferences, one attribute, one task each, and a three-point
+scale. The example is deliberately tiny, but it exhibits the model's
+central mechanism.
 
-Let both consumers share the scalar taste parameter \(\beta = 1\), which
-we treat as known for the arithmetic. Each faces one task with two
+Let both respondents share the scalar taste parameter \(\beta = 1\),
+which we treat as known for the arithmetic. Each faces one task with two
 inside goods described by a single attribute \(x\), answers the forced
 choice, and then reports on the three-point scale
 \(\mathcal{W} = \lbrace \text{"unlikely"}, \text{"unsure"}, \text{"likely"} \rbrace\)
@@ -671,41 +695,40 @@ with utility-scale cut points \(\mathbf{c} = (c_1, c_2) = (0, 2)\). (For
 Model A these correspond to probability-scale cut points
 \(\left( \alpha_1, \alpha_2 \right) = \left( F(0), F(2) \right) = (0.37, 0.87)\):
 the consumer answers ``unsure'' when her purchase probability lies
-between 37\% and 87\%.) The two tasks differ only in the \emph{level} of
-the attribute, not its spread: consumer 1 faces an attractive pair,
-\(x = (2, 1)\), and consumer 2 an unattractive pair, \(x = (-1, -2)\).
+between 37\% and 87\%.) The two tasks (one facing each respondent)
+differ only in the level of the attribute and not in its spread:
+consumer 1 faces an attractive pair, \(x = (2, 1)\), and consumer 2 an
+unattractive pair, \(x = (-1, -2)\).
 
-Walk through the model's account of their behavior, giving both
-consumers the \emph{same} realized shocks \(\eta = (0.30, -0.86)\) on
-their two inside goods. Consumer 1's utilities are \(u = (2.30, 0.14)\):
-she picks her first good and knows her best utility, \(u^* = 2.30\). She
-cannot resolve the outside-good shock \(\eta_0\), so under Model A she
-reports the bin containing her purchase probability
-\(p = F(2.30) = 0.90\) --- ``likely.'' Consumer 2's utilities are
-\(u = (-0.70, -2.86)\): she also picks her first good, but her best
-utility is \(u^* = -0.70\), her purchase probability is
-\(F(-0.70) = 0.13\), and she reports ``unlikely.'' (Under Model B the
-consumers instead resolve \(\eta_0\) --- say \(\eta_0 = 0.10\) --- and
-grade \(u^* - \eta_0\) against the same cut points: \(2.20\) and
-\(-0.80\), again ``likely'' and ``unlikely.'') The two consumers made
-\emph{identical} first-response choices from \emph{identical} shock
+Consider the model's account of their behavior, giving both consumers
+the \emph{same} realized shocks \(\eta = (0.30, -0.86)\) on their two
+inside goods. Consumer 1's utilities are \(u = (2.30, 0.14)\): she picks
+her first good and knows her best utility, \(u^* = 2.30\). She cannot
+resolve the outside-good shock \(\eta_0\), so under Model A she reports
+the bin containing her purchase probability \(p = F(2.30) = 0.90\),
+namely ``likely.'' Consumer 2's utilities are \(u = (-0.70, -2.86)\):
+she also picks her first good, but her best utility is \(u^* = -0.70\),
+her purchase probability is \(F(-0.70) = 0.13\), and she reports
+``unlikely.'' (Under Model B the consumers instead resolve \(\eta_0\),
+say \(\eta_0 = 0.10\), and grade \(u^* - \eta_0\) against the same cut
+points: \(2.20\) and \(-0.80\), again ``likely'' and ``unlikely.'') The
+two consumers made identical first-response choices from identical shock
 realizations, yet gave opposite second responses.
 
-The researcher-side probabilities show that this is systematic, not an
-artifact of the particular draws (Table~\ref{tbl-toy}). The
-forced-choice probabilities are \emph{the same function of the data} for
-both consumers: the MNL depends only on the within-task difference
-\(x_1 - x_2 = 1\), so
+The walkthrough above fixed one set of shocks. Averaging over all of
+them, as the researcher must, we see that the pattern is not an accident
+of that particular draw (see Table~\ref{tbl-toy}). The forced-choice
+probabilities are the same function of the data for both consumers: the
+MNL depends only on the within-task difference \(x_1 - x_2 = 1\), so
 \(\Pr(\text{choose better good}) = \Lambda(\beta) = 0.73\) in both
 tasks, and no quantity of forced-choice data could ever distinguish
-them. The tasks separate only through the inclusive value ---
-\(S_1 = e^2 + e^1 = 10.11\) versus \(S_2 = e^{-1} + e^{-2} = 0.50\),
-i.e., \(\overline{\mu}_1 = 2.31\) versus \(\overline{\mu}_2 = -0.69\)
---- which the cumulative-link stage reads against the cut points: the
-ordinal response distributions are near mirror images. (With
+them. The tasks separate only through the inclusive value
+(\(S_1 = e^2 + e^1 = 10.11\) versus \(S_2 = e^{-1} + e^{-2} = 0.50\),
+i.e., \(\overline{\mu}_1 = 2.31\) versus \(\overline{\mu}_2 = -0.69\)),
+which the cumulative-link stage compares against the cut points. (With
 \(c_1 = 0\), consumer 2's probability of ``unlikely'' is
-\(\Lambda(-\overline{\mu}_2) = 1/(1+S_2) = 0.67\) --- precisely the
-familiar no-choice probability of the single-stage MNL, previewing the
+\(\Lambda(-\overline{\mu}_2) = 1/(1+S_2) = 0.67\), the familiar
+no-choice probability of the single-stage MNL, which previews the
 nesting results below.)
 
 \begin{longtable}[]{@{}
@@ -747,9 +770,10 @@ Attribute values \(x\) & \((2,\ 1)\) & \((-1,\ -2)\) \\
 & \(0.80\) & \(0.60\) \\
 \end{longtable}
 
-The joint likelihood of the observed data --- each consumer chose her
-better good; \(y_1 = \text{"likely"}\), \(y_2 = \text{"unlikely"}\) ---
-follows from Equation~\ref{eq-joint} (shown here for Model B):
+The joint likelihood of the observed data, in which each consumer chose
+her better good and \(y_1 = \text{"likely"}\),
+\(y_2 = \text{"unlikely"}\), follows from Equation~\ref{eq-joint} (shown
+here for Model B):
 \begin{equation}\protect\phantomsection\label{eq-toylik}{
 L \left( \beta, c_1, c_2 \right)
 = \underbrace{\Lambda(\beta) \Big[ 1 - \Lambda \left( c_2 - \overline{\mu}_1(\beta) \right) \Big]}_{\text{consumer 1:} \ \ 0.73 \times 0.58}
@@ -761,24 +785,20 @@ and
 \(\overline{\mu}_2(\beta) = -2\beta + \ln \left( 1 + e^{\beta} \right)\).
 The example distills three general lessons.
 
-First, \emph{the two responses divide the labor of identification}. The
-forced-choice factors read only utility \textbf{differences} --- they
+First, the two responses divide the labor of identification. The
+forced-choice factors involve only utility differences, and they
 identify \(\beta\) from within-task attribute variation. The ordinal
-factors read utility \textbf{levels}, locating each task's
-\(\overline{\mu}(\beta)\) against the cut points. All information about
-demand --- whether these consumers would actually buy --- flows through
-the second response; all information about relative preference flows
-through the first. This is the division that Proposition~\ref{prp-ident}
-formalizes: with repeated observations of tasks like these,
-\((\beta, c_1, c_2)\) is identified because the stacked attribute vector
-\((2, 1, -1, -2)'\) is not constant across the goods shown; shift every
-\(x\) by a common amount and the choice factors in
-Equation~\ref{eq-toylik} are untouched while the shift is absorbed
-one-for-one by the cut points.
+factors involve utility levels, locating each task's
+\(\overline{\mu}(\beta)\) against the cut points. This is the division
+that Proposition~\ref{prp-ident} formalizes. The forced choice
+identifies \(\beta\), as in any multinomial logit, because the two goods
+in a task differ in \(x\). The ordinal responses then identify the cut
+points, by locating each task's \(\overline{\mu}(\beta)\) on the utility
+scale.
 
-Second, \emph{the meaning of a scale label is set-dependent}. The label
-``unsure'' is fixed for the consumer --- by construction it means
-\(p \in [0.37, 0.87)\) --- but what the researcher should infer from it
+Second, the meaning of a scale label is set-dependent. The label
+``unsure'' is fixed for the consumer, since by construction it means
+\(p \in [0.37, 0.87)\), but what the researcher should infer from it
 depends on the task: the expected purchase probability of a consumer who
 answers ``unsure'' is \(0.80\) in the attractive task and \(0.60\) in
 the unattractive one (Table~\ref{tbl-toy}, last row).\footnote{The
@@ -787,18 +807,13 @@ the unattractive one (Table~\ref{tbl-toy}, last row).\footnote{The
   with \(u^* \sim \text{Gumbel}(\overline{\mu}, 1)\), which has the
   closed form
   \(\frac{S}{S+1} \left[ e^{-(S+1)e^{-c_2}} - e^{-(S+1)e^{-c_1}} \right] \big/ \left[ e^{-S e^{-c_2}} - e^{-S e^{-c_1}} \right]\).}
-Any procedure that assigns a fixed purchase probability to each scale
-point --- the constant-probability heuristic of
-Section~\ref{sec-nesting} --- is therefore internally inconsistent under
-the model, and the error compounds when calibrations struck on one
-design are transported to another.
 
-Third, \emph{the links agree where tasks are ordinary and part ways
-where they are extreme}. Models A and B produce nearly identical
-distributions for the unattractive task but visibly different ones for
-the attractive task (Table~\ref{tbl-toy}), a miniature of the general
-point from Section~\ref{sec-identification} that discriminating between
-the links requires designs that vary task attractiveness.
+Third, the links agree where tasks are ordinary and part ways where they
+are extreme. Models A and B produce nearly identical distributions for
+the unattractive task but visibly different ones for the attractive task
+(Table~\ref{tbl-toy}), a miniature of the general point from upcoming
+Section~\ref{sec-identification} that discriminating between the links
+requires designs that vary task attractiveness.
 
 \subsection{Special Cases and Relation to Existing
 Models}\label{sec-nesting}
@@ -806,33 +821,29 @@ Models}\label{sec-nesting}
 \textbf{Binary dual response, Model B.} Set \(W=2\) with the single cut
 point \(c_1 = \gamma\). From Equation~\ref{eq-modelB},
 \(\Pr(\text{would buy}) = \Lambda\left( \overline{\mu}_{it} - \gamma \right) = S_{it} \big/ \left( e^{\gamma} + S_{it} \right)\),
-and the joint probabilities from Equation~\ref{eq-joint} telescope:
+and the joint probabilities from Equation~\ref{eq-joint} reduce to:
 \begin{equation}\protect\phantomsection\label{eq-collapseB}{
 \Pr \left( j, \text{buy} \right) = \frac{\exp \left( V_{itj} \right)}{e^{\gamma} + S_{it}},
 \qquad
 \Pr \left( j, \text{not buy} \right) = \frac{\exp \left( V_{itj} \right)}{S_{it}} \cdot \frac{e^{\gamma}}{e^{\gamma} + S_{it}}.
-}\end{equation} With \(\gamma = 0\) these are \emph{exactly} the joint
+}\end{equation} With \(\gamma = 0\) these are exactly the joint
 probabilities of the ``Unified Model'' of Hung, Liu, et al. (2025)
 (their Eq. 4), which is in turn algebraically identical to the
 ``DR-AnyMax'' model of Diener et al. (2006); and
 Equation~\ref{eq-collapseB} with free \(\gamma\) is the standard
 single-stage MNL with a no-choice alternative-specific constant (Haaijer
 et al. 2001). Our ordinal model is thus a strict generalization of the
-leading binary dual-response model: at \(W=2\), Model B \emph{is} that
-model, and for \(W>2\) the additional cut points are the only new
-parameters.
+leading binary dual-response model. At \(W=2\), Model B is that model,
+and for \(W>2\) the additional cut points are the only new parameters.
 
 \textbf{Binary dual response, Model A.} Set \(W=2\) in
 Equation~\ref{eq-modelA}:
 \(\Pr(\text{not buy}) = \alpha_1^{S_{it}} = F\left( c_1 - \overline{\mu}_{it}\right)\),
-a \emph{complementary log-log} rather than logistic binary response.
-Model A therefore implies that even the familiar binary dual response is
-misspecified --- mildly, given the proximity of the links --- when
-consumers genuinely face outside-good uncertainty at the moment they
-answer. This observation gives the binary special case of Model A
-independent interest: it provides a one-parameter alternative to the
-binary logit second stage that can be tested on existing binary
-dual-response data.
+a complementary log-log rather than logistic binary response. Model A
+therefore implies that even the familiar binary dual response is
+misspecified, if mildly given the proximity of the links, when consumers
+genuinely face outside-good uncertainty at the moment they answer the
+dual-response question.
 
 \textbf{DR-2Max.} The other binary model in the literature, ``DR-2Max''
 (Diener et al. 2006), as implemented in Sawtooth Software's CBC/HB
@@ -840,51 +851,50 @@ dual-response data.
 on the \emph{chosen good's} deterministic utility:
 \(\Pr(\text{buy} \mid j^*) = e^{V_{itj^*}} \big/ \left( e^{V_{itj^*}} + e^{\gamma} \right)\).
 This requires drawing a fresh error for the chosen good in the second
-stage --- the consumer who just declared \(j^*\) best re-evaluates it
-from scratch. Under our framework such conditioning is unnecessary: by
-Lemma~\ref{lem-gumbel}(ii) the distribution of the best utility does not
-depend on which good attained it, so the second response should depend
-on the set only through \(\overline{\mu}_{it}\). This distinction is
-testable, and the existing evidence favors the inclusive-value form:
-Diener et al. (2006) found DR-AnyMax fit dual-response data better than
-DR-2Max, and Hung, Liu, et al. (2025) reach the same conclusion for
-their Unified Model.
+stage, so that the consumer who just declared \(j^*\) best re-evaluates
+it from scratch. Under our framework such conditioning is unnecessary:
+by Lemma~\ref{lem-gumbel}(ii) the distribution of the best utility does
+not depend on which good attained it, so the second response should
+depend on the set only through \(\overline{\mu}_{it}\). This distinction
+is testable, and the existing evidence favors the inclusive-value form,
+which our framework implies rather than assumes: Diener et al. (2006)
+found DR-AnyMax fit dual-response data better than DR-2Max, and Hung,
+Liu, et al. (2025) reach the same conclusion for their Unified Model.
 
-\textbf{Practitioner heuristics for ordinal dual responses.} When
-practitioners field an ordinal purchase-likelihood question today,
-common practice is either (i) \emph{dichotomization} --- collapse the
-scale at some point (e.g., top box or top two boxes) and estimate the
-binary model, discarding the ordinal information and hard-coding an
-arbitrary cut; or (ii) \emph{constant-probability weighting} --- map
-each scale point to a fixed purchase probability (e.g., ``definitely
-would buy'' \(= 0.9\)) independent of the choice set. Both are nested
-within, or dominated by, Equation~\ref{eq-joint}: dichotomization is
-Equation~\ref{eq-collapseB} applied to a coarsened \(y_{it}\), and
-constant-probability weighting violates Equation~\ref{eq-modelA}, under
-which the mapping from scale point to purchase probability necessarily
-depends on the attractiveness of the inside goods through \(S_{it}\).
-These two heuristics are the benchmarks in our simulation study
-(Section~\ref{sec-simstudy}).
+\textbf{Reductions to the binary model.} An ordinal response can be
+reduced to a form the binary model accepts in two ways: (i)
+\emph{dichotomization}, collapsing the scale at some point (e.g., top
+box or top two boxes) and estimating the binary model, which discards
+the ordinal information and hard-codes an arbitrary cut; or (ii)
+\emph{constant-probability weighting}, mapping each scale point to a
+fixed purchase probability (e.g., ``definitely would buy'' \(= 0.9\))
+independent of the choice set. Both are nested within, or dominated by,
+Equation~\ref{eq-joint}: dichotomization is Equation~\ref{eq-collapseB}
+applied to a coarsened \(y_{it}\), and constant-probability weighting
+violates Equation~\ref{eq-modelA}, under which the mapping from scale
+point to purchase probability necessarily depends on the attractiveness
+of the inside goods through \(S_{it}\). These two reductions are the
+benchmarks in our simulation study (Section~\ref{sec-simstudy}).
 
 \subsection{Heterogeneity}\label{sec-heterogeneity}
 
 We accommodate preference heterogeneity with a standard hierarchical
 Bayesian specification (Rossi et al. 2005; Train 2001):
 \begin{equation}\protect\phantomsection\label{eq-hb}{
-\bfbeta_i \iid \mathcal{N} \left( \overline{\bfbeta}, \Sigma_{\beta} \right),
+\bfbeta_i \iid \mathcal{N} \left( \betabar, \Sigma_{\beta} \right),
 }\end{equation} with conjugate priors on
-\(\left( \overline{\bfbeta}, \Sigma_{\beta} \right)\). In the main model
-the cut points \(\mathbf{c}\) are common across consumers: the scale
-labels (``very likely,'' ``somewhat likely,'' \ldots) are assumed to
-mean the same thing to everyone, while \emph{preferences} vary.
+\(\left( \betabar, \Sigma_{\beta} \right)\). In the main model the cut
+points \(\mathbf{c}\) are common across consumers: the scale labels
+(``very likely,'' ``somewhat likely,'' \ldots) are assumed to mean the
+same thing to everyone, while preferences vary.
 
 \subsubsection{Heterogeneous Cut Points}\label{sec-hetcut}
 
 The assumption of a shared reporting scale is convenient but
-contestable: a rich literature documents individual differences in the
-use of ordinal response scales (Greene and Hensher 2010; Falco et al.
-2015). We therefore develop an extension with consumer-specific cut
-points. Parameterize
+contestable: Greene and Hensher (2010) and Falco et al. (2015) document
+individual differences in the use of ordinal response scales. We
+therefore develop an extension with consumer-specific cut points.
+Parameterize
 \begin{equation}\protect\phantomsection\label{eq-hetcutparam}{
 c_{i1} \in \mathbb{R},
 \qquad
@@ -894,21 +904,22 @@ c_{iw} = c_{i,w-1} + \exp \left( \delta_{iw} \right) \ \text{for} \ w = 2, \ldot
 follow a multivariate normal population distribution, estimated jointly
 with (and, if desired, correlated with) \(\bfbeta_i\). The exponentiated
 increments enforce monotonicity without constrained sampling.
-Identification at the individual level is necessarily partial --- with
-\(T\) tasks per consumer, individual cut points and individual
-preferences are jointly informed by only \(T\) ordinal reports --- so
-the hierarchical prior does real work here, shrinking individual scale
-usage toward the population norm. Section~\ref{sec-simstudy} examines
-both the payoff to modeling cut-point heterogeneity when it is present
-in the data-generating process and the robustness of the
+Identification at the individual level is necessarily partial, because
+with \(T\) tasks per consumer the \(W-1\) individual cut points and
+\(P\) individual preference parameters are jointly informed by only
+\(T\) ordinal reports. The hierarchy therefore matters here since it
+shrinks each respondent's scale usage toward a population distribution
+that is estimated from the whole sample. Section~\ref{sec-simstudy}
+examines both the payoff to permitting cut-point heterogeneity when it
+is present in the data-generating process and the robustness of the
 common-cut-point model when it is not.
 
 \subsection{Identification}\label{sec-identification}
 
 Because the second response depends on the choice set only through
 \(\overline{\mu}_{it}\), and because the cut points sit on the same
-utility scale as \(\overline{\mu}_{it}\), the model requires --- and,
-given a suitable design, requires only --- a location normalization.
+utility scale as \(\overline{\mu}_{it}\), the model requires a location
+normalization, and given a suitable design it requires nothing further.
 This subsection makes the requirement precise. Fix the aggregate model
 (\(\bfbeta_i = \bfbeta\)) and let the data consist of tasks
 \(t=1,\ldots,n\) with inside-good attribute vectors
@@ -981,13 +992,12 @@ carries exactly one of them, so the dummies sum to \(\iota\) and the
 same invariance appears (shift all \(L\) part-worths and all cut points
 equally). Attributes must therefore be coded against omitted reference
 levels (or effects-coded), and the design must contain no global
-constant. Notably, this requirement is \emph{stricter} than in the
-single-stage MNL with a no-choice alternative, where a full set of brand
-dummies is identified because the no-choice row of zeros breaks the
-constancy (Haaijer et al. 2001). In the dual-response model the outside
-good never appears as a design row --- its role is absorbed by the cut
-points --- so anything the design holds constant across inside goods is
-absorbed along with it.
+constant. This requirement is stricter than in the single-stage MNL with
+a no-choice alternative, where a full set of brand dummies is identified
+because the no-choice row of zeros breaks the constancy (Haaijer et al.
+2001). In the dual-response model the outside good never appears as a
+design row, since its role is absorbed by the cut points, so anything
+the design holds constant across inside goods is absorbed along with it.
 
 \textbf{What the normalizations do.} The convention
 \(\x_{t0} = \mathbf{0}\) with a \(\text{Gumbel}(0,1)\) shock fixes the
@@ -1000,10 +1010,10 @@ Equation~\ref{eq-collapseB}.) The unit Gumbel scale fixes the scale of
 \(\bfbeta\), as in any logit. Beyond these, the model imposes a genuine
 restriction rather than a normalization: the coefficient on
 \(\overline{\mu}_{it}\) in Equation~\ref{eq-cumlink} is fixed at \(1\)
-by the theory --- both responses are driven by the same utility draw ---
-so estimating a free slope \(\lambda\) on \(\overline{\mu}_{it}\) and
-testing \(\lambda = 1\) is an overidentification test of the behavioral
-model, not a required normalization.
+by the theory, because both responses are driven by the same utility
+draw, so estimating a free slope \(\lambda\) on \(\overline{\mu}_{it}\)
+and testing \(\lambda = 1\) is an overidentification test of the
+behavioral model, not a required normalization.
 
 \textbf{Cut points versus the link.} Given \(\bfbeta\) (identified from
 the forced choice alone whenever \(X\)'s within-task differences have
@@ -1011,13 +1021,12 @@ full rank), the cut points are exactly identified even \emph{without}
 variation in task attractiveness:
 \(c_w = \overline{\mu} + G^{-1} \left( \Pr(y \le w) \right)\) pointwise.
 Variation in \(\overline{\mu}_{it}\) across tasks therefore
-overidentifies \(\mathbf{c}\) --- and it is precisely what identifies
-the \emph{link}: at a single value of \(\overline{\mu}\), any two
-strictly increasing links fit the \(W\) category frequencies perfectly
-by relabeling cut points, so Models A and B are distinguishable only
-through how the ordinal distribution shifts as \(S_{it}\) varies.
-Designs intended to compare the links should vary task attractiveness
-deliberately.
+overidentifies \(\mathbf{c}\), and it is what identifies the link: at a
+single value of \(\overline{\mu}\), any two strictly increasing links
+fit the \(W\) category frequencies perfectly by relabeling cut points,
+so Models A and B are distinguishable only through how the ordinal
+distribution shifts as \(S_{it}\) varies. Designs intended to compare
+the links should vary task attractiveness deliberately.
 
 \textbf{Population versus sample.} Under Proposition~\ref{prp-ident}
 every scale category has strictly positive probability in every task
@@ -1038,24 +1047,24 @@ stacked design (their \(T \times J\) rows), which rotating commercial
 designs typically satisfy. The hierarchy then supplies shrinkage, not
 identification of the model's fixed features. In the
 heterogeneous-cut-point extension (Section~\ref{sec-hetcut}) the same
-location tension reappears at the individual level --- a
+location tension reappears at the individual level, where a
 respondent-specific utility shift trades off against \(c_{i1}\) within
-that respondent's likelihood --- and is resolved by the same condition
+that respondent's likelihood, and is resolved by the same condition
 applied to the individual design, with the hierarchical prior doing real
 work when \(T\) is small.
 
 \textbf{Numerical verification.} We verify Proposition~\ref{prp-ident}
 computationally (replication code accompanies the paper). Data simulated
-from the raw behavioral process --- Gumbel utility draws, argmax, and
-the two reporting rules, not the derived likelihood --- at three
-distinct parameter configurations for each model, on designs satisfying
-the rank condition, are recovered by maximum likelihood: across all
+from the raw behavioral process (Gumbel utility draws, argmax, and the
+two reporting rules, not the derived likelihood) at three distinct
+parameter configurations for each model, on designs satisfying the rank
+condition, are recovered by maximum likelihood: across all
 configurations the true parameter vector lies inside the 95\%
 likelihood-ratio confidence region, the observed information is
 well-conditioned, repeated-sampling bias is statistically
 indistinguishable from zero, and model-based standard errors match the
-empirical sampling variation. Appending an intercept column --- the
-canonical violation --- produces exactly the predicted failure:
+empirical sampling variation. Appending an intercept column, the
+canonical violation, produces exactly the predicted failure:
 \(\left[ X \;\; \iota \right]\) loses rank, the smallest eigenvalue of
 the observed information collapses to zero, and different starting
 values converge to different raw
@@ -1076,8 +1085,8 @@ aggregate likelihood at trivial cost, and both have well-behaved
 operating characteristics (Section~\ref{sec-simstudy}).
 
 \textbf{The unit-slope test.} The behavioral model fixes the coefficient
-on the inclusive value in the second stage at exactly one --- the same
-utility draw generates both responses --- so the natural one-parameter
+on the inclusive value in the second stage at exactly one, because the
+same utility draw generates both responses, so the natural one-parameter
 enlargement \begin{equation}\protect\phantomsection\label{eq-lambda}{
 \Pr \left( y_{it} \le w \right) = G \left( c_w - \lambda \, \overline{\mu}_{it} \right)
 }\end{equation} nests the model at \(\lambda = 1\). A free \(\lambda\)
@@ -1091,10 +1100,10 @@ by likelihood ratio or Wald is an overidentification test of the joint
 utility account, not a normalization check.
 
 \textbf{The conditioning test.} The framework implies the second
-response depends on the choice set \emph{only through}
-\(\overline{\mu}_{it}\) (Lemma~\ref{lem-gumbel}), whereas the DR-2Max
-tradition conditions on the chosen alternative's utility. The
-enlargement \begin{equation}\protect\phantomsection\label{eq-delta}{
+response depends on the choice set only through \(\overline{\mu}_{it}\)
+(Lemma~\ref{lem-gumbel}), whereas the DR-2Max tradition conditions on
+the chosen alternative's utility. The enlargement
+\begin{equation}\protect\phantomsection\label{eq-delta}{
 \Pr \left( y_{it} \le w \right) = G \left( c_w - \left[ \overline{\mu}_{it} + \delta \left( V_{itj^*} - \overline{\mu}_{it} \right) \right] \right)
 }\end{equation} spans the two: \(\delta = 0\) is our model and
 \(\delta = 1\) puts the full weight on the chosen option's deterministic
@@ -1104,8 +1113,8 @@ estimated \(\delta\), so the long-standing 2Max-versus-AnyMax question
 estimate rather than a model-selection exercise.
 
 We apply both tests to the empirical data in Section~\ref{sec-analysis}.
-Their finite-sample size and power --- including full power of the
-\(\delta\) test against DR-2Max data at modest sample sizes --- are
+Their finite-sample size and power, including full power of the
+\(\delta\) test against DR-2Max data at modest sample sizes, are
 documented in the simulation study.
 
 \subsection{The Information Content of the Ordinal
@@ -1131,15 +1140,15 @@ increment. Writing
 is the choice-probability-weighted average attribute vector (the
 gradient of \(\overline{\mu}_{it}\) with respect to \(\bfbeta\)). Two
 properties follow. First, the increment is positive semi-definite: the
-second response never destroys information, echoing the binary result of
+second response never destroys information, as in the binary result of
 Hung, Liu, et al. (2025). Second, \(\omega\) is non-decreasing under
-refinement of the scale partition --- coarsening an ordinal response is
-a garbling in the sense of sufficiency, so the binary response (\(W=2\))
-is the \emph{least} informative member of the family, and information
-rises toward the continuous-report limit as \(W \to \infty\). The
-practical magnitudes --- how much of the binary-to-continuous gap a
-five- or seven-point scale captures, and how the gains vary with task
-attractiveness --- are quantified in Section~\ref{sec-simstudy}.
+refinement of the scale partition, since coarsening an ordinal response
+is a garbling in the sense of sufficiency. The binary response (\(W=2\))
+is therefore the least informative member of the family, and information
+rises toward the continuous-report limit as \(W \to \infty\).
+Section~\ref{sec-simstudy} quantifies the practical magnitudes: how much
+of the binary-to-continuous gap a five- or seven-point scale captures,
+and how the gains vary with task attractiveness.
 
 \subsection{Estimation}\label{sec-estimation}
 
@@ -1147,24 +1156,25 @@ The aggregate (homogeneous-\(\bfbeta\)) model is estimated by maximum
 likelihood: the log of Equation~\ref{eq-joint} summed over consumers and
 tasks is smooth in \(\left( \bfbeta, \mathbf{c} \right)\) after the
 monotonicity-preserving reparameterization of the cut points, and
-standard quasi-Newton methods converge quickly.
+standard quasi-Newton methods converge quickly. Because the likelihood
+is a product of a choice component and an ordinal component, it can also
+be assembled in Apollo (Hess and Palma 2019) from that package's
+standard building blocks, which we do as an independent check on our own
+code. Appendix E gives the details.
 
 The hierarchical model is estimated with a custom Markov chain Monte
-Carlo sampler, implemented in R with computational kernels in C++
-(Rcpp), following the hybrid Gibbs architecture of Rossi et al. (2005):
-(1) a random-walk Metropolis step for each \(\bfbeta_i\) (and
-\(\bftheta_i\) in the heterogeneous-cut-point extension) using the
-individual likelihood \(\prod_t \ell_{it}\); (2) a random-walk
-Metropolis step for the common cut-point block on the unconstrained
-scale; and (3) conjugate draws for the population moments
-\(\left( \overline{\bfbeta}, \Sigma_{\beta} \right)\). Model comparison
-uses the log marginal density approximated by the method of Newton and
-Raftery (1994), matching the practice in Hung, Liu, et al. (2025) and
-permitting direct comparisons among Model A, Model B, the binary
-dual-response models, and the practitioner heuristics. Complete
-replication code, together with three worked-example notebooks that
-build from the simplest homogeneous two-attribute case to the full model
-with heterogeneous cut points, accompanies the paper.
+Carlo sampler, implemented in R and following the hybrid Gibbs
+architecture of Rossi et al. (2005): (1) a random-walk Metropolis step
+for each \(\bfbeta_i\) (and \(\bftheta_i\) in the
+heterogeneous-cut-point extension) using the individual likelihood
+\(\prod_t \ell_{it}\); (2) a random-walk Metropolis step for the common
+cut-point block on the unconstrained scale; and (3) conjugate draws for
+the population moments \(\left( \betabar, \Sigma_{\beta} \right)\).
+Model comparison uses the log marginal density approximated by the
+method of Newton and Raftery (1994), matching the practice in Hung, Liu,
+et al. (2025) and permitting direct comparisons among Model A, Model B,
+the binary dual-response models, and the practitioner heuristics.
+Complete replication code accompanies the paper.
 
 \section{Simulation Study}\label{sec-simstudy}
 
@@ -1198,8 +1208,8 @@ the location and spread of the response distribution --- including a
 \emph{skewed} configuration with realistic bottom-heavy purchase intent
 (top-2-box share 18.4\%). The hierarchical experiments use \(N = 300\)
 respondents, \(T = 12\) estimation tasks plus 2 holdouts,
-\(\bfbeta_i \sim \mathcal{N}(\overline{\bfbeta}, \Sigma)\) with
-substantial heterogeneity, and the same attribute scheme.
+\(\bfbeta_i \sim \mathcal{N}(\betabar, \Sigma)\) with substantial
+heterogeneity, and the same attribute scheme.
 
 \subsection{Parameter Recovery and Identification}\label{sec-sim-agg}
 
@@ -1383,7 +1393,7 @@ Notebook}}
 
 \subsection{Misspecification Robustness}\label{sec-sim-robust}
 
-Four deliberate misspecifications, each fit with the (now wrong)
+Five deliberate misspecifications, each fit with the (now wrong)
 standard model on hierarchical panels:
 
 \begin{itemize}
@@ -1411,6 +1421,22 @@ standard model on hierarchical panels:
   misspecification is absorbed almost entirely by the cut-point
   locations (the top-2-box cut shifts by 0.63), which is where a
   structural-interpretation caveat belongs.
+\item
+  \textbf{Correlated alternatives.} Appendix D shows that the framework
+  survives any GEV error structure once the inclusive value is
+  redefined, so fitting the independent-Gumbel model to nested-logit
+  data misspecifies exactly one thing: it uses \(\ln \sum_j e^{V_j}\)
+  where the truth is \(\ln G(e^{V})\). With four alternatives in two
+  nests at dissimilarity \(0.5\) (within-nest error correlation
+  \(0.75\)), the cost is small. Holdout demand prediction is unaffected
+  (RMSE 0.110 against 0.111 under correct specification), and individual
+  part-worth RMSE rises only to 0.553 from 0.524. As with non-Gumbel
+  shocks, the damage is absorbed by the cut points, and in the direction
+  theory predicts: nesting makes \(G(e^{V}) < \sum_j e^{V_j}\), so the
+  fitted model overstates the inclusive value and the top-2-box cut
+  compensates upward by 0.21. Correlation among the displayed profiles
+  is therefore a concern for the structural reading of the cut points,
+  not for the demand quantities built from them.
 \item
   \textbf{Task-order drift.} When the outside good drifts across the
   sequence (linear drift, and Hung-style probabilistic updating as in
@@ -1668,13 +1694,17 @@ latent class) are compatible with the framework.
 
 \subsection{Limitations}\label{limitations}
 
-Four limitations qualify the results. First, the Gumbel error assumption
+Five limitations qualify the results. First, the Gumbel error assumption
 is load-bearing: the factorization of the joint likelihood and the
-inclusive-value form of the second response both rest on max-stability,
-and relaxing the error family (e.g., toward mixed or nested structures
-within a task) would break the closed form, though not the framework ---
-the second response would simply require simulation over the max
-distribution. Our robustness experiments soften the concern in one
+inclusive-value form of the second response both rest on max-stability.
+Appendix D shows how far this can be pushed. Any generalized extreme
+value structure, nested logit included, preserves both properties once
+the inclusive value is redefined as the GEV generator, so correlation
+among the displayed alternatives costs the framework nothing. Error
+families outside that class do break the closed form: under a probit or
+a mixed logit with a correlated kernel the max utility has no
+closed-form distribution, and the second response would require
+simulation over it. Our robustness experiments soften the concern in one
 direction: with variance-matched normal shocks, preference and demand
 estimates are essentially unimpaired, the misspecification being
 absorbed by the cut-point locations --- so structural interpretation of
@@ -1694,44 +1724,58 @@ behavior; the ordinal report inherits whatever hypothetical bias attends
 purchase-intent questions generally (Morrison 1979), and linking the
 estimated cut points to realized purchase rates --- the ordinal analogue
 of the calibration literature on binary intentions --- is a natural next
-step. A separate methodological caution, documented in Appendix C, is
-that harmonic-mean marginal-likelihood estimates are optimistic; we
-therefore anchor model comparisons in holdout likelihood and WAIC
-alongside the conventional estimator.
+step. Fifth, the likelihood presumes the two questions are asked
+together, as in the standard dual-response task. Designs that separate
+them, such as the separated dual response of Schlereth and Skiera
+(2017), break the coupling between the two responses and would require
+the stages to be modeled as separate draws. A separate methodological
+caution, documented in Appendix C, is that harmonic-mean
+marginal-likelihood estimates are optimistic; we therefore anchor model
+comparisons in holdout likelihood and WAIC alongside the conventional
+estimator.
 
 \section{Conclusion}\label{sec-conclusion}
 
-Dual-response conjoint designs separate a question consumers find easy
---- which of these do you like best? --- from one they find genuinely
-uncertain --- would you actually buy it? This paper takes that
-uncertainty seriously as a modeling primitive. When the consumer
-observes everything about the displayed alternatives but not her
-valuation of the outside good, the natural follow-up question is
-ordinal, and the natural model is the one derived here: a multinomial
-logit for the forced choice joined to a cumulative-link ordinal model on
-the task's inclusive value, with the link function determined by whether
-the respondent reports her purchase probability directly (Model A) or
-grades a resolved comparison (Model B). The framework nests the leading
-binary dual-response models as its two-point special case, so nothing is
-lost relative to current best practice; a \(W\)-point scale strictly
-adds Fisher information, and the common practitioner shortcuts ---
-dichotomizing the scale or assigning fixed purchase probabilities to its
-points --- are shown to be, respectively, wasteful and internally
-inconsistent. Simulation evidence confirms that the aggregate and
-hierarchical Bayesian estimators recover the model's parameters,
-including the cut points that give the scale labels quantitative
-meaning, and the empirical application demonstrates the model on
-commercial data.
+Dual-response conjoint separates a question consumers answer readily,
+which of these do you like best, from one they cannot answer with
+certainty, would you actually buy it. This paper takes that uncertainty
+as the modeling primitive. A consumer who observes everything about the
+displayed alternatives but not her valuation of the outside good holds a
+purchase probability rather than a decision, so the natural follow-up
+question is ordinal and the natural model joins a multinomial logit for
+the forced choice to a cumulative-link ordinal model on the task's
+inclusive value. The link function is not a modeling choice. It follows
+from whether the respondent reports the probability she still holds
+(Model A) or resolves her uncertainty and grades the comparison that
+results (Model B), and the two are distinguishable on data that vary the
+attractiveness of the displayed alternatives.
 
-Beyond the specific model, the paper's broader point is that response
-formats and statistical models should be developed together. The ordinal
-purchase-likelihood question earned its place in practice because it
-matches how respondents experience purchase decisions; it lacked only a
-likelihood. Supplying one turns an informal fielding habit into a
-measurement instrument --- and opens a research agenda that includes
-calibrating estimated cut points against realized purchase behavior,
-exploiting the ordinal response to identify budget constraints, and
-optimal design of the scale itself.
+Three results follow. At two scale points Model B is the incumbent
+binary dual-response model, so nothing is given up by adopting the
+ordinal form, while Model A's binary case is a complementary log-log
+response, which implies that the familiar yes/no follow-up is mildly
+misspecified and can be checked on data already collected. A finer scale
+never subtracts information, and five points capture most of the gap
+between a binary answer and a continuous one. The two ways an ordinal
+answer is otherwise reduced to something the binary model accepts,
+collapsing the scale at an arbitrary point and assigning each point a
+fixed purchase probability, are respectively wasteful and internally
+inconsistent, the second because the meaning of a scale label depends on
+what was on the screen. Simulation evidence confirms that the aggregate
+and hierarchical Bayesian estimators recover the model's parameters,
+including the cut points that give the scale labels quantitative
+meaning, and that the conclusions survive correlated alternatives,
+non-Gumbel shocks, and drift in the outside good across a respondent's
+task sequence.
+
+The broader point is that a response format and the model that reads it
+belong together. A finer scale is worth fielding only if something can
+use the extra categories, and a model is worth deriving only if the
+question it reads is one respondents can answer. Supplying the
+likelihood makes the ordinal follow-up a measurement instrument rather
+than a longer question, and it opens work on calibrating estimated cut
+points against realized purchase behavior, on using the ordinal response
+to identify budget constraints, and on the design of the scale itself.
 
 \section*{Appendix A: Proofs}\label{sec-appendix-proofs}
 \addcontentsline{toc}{section}{Appendix A: Proofs}
@@ -1760,6 +1804,53 @@ over \(j\) delivers \(u^* \sim \text{Gumbel}(\overline{\mu}, 1)\) with
 \(\overline{\mu} = \ln S\); and the factorization of the joint law for
 every \((j, u)\) is precisely the independence of \(j^*\) and \(u^*\).
 \(\square\)
+
+The calculation above is short but gives little sense of why the two
+quantities separate. The following change of variable makes it
+transparent, and it is the same argument that generalizes to correlated
+alternatives in Appendix D.
+
+Write \(y_j = e^{V_j}\) and set \(T_j = e^{-u_j}\). The map is
+decreasing, so it exchanges maxima for minima: the best good is the one
+with the smallest \(T_j\), and \(u^* = -\ln \min_j T_j\). Under the
+Gumbel assumption, \[
+\Pr \left( T_j > t \right) = \Pr \left( u_j < -\ln t \right) = e^{-y_j t},
+\] so each good becomes an independent waiting time that arrives at the
+constant rate \(y_j\), and the consumer's chosen good is whichever
+arrives first.
+
+For independent waiting times of this kind, the identity of the first
+arrival and the time of that arrival are independent, and the reason is
+that the rates do not change as time passes. At any instant, given that
+nothing has yet arrived, the chance that the next arrival is good \(j\)
+is \(y_j / S\), the same at the start as at any later point. Which good
+arrives first is therefore settled entirely by the rates relative to one
+another, while how long the wait lasts is settled entirely by their sum
+\(S\). Waiting longer says nothing about who will win. Transforming
+back, the shares \(y_j / S\) are the multinomial logit probabilities and
+the total \(S\) fixes the location of \(u^*\), which is the content of
+Lemma~\ref{lem-gumbel}. This is the division of labor between the two
+responses. The rates relative to one another are the utility differences
+that the forced choice reveals, and their sum is the inclusive value
+that the ordinal report reads, so the two responses read separate
+features of the same draw.
+
+The same statement in utility terms is that the relative odds of being
+the maximizer are the same at every level of the maximum, because Gumbel
+upper tails decay exponentially and are therefore shift-invariant:
+\(\Pr(u_1 > m) / \Pr(u_2 > m) = e^{V_1 - V_2}\) for every \(m\).
+
+This is a property of the extreme-value family and not of random utility
+models in general. Under normal shocks with \(V_1 > V_2\), the ratio of
+upper tails diverges as \(m\) grows, so a high realized maximum is
+disproportionately likely to have come from the better alternative. The
+level of the maximum then carries information about which alternative
+attained it, the joint law of \(\left( j^*, u^* \right)\) does not
+factor, and the counterpart of Equation~\ref{eq-joint} is unavailable.
+What Appendix D shows is that the factorization survives correlation
+among the inside goods, because the waiting times may be dependent and
+still arrive at rates whose ratios are constant over time; what fails
+outside the extreme-value family is the constancy of those ratios.
 
 \subsection*{\texorpdfstring{A.2 Derivation of the information increment
 (Equation~\ref{eq-fisher})}{A.2 Derivation of the information increment (Equation~)}}\label{a.2-derivation-of-the-information-increment-eq-fisher}
@@ -1827,9 +1918,9 @@ heterogeneous-cut-point extension, \(\bftheta_i\)) are updated
 simultaneously by independent normal random-walk proposals with
 covariance \(s_i^2 \Sigma\); (2) the common cut-point block is updated
 by a random-walk proposal on the unconstrained scale; (3) the population
-moments \(\left( \overline{\bfbeta}, \Sigma \right)\) are drawn from
-their conjugate normal and inverse-Wishart conditionals. Priors:
-\(\overline{\bfbeta} \sim \mathcal{N}\left( \mathbf{0}, 100 I \right)\),
+moments \(\left( \betabar, \Sigma \right)\) are drawn from their
+conjugate normal and inverse-Wishart conditionals. Priors:
+\(\betabar \sim \mathcal{N}\left( \mathbf{0}, 100 I \right)\),
 \(\Sigma \sim \text{IW}\left( \dim + 3, (\dim + 3) I \right)\), and
 \(\mathcal{N}(0, 100 I)\) on the transformed cut points. Step sizes are
 initialized at \(2.93/\sqrt{\dim}\) and adapted only during burn-in
@@ -1869,7 +1960,8 @@ rather than closes the gap:
 \begin{longtable}[]{@{}lrr@{}}
 
 \caption{\label{tbl-lmd-check}Aggregate-model log marginal density by
-estimator (simulated data, n = 3,600 tasks; from R/hb\_validation.R).}
+estimator (simulated data, n = 3,600 tasks; from
+R/hierarchical/hb\_validation.R).}
 
 \tabularnewline
 
@@ -1896,6 +1988,255 @@ Newton--Raftery \emph{rankings} between the ordinal and binary
 dual-response models are typically preserved --- but we treat the WAIC
 and holdout comparisons as primary whenever the two disagree.
 
+\section*{Appendix D: Correlated Alternatives}\label{sec-appendix-gev}
+\addcontentsline{toc}{section}{Appendix D: Correlated Alternatives}
+
+Lemma~\ref{lem-gumbel} is stated for independent Gumbel shocks, and the
+whole of Section~\ref{sec-model} rests on it. This appendix shows that
+both of its properties hold for the entire generalized extreme value
+(GEV) family of McFadden (1981), so that correlation among the inside
+goods costs the framework nothing beyond a redefinition of the inclusive
+value.
+
+Let the inside-good shocks have the GEV joint distribution
+\begin{equation}\protect\phantomsection\label{eq-gevcdf}{
+\Pr \left( \eta_1 \le e_1, \ldots, \eta_J \le e_J \right)
+= \exp \left( - G \left( e^{-e_1}, \ldots, e^{-e_J} \right) \right),
+}\end{equation} where the generator
+\(G : \mathbb{R}^J_{+} \to \mathbb{R}_{+}\) is homogeneous of degree
+one, tends to infinity in each argument, and has mixed partial
+derivatives that alternate in sign. Independent Gumbel shocks are the
+special case \(G(y) = \sum_j y_j\). Write \(y_j = \exp(V_j)\),
+\(G_j = \partial G / \partial y_j\), and
+\begin{equation}\protect\phantomsection\label{eq-gevmu}{
+S^{G} \coloneqq G \left( y_1, \ldots, y_J \right),
+\qquad
+\overline{\mu} \coloneqq \ln S^{G}.
+}\end{equation}
+
+\begin{lemma}[]\protect\hypertarget{lem-gev}{}\label{lem-gev}
+
+Under Equation~\ref{eq-gevcdf}, with \(u_j = V_j + \eta_j\) and
+\(u^* = \max_{j} u_j\):
+
+\begin{enumerate}
+\def\labelenumi{(\roman{enumi})}
+\item
+  \(u^* \sim \text{Gumbel} \left( \overline{\mu}, 1 \right)\) with
+  \(\overline{\mu} = \ln S^{G}\);
+\item
+  \(j^*\) and \(u^*\) are statistically independent, with
+  \(\Pr(j^* = j) = y_j G_j(y) / S^{G}\).
+\end{enumerate}
+
+\end{lemma}
+
+\begin{proof}
+The joint CDF of the utilities is \[
+H \left( m_1, \ldots, m_J \right)
+= \exp \left( - G \left( y_1 e^{-m_1}, \ldots, y_J e^{-m_J} \right) \right).
+\] For (i), set every \(m_j = m\) and use homogeneity of degree one:
+\(G(y e^{-m}) = e^{-m} G(y)\), so
+\(H(m, \ldots, m) = \exp \left( - e^{-m} S^{G} \right)\), which is the
+\(\text{Gumbel}\left(\ln S^{G}, 1\right)\) CDF.
+
+For (ii), write \(t_k = y_k e^{-m_k}\) and differentiate: \[
+\frac{\partial H}{\partial m_j}
+= \exp \left( -G(t) \right) \, G_j(t) \, y_j e^{-m_j}.
+\] Because \(G\) is homogeneous of degree one, \(G_j\) is homogeneous of
+degree zero, so evaluating at \(m_k = s\) for every \(k\) gives
+\(G_j(t) = G_j(y)\) and \(G(t) = e^{-s} S^{G}\). Hence \[
+\left. \frac{\partial H}{\partial m_j} \right|_{m_k = s \ \forall k}
+= \exp \left( - e^{-s} S^{G} \right) G_j(y) \, y_j e^{-s}
+= \frac{y_j G_j(y)}{S^{G}} \cdot \frac{d}{ds} \exp \left( - e^{-s} S^{G} \right),
+\] and integrating from \(-\infty\) to \(u\), \[
+\Pr \left( j^* = j, \ u^* \le u \right)
+= \underbrace{\frac{y_j G_j(y)}{S^{G}}}_{\Pr \left( j^* = j \right)}
+\; \times \;
+\underbrace{\exp \left( - e^{-u} S^{G} \right)}_{\Pr \left( u^* \le u \right)}
+\] for every \(j\) and every \(u\), which is the claimed independence.
+Letting \(u \to \infty\) recovers the GEV choice probability.
+\(\square\)
+\end{proof}
+
+Everything in Section~\ref{sec-model} follows with \(S_{it}\) replaced
+by \(S^{G}_{it}\). The first response becomes the GEV choice probability
+rather than the multinomial logit; the second response is unchanged in
+form, since Equation~\ref{eq-modelA}, Equation~\ref{eq-modelB}, and the
+cumulative-link representation Equation~\ref{eq-cumlink} depend on the
+choice set only through \(\overline{\mu}_{it}\); and the factorization
+Equation~\ref{eq-joint} holds for the same reason as before. The
+location invariance behind Proposition~\ref{prp-ident} also survives:
+shifting every \(V_{itj}\) by \(\delta\) multiplies \(S^{G}_{it}\) by
+\(e^{\delta}\) and so shifts \(\overline{\mu}_{it}\) by exactly
+\(\delta\), which the cut points absorb. The rank condition must then be
+read against the design as it enters \(G\) rather than a simple sum, and
+the nesting result of Section~\ref{sec-nesting} becomes
+\(\Pr(\text{buy}) = S^{G}_{it} / \left( e^{\gamma} + S^{G}_{it} \right)\).
+
+The leading application is nested logit,
+\(G(y) = \sum_{n} \left( \sum_{j \in n} y_j^{1/\lambda_n} \right)^{\lambda_n}\),
+in which alternatives within a nest are correlated whenever
+\(\lambda_n < 1\). We confirm Lemma~\ref{lem-gev} numerically for a
+five-alternative, two-nest design with \(\lambda = (0.5, 0.8)\) using
+the positive-stable mixture representation of the nested logit
+(\texttt{R/homogeneous/gev\_check.R}). Across two million draws the
+simulated distribution of \(u^*\) matches
+\(\text{Gumbel}(\ln S^{G}, 1)\) (location \(1.845\) against \(1.846\)
+analytically; Kolmogorov-Smirnov \(p = 0.17\)), the simulated choice
+shares match \(y_j G_j / S^{G}\) to four decimal places, and the
+conditional distribution of \(u^*\) given \(j^*\) is indistinguishable
+from its unconditional counterpart at every quartile (chi-square test of
+independence, \(p = 0.70\)).
+
+Two limits of the result are worth stating. It covers correlation among
+the \emph{inside} goods only: the outside-good shock \(\eta_{it0}\) is
+assumed independent of them throughout, and Model B's logistic link uses
+that independence to obtain
+\(d_{it} \sim \text{Logistic}(\overline{\mu}_{it}, 1)\). And it does not
+extend to error structures outside the GEV class, such as multinomial
+probit or a mixed logit with correlated kernel errors, for which \(u^*\)
+has no closed-form distribution and the factorization that makes
+Equation~\ref{eq-joint} tractable is unavailable.
+
+\section*{Appendix E: Implementation in
+Apollo}\label{sec-appendix-apollo}
+\addcontentsline{toc}{section}{Appendix E: Implementation in Apollo}
+
+\textsubscript{Source:
+\href{https://dyavorsky.github.io/ordinalDualresponse_paper/index.qmd.html}{Article
+Notebook}}
+
+The replication archive implements the model twice: once directly, in
+the routines described in Appendix B, and once in Apollo (Hess and Palma
+2019), the freeware choice-modelling package for R. The second
+implementation serves two purposes. It cross-validates our code against
+an independently developed and widely used toolkit, and it shows how the
+model fits into an estimation framework readers are likely to already
+have installed.
+
+\textbf{The model as a two-component structure.} Apollo builds a
+likelihood by multiplying components. Our joint likelihood
+Equation~\ref{eq-joint} is exactly of that form, so the forced choice is
+an \texttt{apollo\_mnl} component and the ordinal follow-up is a second
+component over the same tasks. This is the architecture of the hybrid
+choice models for which the package is often used, in which a
+multinomial logit for the choice is combined with ordered-response
+components for attitudinal indicators (Daly et al. 2012). The
+resemblance is worth being precise about, because the difference is the
+content of Section~\ref{sec-model}. In a hybrid choice model the ordinal
+component is driven by a latent attitude that is exogenous to the
+choice, and it is connected to the choice utilities through freely
+estimated loading parameters. Here the ordinal component is driven by
+the inclusive value of the same choice set, and its loading is fixed at
+one rather than estimated. Our model is the restricted case, and
+Lemma~\ref{lem-gumbel} is what licenses the restriction.
+
+\textbf{Model B is native; Model A is not.} With the second stage a
+cumulative logit in \(\overline{\mu}_{it}\), Model B is assembled from
+stock parts: \texttt{apollo\_mnl} for the choice, \texttt{apollo\_ol}
+for the follow-up with the task's inclusive value passed as its single
+explanatory variable and the cut points as its thresholds, and
+\texttt{apollo\_combineModels} to join them. Model A has no stock part.
+Apollo supplies ordered components for the logistic and normal links and
+no others, so the complementary-log-log form Equation~\ref{eq-modelA}
+must be written out and passed through \texttt{apollo\_ownModel}, the
+hook for user-defined likelihoods. This is a small piece of code, and
+once supplied it inherits the rest of the package. The asymmetry is
+worth noting for its own sake: the standard toolkit anticipates the
+behavior in which the respondent resolves her uncertainty before
+answering, and not the behavior in which she reports the probability she
+still holds.
+
+\textbf{Agreement.} Table~\ref{tbl-apollo} reports the largest
+discrepancy between the two implementations over 5 independent datasets
+of 2,000 tasks in each of three configurations, with both
+implementations started from the same values.
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.2667}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.2000}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.0667}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.1222}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.1778}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.1667}}@{}}
+
+\caption{\label{tbl-apollo}Largest absolute discrepancy between our
+maximum-likelihood routine and the same model estimated in Apollo, over
+five independent datasets per configuration (from
+R/apollo/compare\_apollo.R).}
+
+\tabularnewline
+
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+configuration
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+ordinal component
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+beta
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+cut points
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+standard errors
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+log-likelihood
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+Model B, W = 5 & apollo\_ol & 7e-07 & 2e-06 & 1e-06 & 3e-10 \\
+Model A, W = 5 & apollo\_ownModel & 1e-06 & 2e-06 & 1e-07 & 9e-10 \\
+Model B, W = 2 (binary) & apollo\_ol & 5e-07 & 5e-07 & 5e-09 & 6e-11 \\
+
+\end{longtable}
+
+\textsubscript{Source:
+\href{https://dyavorsky.github.io/ordinalDualresponse_paper/index.qmd.html}{Article
+Notebook}}
+
+Point estimates agree to 2e-06 or better, standard errors to 1e-06, and
+the maximized log-likelihood to 9e-10, which is convergence tolerance
+rather than disagreement. The two implementations share no code: Apollo
+computes the ordinal probabilities for Model A from the direct
+expression
+\(e^{-e^{-(c_w - \overline{\mu})}} - e^{-e^{-(c_{w-1} - \overline{\mu})}}\),
+while ours uses the tail-stable rearrangement of Appendix B, and the cut
+points enter Apollo's likelihood as free parameters rather than through
+the monotone increment parameterization. The binary row is the incumbent
+dual-response model of Diener et al. (2006) and Hung, Liu, et al.
+(2025), recovered as the two-point special case of
+Section~\ref{sec-nesting}.
+
+\textbf{Why the hierarchical model is not estimated in Apollo.} Apollo
+reaches Bayesian estimation by wrapping \texttt{RSGHB}, which requires
+each random parameter to be assigned one of a fixed menu of marginal
+distributions: normal, log-normal, censored normal, or Johnson SB. None
+of them can express an ordered vector. The heterogeneous-cut-point
+extension of Section~\ref{sec-hetcut} gives each respondent her own
+thresholds \(\bftheta_i\), which must stay ordered for the likelihood to
+be defined, and we impose that through a transformation to an
+unconstrained scale inside a random-walk block. That is expressible in a
+purpose-written sampler and not in the \texttt{RSGHB} menu. The
+restriction is specific to the Bayesian path: \texttt{apollo\_ol}
+accepts thresholds that vary across observations, so classical
+mixed-threshold specifications are available. This is the reason the
+hierarchical results in Section~\ref{sec-simstudy} come from the sampler
+of Appendix B rather than from Apollo.
+
+\section*{Declaration of generative AI and AI-assisted technologies in
+the manuscript preparation
+process}\label{declaration-of-generative-ai-and-ai-assisted-technologies-in-the-manuscript-preparation-process}
+\addcontentsline{toc}{section}{Declaration of generative AI and
+AI-assisted technologies in the manuscript preparation process}
+
+During the preparation of this work the authors used Claude (Anthropic),
+accessed through Claude Code, iteratively in the drafting and editing of
+manuscript text and select coding tasks. After using this tool, the
+authors reviewed and edited the content as needed and take full
+responsibility for the content of the published article.
+
 \section*{References}\label{references}
 \addcontentsline{toc}{section}{References}
 
@@ -1914,6 +2255,12 @@ No-Choice Option and Dual Response Choice Designs.''} \emph{Marketing
 Letters} 17 (4): 255--68.
 \url{https://doi.org/10.1007/s11002-006-7943-8}.
 
+\bibitem[\citeproctext]{ref-Bucklin_1992}
+Bucklin, Randolph E., and Sunil Gupta. 1992. {``Brand Choice, Purchase
+Incidence, and Segmentation: An Integrated Modeling Approach.''}
+\emph{Journal of Marketing Research} 29 (2): 201--15.
+\url{https://doi.org/10.1177/002224379202900205}.
+
 \bibitem[\citeproctext]{ref-Campbell_2019}
 Campbell, Danny, and Seda Erdem. 2019. {``Including Opt-Out Options in
 Discrete Choice Experiments: Issues to Consider.''} \emph{The Patient -
@@ -1925,6 +2272,13 @@ Cardell, N. Scott. 1997. {``Variance Components Structures for the
 Extreme-Value and Logistic Distributions with Application to Models of
 Heterogeneity.''} \emph{Econometric Theory} 13 (2): 185--213.
 \url{https://doi.org/10.1017/s0266466600005727}.
+
+\bibitem[\citeproctext]{ref-Daly_2012}
+Daly, Andrew, Stephane Hess, Bhanu Patruni, Dimitris Potoglou, and
+Charlene Rohr. 2012. {``Using Ordered Attitudinal Indicators in a Latent
+Variable Choice Model: A Study of the Impact of Security on Rail Travel
+Behaviour.''} \emph{Transportation} 39 (2): 267--97.
+\url{https://doi.org/10.1007/s11116-011-9351-z}.
 
 \bibitem[\citeproctext]{ref-Dhar_2003}
 Dhar, Ravi, and Itamar Simonson. 2003. {``The Effect of Forced Choice on
@@ -1954,11 +2308,22 @@ Gronau, Quentin F., Henrik Singmann, and Eric-Jan Wagenmakers. 2020.
 Constants.''} \emph{Journal of Statistical Software} 92 (10): 1--29.
 \url{https://doi.org/10.18637/jss.v092.i10}.
 
+\bibitem[\citeproctext]{ref-Gupta_1988}
+Gupta, Sunil. 1988. {``Impact of Sales Promotions on When, What, and How
+Much to Buy.''} \emph{Journal of Marketing Research} 25 (4): 342--55.
+\url{https://doi.org/10.1177/002224378802500402}.
+
 \bibitem[\citeproctext]{ref-Haaijer_2001}
 Haaijer, Rinus, Wagner A. Kamakura, and Michel Wedel. 2001. {``The
 {`No-Choice'} Alternative in Conjoint Choice Experiments.''}
 \emph{International Journal of Market Research} 43 (1): 93--106.
 \url{https://doi.org/10.1177/147078530104300105}.
+
+\bibitem[\citeproctext]{ref-Hess_2019}
+Hess, Stephane, and David Palma. 2019. {``Apollo: A Flexible, Powerful
+and Customisable Freeware Package for Choice Model Estimation and
+Application.''} \emph{Journal of Choice Modelling} 32: 100170.
+\url{https://doi.org/10.1016/j.jocm.2019.100170}.
 
 \bibitem[\citeproctext]{ref-Huber_1996}
 Huber, Joel, and Klaus Zwerina. 1996. {``The Importance of Utility
@@ -1982,6 +2347,17 @@ Juster, F. Thomas. 1966. {``Consumer Buying Intentions and Purchase
 Probability: An Experiment in Survey Design.''} \emph{Journal of the
 American Statistical Association} 61 (315): 658--96.
 \url{https://doi.org/10.1080/01621459.1966.10480897}.
+
+\bibitem[\citeproctext]{ref-Manski_1990}
+Manski, Charles F. 1990. {``The Use of Intentions Data to Predict
+Behavior: A Best-Case Analysis.''} \emph{Journal of the American
+Statistical Association} 85 (412): 934--40.
+\url{https://doi.org/10.1080/01621459.1990.10474964}.
+
+\bibitem[\citeproctext]{ref-Manski_2004}
+Manski, Charles F. 2004. {``Measuring Expectations.''}
+\emph{Econometrica} 72 (5): 1329--76.
+\url{https://doi.org/10.1111/j.1468-0262.2004.00537.x}.
 
 \bibitem[\citeproctext]{ref-Marshall_2002}
 Marshall, Pablo, and Eric T. Bradlow. 2002. {``A Unified Approach to
@@ -2029,6 +2405,10 @@ That Result in {SDR} and {SADR}: Separated (Adaptive) Dual Response.''}
 Train, Kenneth E. 2001. \emph{A Comparison of Hierarchical {Bayes} and
 Maximum Simulated Likelihood for Mixed Logit}. Working Paper. University
 of California, Berkeley.
+
+\bibitem[\citeproctext]{ref-Train_2009}
+Train, Kenneth E. 2009. \emph{Discrete Choice Methods with Simulation}.
+2nd ed. Cambridge University Press.
 
 \bibitem[\citeproctext]{ref-Vehtari_2017}
 Vehtari, Aki, Andrew Gelman, and Jonah Gabry. 2017. {``Practical
