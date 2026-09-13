@@ -178,9 +178,9 @@
 \newcommand*\listoflistings{\listof{codelisting}{List of Listings}}
 \usepackage{amsthm}
 \theoremstyle{plain}
-\newtheorem{lemma}{Lemma}[section]
-\theoremstyle{plain}
 \newtheorem{proposition}{Proposition}[section]
+\theoremstyle{plain}
+\newtheorem{lemma}{Lemma}[section]
 \theoremstyle{remark}
 \AtBeginDocument{\renewcommand*{\proofname}{Proof}}
 \newtheorem*{remark}{Remark}
@@ -1214,8 +1214,8 @@ heterogeneity, and the same attribute scheme.
 \subsection{Parameter Recovery and Identification}\label{sec-sim-agg}
 
 \textbf{Aggregate.} Three parameter configurations per link, each
-simulated once at 20\{,\}000 tasks and estimated by maximum likelihood:
-in every case the true parameter vector lies inside the 95\%
+simulated once at 20,000 tasks and estimated by maximum likelihood: in
+every case the true parameter vector lies inside the 95\%
 likelihood-ratio confidence region, the observed information is strongly
 positive definite, and the probability-scale cut points of Model A
 recover to within a percentage point (e.g., a true \(\alpha_1 = 0.02\)
@@ -1225,7 +1225,10 @@ link at \(n = 5{,}000\), no parameter shows significant bias (max
 \(|t| = 2.05\) over 18 tests) and model-based standard errors match the
 empirical sampling variation (mean calibration ratio 1.008); quadrupling
 \(n\) shrinks the largest observed bias in proportion, as \(O(1/n)\)
-requires.
+requires. The accompanying notebook
+\href{notebooks/model-a-recovery.qmd}{Simulating and Estimating Model A}
+works one of these configurations end to end, from the behavioral draws
+through the likelihood to the recovered probability-scale cut points.
 
 \textbf{The identification condition is sharp.} Appending an intercept
 --- the canonical violation of Proposition~\ref{prp-ident} --- makes the
@@ -1925,8 +1928,8 @@ conjugate normal and inverse-Wishart conditionals. Priors:
 \(\mathcal{N}(0, 100 I)\) on the transformed cut points. Step sizes are
 initialized at \(2.93/\sqrt{\dim}\) and adapted only during burn-in
 toward acceptance rates of \(0.23\) (individual blocks) and \(0.30\)
-(cut-point block). Unless noted, we run 30\{,\}000 iterations, discard
-10\{,\}000, and keep every 10th draw.
+(cut-point block). Unless noted, we run 30,000 iterations, discard
+10,000, and keep every 10th draw.
 
 The sampler was validated four ways (replication code accompanies the
 paper): parameter recovery on synthetic panels for both links;

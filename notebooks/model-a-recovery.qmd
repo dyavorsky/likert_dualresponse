@@ -1,0 +1,490 @@
+---
+title: "Simulating and Estimating the Ordinal Dual-Response Model"
+subtitle: "Model A, homogeneous preferences"
+author:
+  - name: Dan Yavorsky
+  - name: Geoffery Zheng
+date: last-modified
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    code-fold: false
+execute:
+  warning: false
+  message: false
+---
+
+## What this notebook does
+
+This notebook walks through the aggregate Model A results reported under
+**Parameter Recovery and Identification** in the paper's simulation study. It
+does three things:
+
+1. simulates ordinal dual-response data from the *behavioral process*, meaning
+   raw Gumbel utility draws and the two reporting rules, never from the
+   likelihood we are trying to validate;
+2. writes out the joint likelihood and maximizes it;
+3. checks that the parameters come back, and that the identification condition
+   fails exactly where the theory says it should.
+
+Everything is self-contained. The functions below are deliberate copies of the
+ones in `R/lib/dgp.R` and `R/lib/likelihood.R`, unrolled and commented so the
+mechanics are visible. The production versions in the replication archive are
+the same calculations with more error checking and tail-stable arithmetic.
+
+The point of simulating behaviorally rather than from the closed form deserves
+emphasis. If we drew responses from `alpha_w^S - alpha_{w-1}^S` and then fit
+`alpha_w^S - alpha_{w-1}^S`, recovery would confirm only that `optim` works. By
+drawing utilities, taking an argmax, and applying the reporting rule, recovery
+tests the derivation itself: the claim that the maximum of Gumbel utilities is
+Gumbel with location equal to the log-sum inclusive value, and that it is
+independent of which alternative attained it.
+
+```{r}
+#| label: setup
+set.seed(1)
+options(digits = 5)
+```
+
+## 1. The model in one screen
+
+A consumer faces $J$ profiles. Profile $j$ carries attributes $x_j$ and utility
+
+$$
+u_j = x_j'\beta + \varepsilon_j, \qquad \varepsilon_j \sim \text{Gumbel}(0, 1) \text{ iid}.
+$$
+
+**First response.** She is asked which she prefers and picks the best one,
+$j^* = \arg\max_j u_j$. This is the usual multinomial logit.
+
+**Second response.** She is asked how likely she is to buy it. She knows
+everything about the profiles on screen, but not her valuation of the outside
+good $\eta_0 \sim \text{Gumbel}(0,1)$. So what she holds is not a decision but a
+probability,
+
+$$
+p = \Pr(\eta_0 < u^* \mid u^*) = F(u^*), \qquad u^* = \max_j u_j,
+$$
+
+where $F(z) = \exp(-e^{-z})$ is the standard Gumbel CDF.
+
+**Model A** says she reports the interval containing that probability. Given cut
+points $0 = \alpha_0 < \alpha_1 < \cdots < \alpha_{W-1} < \alpha_W = 1$ on the
+probability scale,
+
+$$
+y = w \iff p \in [\alpha_{w-1}, \alpha_w).
+$$
+
+From the researcher's seat $u^*$ is random. The key lemma is that
+$u^* \sim \text{Gumbel}(\overline{\mu}, 1)$ with $\overline{\mu} = \ln S$ and
+$S = \sum_j e^{V_j}$, and that $u^*$ is independent of $j^*$. Evaluating that
+CDF at $F^{-1}(\alpha)$ collapses to a power, which gives the whole second-stage
+likelihood:
+
+$$
+\Pr(y = w) = \alpha_w^{\,S} - \alpha_{w-1}^{\,S}.
+$$
+
+Equivalently, from the researcher's perspective the consumer's purchase
+probability is $\text{Beta}(S, 1)$ distributed, with the inclusive value as its
+only shape parameter.
+
+## 2. A design
+
+Two three-level attributes, dummy coded against a reference level, plus a
+continuous price-like attribute. Five columns, no intercept. The absence of an
+intercept is not cosmetic, as Section 9 below shows.
+
+```{r}
+#| label: design
+make_design <- function(n_tasks, J, seed, intercept = FALSE) {
+  set.seed(seed)
+  n_rows <- n_tasks * J
+  a     <- sample(1:3, n_rows, replace = TRUE)
+  b     <- sample(1:3, n_rows, replace = TRUE)
+  price <- runif(n_rows, 0.5, 2.5)
+  X <- cbind(
+    a2    = as.numeric(a == 2),
+    a3    = as.numeric(a == 3),
+    b2    = as.numeric(b == 2),
+    b3    = as.numeric(b == 3),
+    price = price
+  )
+  if (intercept) X <- cbind(X, const = 1)
+  list(X = X, n_tasks = n_tasks, J = J, P = ncol(X))
+}
+
+N_TASKS <- 20000   # matches the paper's aggregate experiments
+J       <- 4
+W       <- 5       # a five-point purchase-likelihood scale
+
+design <- make_design(N_TASKS, J, seed = 101)
+head(design$X, 8)
+```
+
+Rows are stacked task-major: rows 1 to 4 are the four profiles of task 1, rows
+5 to 8 are task 2, and so on.
+
+## 3. True parameters
+
+The scale labels are set on the probability scale, which is what makes Model A
+interpretable: $\alpha_1 = 0.10$ says that answering "1" means a purchase
+probability below ten percent.
+
+```{r}
+#| label: truth
+beta_true  <- c(a2 = 0.8, a3 = -0.5, b2 = 0.4, b3 = 1.0, price = -0.9)
+alpha_true <- c(0.10, 0.30, 0.60, 0.85)
+
+# Cut points live on the utility scale internally. F^{-1}(a) = -log(-log a).
+alpha_to_cut <- function(a) -log(-log(a))
+cut_true <- alpha_to_cut(alpha_true)
+
+rbind(alpha = alpha_true, cut = cut_true)
+```
+
+## 4. Simulate the behavioral process
+
+Nothing here uses the likelihood. We draw utilities, take the argmax, convert the
+winning utility into the consumer's purchase probability, and bin it.
+
+```{r}
+#| label: simulate
+rgumbel <- function(n) -log(-log(runif(n)))
+
+simulate_modelA <- function(design, beta, cut, seed) {
+  set.seed(seed)
+  n <- design$n_tasks
+  J <- design$J
+
+  # Deterministic utilities, reshaped to one row per task.
+  V <- matrix(design$X %*% beta, nrow = n, ncol = J, byrow = TRUE)
+
+  # Add iid Gumbel noise: this is the consumer's single, internally
+  # consistent utility draw for the task.
+  u <- V + matrix(rgumbel(n * J), n, J)
+
+  # First response: which profile is best.
+  jstar <- max.col(u, ties.method = "first")
+
+  # The utility she actually attains.
+  ustar <- u[cbind(seq_len(n), jstar)]
+
+  # Model A: she reports the interval holding p = F(ustar). Binning p against
+  # alpha is the same as binning ustar against cut, since F is increasing.
+  y <- findInterval(ustar, cut) + 1L
+
+  list(design = design, jstar = jstar, y = y, W = length(cut) + 1L,
+       ustar = ustar, V = V)
+}
+
+dat <- simulate_modelA(design, beta_true, cut_true, seed = 501)
+```
+
+### What the two responses look like
+
+```{r}
+#| label: responses
+rbind(
+  `first response (chosen profile)` = table(dat$jstar) / N_TASKS,
+  `second response (scale point)`   = table(dat$y)     / N_TASKS
+)
+```
+
+The first response is roughly uniform because the design randomizes attributes
+across positions. The second response is not, and its shape is what the cut
+points control.
+
+### The lemma is visible in the simulated data
+
+Two claims underlie the whole factorization. Both can be read straight off the
+draws, before any estimation.
+
+```{r}
+#| label: lemma-check
+S     <- rowSums(exp(dat$V))
+mubar <- log(S)
+
+# (i) ustar is Gumbel(mubar, 1). Standardize and compare to a standard Gumbel.
+z <- dat$ustar - mubar
+cat("mean of standardized ustar:", round(mean(z), 4),
+    " (Euler-Mascheroni = 0.5772)\n")
+cat("sd   of standardized ustar:", round(sd(z), 4),
+    " (pi/sqrt(6) = 1.2825)\n")
+cat("KS test vs standard Gumbel, p =",
+    round(ks.test(sample(z, 5000), function(q) exp(-exp(-q)))$p.value, 3), "\n")
+
+# (ii) ustar is independent of jstar: the distribution of the standardized
+# maximum should not depend on which profile won.
+round(tapply(z, dat$jstar, mean), 4)
+
+# Test it rather than eyeball it. Under independence the four groups share a
+# distribution, so a Kruskal-Wallis test should not reject.
+kruskal.test(z, factor(dat$jstar))
+```
+
+The group means sit within sampling error of one another and the test does not
+reject. That independence is what lets the joint likelihood factor into a choice
+term and an ordinal term, and it is the part of the lemma that is easiest to
+doubt: it says a consumer who picked profile 3 is no more or less enthusiastic,
+on average, than one who picked profile 1.
+
+## 5. The likelihood
+
+The joint probability of one task is the product of the two pieces:
+
+$$
+\underbrace{\frac{e^{V_{j^*}}}{S}}_{\text{first response}}
+\times
+\underbrace{\left( \alpha_{y}^{\,S} - \alpha_{y-1}^{\,S} \right)}_{\text{second response}}.
+$$
+
+We optimize over an unconstrained parameterization that keeps the cut points
+ordered by construction: the first cut point free, then the logs of successive
+gaps.
+
+```{r}
+#| label: likelihood
+par_to_cut <- function(par, P, W) {
+  if (W == 2) return(par[P + 1])
+  par[P + 1] + c(0, cumsum(exp(par[(P + 2):(P + W - 1)])))
+}
+cut_to_par <- function(cut) c(cut[1], log(diff(cut)))
+
+negloglik <- function(par, dat) {
+  design <- dat$design
+  P <- design$P; W <- dat$W
+  n <- design$n_tasks; J <- design$J
+
+  beta <- par[1:P]
+  cut  <- par_to_cut(par, P, W)
+
+  V     <- matrix(design$X %*% beta, nrow = n, ncol = J, byrow = TRUE)
+  m     <- do.call(pmax, as.data.frame(V))     # row maxima, for stability
+  logS  <- m + log(rowSums(exp(V - m)))        # log inclusive value
+
+  # First response: multinomial logit log-probability of the chosen profile.
+  ll_choice <- V[cbind(seq_len(n), dat$jstar)] - logS
+
+  # Second response: difference of Gumbel CDFs at the standardized cut points.
+  caug <- c(-Inf, cut, Inf)
+  lo <- caug[dat$y]      - logS
+  hi <- caug[dat$y + 1L] - logS
+  p_ord <- exp(-exp(-hi)) - exp(-exp(-lo))
+
+  -(sum(ll_choice) + sum(log(pmax(p_ord, 1e-312))))
+}
+```
+
+A note on that second-response line. Writing it as a plain difference of two
+`exp(-exp(-z))` terms is clear but loses precision when both cut points sit far
+into a tail and the two CDFs nearly cancel. The production code uses the
+algebraically equivalent but numerically stable rearrangement
+$e^{-e^{-h}}\left(1 - e^{-(e^{-l} - e^{-h})}\right)$. At the parameter values
+here the difference is invisible; in the stress configurations of the paper it
+is not.
+
+## 6. Estimate
+
+Starting values: $\beta = 0$, and cut points backed out of the observed category
+frequencies through the link. No knowledge of the truth goes in.
+
+```{r}
+#| label: fit
+fit_modelA <- function(dat) {
+  P <- dat$design$P; W <- dat$W
+
+  freq <- tabulate(dat$y, nbins = W)
+  cumq <- cumsum(freq)[1:(W - 1)] / sum(freq)
+  cut0 <- log(dat$design$J) + alpha_to_cut(cumq)
+  start <- c(rep(0, P), cut_to_par(cut0))
+
+  fn  <- function(p) negloglik(p, dat)
+  opt <- optim(start, fn, method = "BFGS",
+               control = list(maxit = 1000, reltol = 1e-12))
+  H   <- optimHess(opt$par, fn)      # observed information
+  Vc  <- solve(H)
+
+  cut_hat <- par_to_cut(opt$par, P, W)
+
+  # Delta method for the cut points, which are a nonlinear function of the
+  # working parameters.
+  Jc <- matrix(0, W - 1, length(opt$par))
+  Jc[, P + 1] <- 1
+  if (W > 2) {
+    d <- exp(opt$par[(P + 2):(P + W - 1)])
+    for (w in 2:(W - 1)) Jc[w, (P + 2):(P + w)] <- d[1:(w - 1)]
+  }
+
+  list(beta = opt$par[1:P], se_beta = sqrt(diag(Vc)[1:P]),
+       cut = cut_hat, se_cut = sqrt(diag(Jc %*% Vc %*% t(Jc))),
+       nll = opt$value, convergence = opt$convergence,
+       eigen = eigen(H, symmetric = TRUE, only.values = TRUE)$values,
+       par = opt$par)
+}
+
+fit <- fit_modelA(dat)
+cat("converged:", fit$convergence == 0, "\n")
+```
+
+## 7. Did the parameters come back?
+
+```{r}
+#| label: recovery
+recovery <- data.frame(
+  parameter = c(names(beta_true), paste0("c", 1:(W - 1))),
+  truth     = c(beta_true, cut_true),
+  estimate  = c(fit$beta, fit$cut),
+  std_error = c(fit$se_beta, fit$se_cut)
+)
+recovery$z <- (recovery$estimate - recovery$truth) / recovery$std_error
+knitr::kable(recovery, digits = 4)
+```
+
+Every $z$ statistic is small. With nine parameters we would expect roughly one
+value above two in absolute terms about forty percent of the time, so a table
+with none is unremarkable rather than suspicious.
+
+### The cut points on the probability scale
+
+This is where Model A pays off. Pushing the estimated cut points back through
+the link turns scale labels into purchase probabilities, with standard errors.
+
+```{r}
+#| label: alpha
+alpha_hat <- exp(-exp(-fit$cut))
+se_alpha  <- fit$se_cut * alpha_hat * (-log(alpha_hat))   # delta method
+
+knitr::kable(
+  data.frame(
+    label      = paste("answer", 1:(W - 1), "or below"),
+    alpha_true = alpha_true,
+    alpha_hat  = alpha_hat,
+    std_error  = se_alpha
+  ), digits = 4)
+```
+
+A respondent choosing the top box is saying her purchase probability exceeds
+`r sprintf("%.3f", alpha_hat[4])`, and we can attach a standard error to that
+statement. This is the quantity that dichotomizing the scale throws away and that
+assigning fixed probabilities to scale points gets wrong, because the meaning of
+a label depends on what was on the screen.
+
+## 8. Diagnostics
+
+**Is the truth inside the confidence region?** Compare twice the
+log-likelihood gap between the truth and the MLE against a $\chi^2_9$ critical
+value.
+
+```{r}
+#| label: lrtest
+nll_truth <- negloglik(c(beta_true, cut_to_par(cut_true)), dat)
+lr   <- 2 * (nll_truth - fit$nll)
+npar <- length(fit$par)
+cat(sprintf("LR statistic %.2f vs chi-square(%d) 95%% critical value %.2f -> %s\n",
+            lr, npar, qchisq(0.95, npar),
+            ifelse(lr < qchisq(0.95, npar), "inside the region", "OUTSIDE")))
+```
+
+**Is the information matrix well conditioned?** A strongly positive definite
+Hessian is the numerical face of identification.
+
+```{r}
+#| label: eigen
+cat("smallest eigenvalue:", format(min(fit$eigen), digits = 4), "\n")
+cat("condition number:   ", format(max(fit$eigen) / min(fit$eigen), digits = 4), "\n")
+```
+
+## 9. The identification condition, and how it fails
+
+The paper's identification result requires $[X, \iota]$ to have full column rank
+$P + 1$. The canonical violation is a constant common to every inside good: an
+intercept. Adding one leaves the model's *probabilities* unchanged, because
+shifting every $V_j$ by $\delta$ shifts $\overline{\mu}$ by exactly $\delta$,
+which the cut points absorb one for one. What breaks is the ability to separate
+the two.
+
+```{r}
+#| label: ident-fail
+id_rank_check <- function(X) {
+  aug <- cbind(X, 1)
+  list(rank = qr(aug)$rank, required = ncol(aug))
+}
+
+cat("without intercept: "); print(unlist(id_rank_check(design$X)))
+design_bad <- make_design(N_TASKS, J, seed = 101, intercept = TRUE)
+cat("with intercept:    "); print(unlist(id_rank_check(design_bad$X)))
+```
+
+The rank check fails. Now fit the over-parameterized model from two different
+starting points.
+
+```{r}
+#| label: ident-ridge
+dat_bad <- dat
+dat_bad$design <- design_bad
+
+fit_from <- function(start_const) {
+  P <- design_bad$P
+  start <- c(rep(0, P - 1), start_const, cut_to_par(cut_true + start_const))
+  opt <- optim(start, function(p) negloglik(p, dat_bad), method = "BFGS",
+               control = list(maxit = 2000, reltol = 1e-12))
+  list(beta = opt$par[1:P], cut = par_to_cut(opt$par, P, W), nll = opt$value)
+}
+
+f1 <- fit_from(-1.0)
+f2 <- fit_from( 1.0)
+
+cat(sprintf("negative log-likelihood from start 1: %.4f\n", f1$nll))
+cat(sprintf("negative log-likelihood from start 2: %.4f\n", f2$nll))
+cat(sprintf("difference: %.6f\n\n", abs(f1$nll - f2$nll)))
+
+comparison <- data.frame(
+  quantity = c(names(beta_true), "intercept", paste0("c", 1:(W - 1))),
+  from_start_1 = c(f1$beta, f1$cut),
+  from_start_2 = c(f2$beta, f2$cut)
+)
+knitr::kable(comparison, digits = 4)
+```
+
+Identical fit, different answers. The intercept and the cut points wander along a
+flat ridge. But the *identified* combinations are pinned down:
+
+```{r}
+#| label: ident-identified
+P <- design_bad$P
+identified <- data.frame(
+  quantity = c(names(beta_true), paste0("c", 1:(W - 1), " - intercept")),
+  truth        = c(beta_true, cut_true),
+  from_start_1 = c(f1$beta[1:(P - 1)], f1$cut - f1$beta[P]),
+  from_start_2 = c(f2$beta[1:(P - 1)], f2$cut - f2$beta[P])
+)
+knitr::kable(identified, digits = 4)
+```
+
+The non-constant coefficients and the differences $c_w - \beta_{\text{const}}$
+agree with the truth and with each other. This is what the proposition claims:
+the model is identified up to that one location, and the design condition rules
+it out.
+
+## 10. Where this sits in the paper
+
+The numbers above are the Model A, moderate-configuration row of the aggregate
+recovery results, generated with the same seeds as the production script. The
+full program in the replication archive extends this in directions the notebook
+does not: three parameter configurations per link rather than one, Model B
+alongside Model A, repeated sampling across forty independent datasets to check
+bias and standard-error calibration, and a direct test that the joint
+distribution of the two responses factors.
+
+The scripts, in the order this notebook touches them:
+
+| file | what it holds |
+|---|---|
+| `R/lib/dgp.R` | designs and behavioral simulators |
+| `R/lib/likelihood.R` | the joint likelihood and the MLE fitter |
+| `R/homogeneous/identification_test.R` | recovery, the intercept negative control, the factorization check |
+| `R/homogeneous/replication_study.R` | repeated-sampling bias and calibration |
+| `R/apollo/compare_apollo.R` | the same model estimated in Apollo, as an independent check |
