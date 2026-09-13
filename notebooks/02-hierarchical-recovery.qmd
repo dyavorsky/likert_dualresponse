@@ -1,0 +1,741 @@
+---
+title: "The Hierarchical Sampler"
+subtitle: "Recovery, posterior calibration, and two independent cross-checks"
+author:
+  - name: Dan Yavorsky
+  - name: Geoffery Zheng
+date: last-modified
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    code-fold: false
+execute:
+  warning: false
+  message: false
+---
+
+## What this notebook does
+
+Notebook 01 established that the aggregate estimator works. This one does the
+same for the hierarchical Bayesian estimator, which is the one a practitioner
+actually runs, and which has more ways to go quietly wrong.
+
+Five checks, in increasing order of how much they would embarrass us:
+
+1. **Recovery.** Do population means, covariances, and cut points come back on
+   synthetic panels, for both links?
+2. **Calibration.** Do the posterior intervals mean what they say? A sampler can
+   recover point estimates and still lie about uncertainty.
+3. **Cross-check against an independent implementation.** The forced-choice-only
+   special case of our sampler is an ordinary hierarchical MNL, which `bayesm`
+   has estimated for two decades. On identical data, do we agree?
+4. **The degenerate case.** With no heterogeneity in the data, does the
+   hierarchical posterior collapse toward the aggregate MLE?
+5. **Marginal likelihood.** How optimistic is the Newton-Raftery estimator that
+   this literature reports, measured against bridge sampling?
+
+Checks 1 through 4 back **Parameter Recovery and Identification** in the
+simulation study. Check 5 backs the marginal-likelihood appendix.
+
+This notebook is the source of `hb_coverage.rds` and `hb_validation.rds`.
+
+::: {.callout-note}
+## On the bayesm comparison
+
+An earlier version of this cross-check ran against a local fork of `bayesm`
+with a modified `lgtdata` format, and set no seed. It was therefore not
+reproducible by anyone else, including us. The version below uses stock CRAN
+`bayesm` with its standard data layout and an explicit seed, so the number it
+reports can be checked by a reader.
+:::
+
+```{r}
+#| label: setup
+set.seed(1)
+options(digits = 5)
+stopifnot(requireNamespace("bayesm", quietly = TRUE))
+```
+
+## 1. The model
+
+Each respondent $i$ has her own taste vector, drawn from a population
+distribution:
+
+$$
+\bfbeta_i \sim \mathcal{N}\left( \betabar, \Sigma \right).
+$$
+
+Conditional on $\bfbeta_i$, each of her $T$ tasks generates the same two
+responses as before: a forced choice among $J$ profiles, and an ordinal purchase
+report read off the task's inclusive value. The cut points are common across
+respondents here; the heterogeneous-cut extension is exercised in notebook 05.
+
+The sampler is random-walk Metropolis within Gibbs, three blocks per iteration:
+
+1. every respondent's $\bfbeta_i$ proposed at once, with covariance
+   $s_i^2 \Sigma$, accepted or rejected individually;
+2. the common cut-point block, proposed on an unconstrained scale that keeps the
+   cut points ordered by construction;
+3. the population moments $\left( \betabar, \Sigma \right)$, drawn from their
+   conjugate normal and inverse-Wishart conditionals.
+
+Step sizes adapt toward target acceptance rates during burn-in only, so the
+kept draws come from a fixed transition kernel.
+
+## 2. Machinery
+
+Copies of `R/lib/dgp.R`, `R/lib/likelihood.R`, `R/hierarchical/dgp_panel.R` and
+`R/hierarchical/hb.R`. Folded because it is long, not because it is
+uninteresting: the sampler is the object under test.
+
+```{r}
+#| label: machinery
+#| code-fold: true
+#| code-summary: "Designs, the behavioral panel simulator, and the sampler"
+
+# ---- designs and shocks (R/lib/dgp.R) --------------------------------------
+rgumbel <- function(n) -log(-log(runif(n)))
+
+make_design <- function(n_tasks, J, seed, intercept = FALSE) {
+  set.seed(seed)
+  n_rows <- n_tasks * J
+  a <- sample(1:3, n_rows, replace = TRUE)
+  b <- sample(1:3, n_rows, replace = TRUE)
+  price <- runif(n_rows, 0.5, 2.5)
+  X <- cbind(a2 = as.numeric(a == 2), a3 = as.numeric(a == 3),
+             b2 = as.numeric(b == 2), b3 = as.numeric(b == 3), price = price)
+  if (intercept) X <- cbind(X, const = 1)
+  list(X = X, n_tasks = n_tasks, J = J, P = ncol(X))
+}
+
+make_panel_design <- function(N, T_tasks, J, seed, intercept = FALSE) {
+  des <- make_design(N * T_tasks, J, seed = seed, intercept = intercept)
+  des$N <- N
+  des$T_tasks <- T_tasks
+  des$resp <- rep(seq_len(N), each = T_tasks)
+  des$resp_row <- rep(des$resp, each = J)
+  des
+}
+
+# ---- cut-point parameterization and link (R/lib/likelihood.R) --------------
+par_to_cut <- function(par, P, W) {
+  if (W == 2) return(par[P + 1])
+  par[P + 1] + c(0, cumsum(exp(par[(P + 2):(P + W - 1)])))
+}
+cut_to_par <- function(cut) if (length(cut) == 1) cut else c(cut[1], log(diff(cut)))
+row_max <- function(M) do.call(pmax, as.data.frame(M))
+
+ord_prob_z <- function(lo, hi, model) {
+  if (model == "B") {
+    plogis(hi) * plogis(-lo) * (-expm1(lo - hi))
+  } else {
+    ea <- exp(-lo); eb <- exp(-hi)
+    p <- exp(-eb) * (-expm1(-(ea - eb)))
+    p[!is.finite(eb)] <- 0
+    p
+  }
+}
+ord_prob <- function(mubar, cut, y, model) {
+  caug <- c(-Inf, cut, Inf)
+  ord_prob_z(caug[y] - mubar, caug[y + 1L] - mubar, model)
+}
+
+negloglik <- function(par, dat) {
+  design <- dat$design; P <- design$P; W <- dat$W
+  n <- design$n_tasks; J <- design$J
+  beta <- par[1:P]; cut <- par_to_cut(par, P, W)
+  V <- matrix(design$X %*% beta, nrow = n, ncol = J, byrow = TRUE)
+  m <- row_max(V); logS <- m + log(rowSums(exp(V - m)))
+  ll_choice <- V[cbind(seq_len(n), dat$jstar)] - logS
+  ll_ord <- log(pmax(ord_prob(logS, cut, dat$y, dat$model), 1e-312))
+  -(sum(ll_choice) + sum(ll_ord))
+}
+
+fit_dual_mle <- function(dat, start = NULL) {
+  design <- dat$design; P <- design$P; W <- dat$W
+  if (is.null(start)) {
+    freq <- tabulate(dat$y, nbins = W)
+    cumq <- pmin(pmax(cumsum(freq)[1:(W - 1)] / sum(freq), 1e-4), 1 - 1e-4)
+    ginv <- if (dat$model == "B") qlogis else function(q) -log(-log(q))
+    cut0 <- log(design$J) + ginv(cumq)
+    if (W > 2) for (k in 2:(W - 1)) cut0[k] <- max(cut0[k], cut0[k - 1] + 1e-3)
+    start <- c(rep(0, P), cut_to_par(cut0))
+  }
+  fn <- function(p) negloglik(p, dat)
+  opt <- optim(start, fn, method = "BFGS", control = list(maxit = 1000, reltol = 1e-12))
+  list(beta = opt$par[1:P], cut = par_to_cut(opt$par, P, W),
+       nll = opt$value, par = opt$par)
+}
+
+# ---- panel simulation (R/hierarchical/dgp_panel.R) -------------------------
+draw_betas <- function(N, beta_bar, Sigma, seed) {
+  set.seed(seed)
+  P <- length(beta_bar)
+  Z <- matrix(rnorm(N * P), N, P)
+  sweep(Z %*% chol(Sigma), 2, beta_bar, "+")
+}
+
+simulate_dual_hb <- function(design, Bmat, cut, model = c("A", "B"), seed,
+                             shock = c("gumbel", "normal")) {
+  model <- match.arg(model); shock <- match.arg(shock)
+  set.seed(seed)
+  n <- design$n_tasks; J <- design$J; N <- design$N
+  cutmat <- if (is.matrix(cut)) cut else matrix(cut, N, length(cut), byrow = TRUE)
+  W <- ncol(cutmat) + 1L
+  Bx <- Bmat[design$resp_row, , drop = FALSE]
+  V <- matrix(rowSums(design$X * Bx), nrow = n, ncol = J, byrow = TRUE)
+  eta <- if (shock == "gumbel") rgumbel(n * J) else rnorm(n * J, sd = pi / sqrt(6))
+  u <- V + matrix(eta, n, J)
+  jstar <- max.col(u, ties.method = "first")
+  ustar <- u[cbind(seq_len(n), jstar)]
+  latent <- if (model == "A") ustar else ustar - rgumbel(n)
+  eff_cut <- cutmat[design$resp, , drop = FALSE]
+  y <- 1L + rowSums(latent >= eff_cut)
+  list(design = design, resp = design$resp, resp_row = design$resp_row,
+       N = N, jstar = jstar, y = as.integer(y), W = W, model = model,
+       Bmat_true = Bmat, cut_true = cut)
+}
+
+# ---- the sampler (R/hierarchical/hb.R) -------------------------------------
+phi_to_cutmat <- function(Phi, P, W) {
+  c1 <- Phi[, P + 1]
+  if (W == 2) return(matrix(c1, ncol = 1))
+  D <- exp(Phi[, (P + 2):(P + W - 1), drop = FALSE])
+  cutmat <- matrix(0, nrow(Phi), W - 1)
+  cutmat[, 1] <- c1
+  for (w in 2:(W - 1)) cutmat[, w] <- cutmat[, w - 1] + D[, w - 1]
+  cutmat
+}
+
+# N-vector of per-respondent joint log-likelihoods. Vectorized over the whole
+# panel: this is what makes the all-respondents-at-once MH step affordable.
+resp_loglik_all <- function(dat, Bmat, cutmat, choice_only = FALSE) {
+  des <- dat$design; n <- des$n_tasks; J <- des$J
+  Bx <- Bmat[dat$resp_row, , drop = FALSE]
+  V <- matrix(rowSums(des$X * Bx), nrow = n, ncol = J, byrow = TRUE)
+  m <- row_max(V); logS <- m + log(rowSums(exp(V - m)))
+  ll <- V[cbind(seq_len(n), dat$jstar)] - logS
+  if (!choice_only) {
+    cut_aug <- cbind(-Inf, cutmat, Inf)
+    lo <- cut_aug[cbind(dat$resp, dat$y)] - logS
+    hi <- cut_aug[cbind(dat$resp, dat$y + 1L)] - logS
+    ll <- ll + log(pmax(ord_prob_z(lo, hi, dat$model), 1e-312))
+  }
+  as.numeric(rowsum(ll, dat$resp, reorder = TRUE))
+}
+
+default_hb_priors <- function(dim_phi) {
+  list(phibar0 = rep(0, dim_phi), A = 1 / 100,
+       nu = dim_phi + 3, V0 = (dim_phi + 3) * diag(dim_phi),
+       zeta_prec = 1 / 100)
+}
+
+draw_phibar <- function(Phi, Sigma, priors) {
+  N <- nrow(Phi)
+  Sinv <- chol2inv(chol(Sigma))
+  prec <- N * Sinv + priors$A * diag(ncol(Phi))
+  Vb <- chol2inv(chol(prec))
+  m <- Vb %*% (Sinv %*% (N * colMeans(Phi)) + priors$A * priors$phibar0)
+  as.numeric(m + t(chol(Vb)) %*% rnorm(ncol(Phi)))
+}
+
+draw_sigma <- function(Phi, phibar, priors) {
+  R <- sweep(Phi, 2, phibar)
+  Vn <- priors$V0 + crossprod(R)
+  nun <- priors$nu + nrow(Phi)
+  Winv <- chol2inv(chol(Vn))
+  Wdraw <- rWishart(1, df = nun, Sigma = Winv)[, , 1]
+  chol2inv(chol(Wdraw))
+}
+
+fit_dual_hb <- function(dat, mcmc = list(R = 30000, burn = 10000, thin = 10),
+                        het_cut = FALSE, choice_only = FALSE, priors = NULL,
+                        keep_phi = TRUE, seed = NULL, verbose = TRUE) {
+  if (!is.null(seed)) set.seed(seed)
+  des <- dat$design; N <- dat$N; P <- des$P; W <- dat$W
+  dim_phi <- if (het_cut) P + W - 1 else P
+  if (is.null(priors)) priors <- default_hb_priors(dim_phi)
+  R_iter <- mcmc$R; burn <- mcmc$burn; thin <- mcmc$thin
+  nkeep <- floor((R_iter - burn) / thin)
+
+  Phi <- matrix(0, N, dim_phi)
+  freq <- tabulate(dat$y, nbins = W)
+  cumq <- pmin(pmax(cumsum(freq)[1:(W - 1)] / sum(freq), 1e-4), 1 - 1e-4)
+  ginv <- if (dat$model == "B") qlogis else function(q) -log(-log(q))
+  cut0 <- log(des$J) + ginv(cumq)
+  if (W > 2) for (k in 2:(W - 1)) cut0[k] <- max(cut0[k], cut0[k - 1] + 1e-3)
+  zeta <- cut_to_par(cut0)
+  if (het_cut) Phi[, (P + 1):(P + W - 1)] <- matrix(zeta, N, W - 1, byrow = TRUE)
+
+  phibar <- colMeans(Phi); Sigma <- diag(dim_phi)
+  cur_cutmat <- if (het_cut) phi_to_cutmat(Phi, P, W)
+                else matrix(par_to_cut(zeta, 0, W), N, W - 1, byrow = TRUE)
+  cur_ll <- resp_loglik_all(dat, Phi[, 1:P, drop = FALSE], cur_cutmat, choice_only)
+
+  s_phi <- rep(2.93 / sqrt(dim_phi), N); acc_phi <- rep(0, N)
+  s_zeta <- 0.05; acc_zeta <- 0; window <- 100
+
+  keep_betabar <- matrix(NA_real_, nkeep, dim_phi)
+  keep_Sigma <- array(NA_real_, c(nkeep, dim_phi, dim_phi))
+  keep_cut <- if (!het_cut && !choice_only) matrix(NA_real_, nkeep, W - 1) else NULL
+  keep_ll <- numeric(nkeep)
+  keep_ll_resp <- matrix(NA_real_, nkeep, N)
+  keep_Phi <- if (keep_phi) array(NA_real_, c(nkeep, N, dim_phi)) else NULL
+
+  t0 <- Sys.time(); ki <- 0
+  for (it in seq_len(R_iter)) {
+    # (1) all respondents at once
+    U <- chol(Sigma)
+    Z <- matrix(rnorm(N * dim_phi), N, dim_phi) %*% U
+    Prop <- Phi + Z * s_phi
+    prop_cutmat <- if (het_cut) phi_to_cutmat(Prop, P, W) else cur_cutmat
+    prop_ll <- resp_loglik_all(dat, Prop[, 1:P, drop = FALSE], prop_cutmat, choice_only)
+    Sinv <- chol2inv(chol(Sigma))
+    dcur <- sweep(Phi, 2, phibar); dprop <- sweep(Prop, 2, phibar)
+    qcur <- rowSums((dcur %*% Sinv) * dcur)
+    qprop <- rowSums((dprop %*% Sinv) * dprop)
+    log_alpha <- (prop_ll - 0.5 * qprop) - (cur_ll - 0.5 * qcur)
+    accept <- log(runif(N)) < log_alpha
+    Phi[accept, ] <- Prop[accept, ]
+    cur_ll[accept] <- prop_ll[accept]
+    if (het_cut && any(accept)) cur_cutmat[accept, ] <- prop_cutmat[accept, , drop = FALSE]
+    acc_phi <- acc_phi + accept
+
+    # (2) common cut block
+    if (!het_cut && !choice_only) {
+      zeta_prop <- zeta + rnorm(W - 1, sd = s_zeta)
+      cut_prop <- matrix(par_to_cut(zeta_prop, 0, W), N, W - 1, byrow = TRUE)
+      ll_prop <- resp_loglik_all(dat, Phi[, 1:P, drop = FALSE], cut_prop, choice_only)
+      lp <- (sum(ll_prop) - 0.5 * priors$zeta_prec * sum(zeta_prop^2)) -
+            (sum(cur_ll) - 0.5 * priors$zeta_prec * sum(zeta^2))
+      if (log(runif(1)) < lp) {
+        zeta <- zeta_prop; cur_cutmat <- cut_prop; cur_ll <- ll_prop
+        acc_zeta <- acc_zeta + 1
+      }
+    }
+
+    # (3) hyperparameters
+    phibar <- draw_phibar(Phi, Sigma, priors)
+    Sigma <- draw_sigma(Phi, phibar, priors)
+
+    if (it <= burn && it %% window == 0) {
+      s_phi <- pmin(pmax(s_phi * exp(1.5 * (acc_phi / window - 0.23)), 0.01), 10)
+      acc_phi <- rep(0, N)
+      if (!het_cut && !choice_only) {
+        s_zeta <- min(max(s_zeta * exp(1.5 * (acc_zeta / window - 0.30)), 1e-3), 2)
+        acc_zeta <- 0
+      }
+    }
+    if (it == burn) { acc_phi <- rep(0, N); acc_zeta <- 0 }
+
+    if (it > burn && (it - burn) %% thin == 0) {
+      ki <- ki + 1
+      keep_betabar[ki, ] <- phibar
+      keep_Sigma[ki, , ] <- Sigma
+      if (!is.null(keep_cut)) keep_cut[ki, ] <- par_to_cut(zeta, 0, W)
+      keep_ll[ki] <- sum(cur_ll)
+      keep_ll_resp[ki, ] <- cur_ll
+      if (keep_phi) keep_Phi[ki, , ] <- Phi
+    }
+  }
+
+  post_iters <- R_iter - burn
+  structure(list(
+    draws = list(phibar = keep_betabar, Sigma = keep_Sigma, cut = keep_cut, Phi = keep_Phi),
+    ll = keep_ll, ll_resp = keep_ll_resp,
+    accept = list(phi = mean(acc_phi / post_iters),
+                  zeta = if (het_cut || choice_only) NA else acc_zeta / post_iters),
+    settings = list(mcmc = mcmc, het_cut = het_cut, choice_only = choice_only,
+                    P = P, W = W, N = N, model = dat$model, priors = priors),
+    runtime_min = as.numeric(difftime(Sys.time(), t0, units = "mins"))
+  ), class = "dr_hb_fit")
+}
+
+hb_beta_i <- function(fit)
+  apply(fit$draws$Phi[, , 1:fit$settings$P, drop = FALSE], c(2, 3), mean)
+
+summary_dr_hb <- function(fit, truth = NULL) {
+  pm <- colMeans(fit$draws$phibar); psd <- apply(fit$draws$phibar, 2, sd)
+  out <- data.frame(param = paste0("phibar", seq_along(pm)), post_mean = pm, post_sd = psd)
+  if (!is.null(fit$draws$cut)) {
+    out <- rbind(out, data.frame(param = paste0("c", seq_len(ncol(fit$draws$cut))),
+                                 post_mean = colMeans(fit$draws$cut),
+                                 post_sd = apply(fit$draws$cut, 2, sd)))
+  }
+  if (!is.null(truth)) { out$truth <- truth; out$z <- (out$post_mean - truth) / out$post_sd }
+  out
+}
+```
+
+```{r}
+#| label: config
+N <- 300; T_tasks <- 12; J <- 4; W <- 5
+beta_bar   <- c(a2 = 0.8, a3 = -0.5, b2 = 0.4, b3 = 1.0, price = -0.9)
+Sigma_true <- diag(c(0.6, 0.6, 0.6, 0.6, 0.3))
+cut_true   <- c(-1.0, 0.2, 1.2, 2.2)
+P <- length(beta_bar)
+MCMC <- list(R = 30000, burn = 10000, thin = 10)
+```
+
+Three hundred respondents, twelve tasks each, which is a commercially realistic
+study rather than an asymptotic fantasy. The heterogeneity is substantial: a
+standard deviation of about 0.77 on coefficients whose means run from 0.4 to 1.0,
+so respondents genuinely differ in sign on some attributes.
+
+## 3. Recovery
+
+```{r}
+#| label: recovery
+out <- list()
+for (model in c("B", "A")) {
+  des <- make_panel_design(N, T_tasks, J, seed = 200 + (model == "A"))
+  B   <- draw_betas(N, beta_bar, Sigma_true, seed = 300 + (model == "A"))
+  dat <- simulate_dual_hb(des, B, cut_true, model = model, seed = 400 + (model == "A"))
+
+  cat(sprintf("\n=== Model %s ===\ncategory shares: %s\n", model,
+              paste(round(tabulate(dat$y, W) / length(dat$y), 3), collapse = " ")))
+
+  fit <- fit_dual_hb(dat, mcmc = MCMC, seed = 500, verbose = FALSE)
+  s <- summary_dr_hb(fit, truth = c(beta_bar, cut_true))
+  print(knitr::kable(s, row.names = FALSE, digits = 3))
+
+  Sig_pm <- apply(fit$draws$Sigma, c(2, 3), mean)
+  cat("posterior mean diag(Sigma):", round(diag(Sig_pm), 3),
+      "| truth:", diag(Sigma_true), "\n")
+  cat(sprintf("acceptance: phi %.2f, cut block %.2f | runtime %.1f min\n",
+              fit$accept$phi, fit$accept$zeta, fit$runtime_min))
+
+  bi <- hb_beta_i(fit)
+  cat(sprintf("individual beta_i posterior-mean RMSE: %.3f (sd of true beta_i: %.3f)\n",
+              sqrt(mean((bi - dat$Bmat_true)^2)), sqrt(mean(diag(Sigma_true)))))
+
+  out[[paste0("recovery_", model)]] <- list(
+    summary = s, Sigma_pm = Sig_pm, accept = fit$accept,
+    runtime = fit$runtime_min, beta_i_rmse = sqrt(mean((bi - dat$Bmat_true)^2)))
+}
+```
+
+The $z$ column is the posterior mean's distance from the truth in posterior
+standard deviations. Values inside about two say the truth sits comfortably
+within the posterior.
+
+Two things worth noting beyond the table. The individual-level RMSE is
+substantially smaller than the population standard deviation, which is the
+hierarchical prior doing its job: twelve tasks alone would not pin down five
+coefficients per person, and shrinkage toward the population mean supplies the
+rest. And the acceptance rates land near their targets of 0.23 and 0.30, which
+is the adaptation working as intended.
+
+## 4. Posterior calibration
+
+Recovery is necessary but not sufficient. A sampler can land on the right answer
+and still report intervals that are systematically too narrow, which would make
+every inference in the paper overconfident.
+
+The check is coverage. Over repeated datasets drawn from fixed true
+hyperparameters, the 50% and 90% central posterior intervals should contain the
+truth about 50% and 90% of the time. This is the lightweight cousin of
+simulation-based calibration; full SBC would draw the truth from the prior, but
+fixed-truth coverage at interior values catches sign errors, scale errors, and
+hierarchy bugs, which is what we are worried about.
+
+```{r}
+#| label: coverage
+REPS_B <- 20
+REPS_A <- 8
+truth <- c(beta_bar, cut_true)
+K <- length(truth)
+MCMC_COV <- list(R = 20000, burn = 8000, thin = 12)
+
+run_reps <- function(model, reps, seed0) {
+  cover50 <- cover90 <- zstats <- matrix(NA, reps, K)
+  for (r in seq_len(reps)) {
+    des <- make_panel_design(N, T_tasks, J, seed = seed0 + 3 * r)
+    B   <- draw_betas(N, beta_bar, Sigma_true, seed = seed0 + 3 * r + 1)
+    dat <- simulate_dual_hb(des, B, cut_true, model = model, seed = seed0 + 3 * r + 2)
+    fit <- fit_dual_hb(dat, mcmc = MCMC_COV, seed = seed0 + r,
+                       verbose = FALSE, keep_phi = FALSE)
+    draws <- cbind(fit$draws$phibar, fit$draws$cut)
+    for (k in seq_len(K)) {
+      q50 <- quantile(draws[, k], c(0.25, 0.75))
+      q90 <- quantile(draws[, k], c(0.05, 0.95))
+      cover50[r, k] <- truth[k] >= q50[1] && truth[k] <= q50[2]
+      cover90[r, k] <- truth[k] >= q90[1] && truth[k] <= q90[2]
+      zstats[r, k]  <- (mean(draws[, k]) - truth[k]) / sd(draws[, k])
+    }
+  }
+  list(cover50 = cover50, cover90 = cover90, z = zstats)
+}
+
+res_B <- run_reps("B", REPS_B, seed0 = 7000)
+res_A <- run_reps("A", REPS_A, seed0 = 9000)
+```
+
+```{r}
+#| label: coverage-report
+cov_tab <- data.frame(
+  model = c("B", "A"),
+  reps  = c(REPS_B, REPS_A),
+  `50% coverage` = c(mean(res_B$cover50), mean(res_A$cover50)),
+  `90% coverage` = c(mean(res_B$cover90), mean(res_A$cover90)),
+  `mean |z|` = c(mean(abs(res_B$z)), mean(abs(res_A$z))),
+  check.names = FALSE)
+knitr::kable(cov_tab, row.names = FALSE, digits = 3)
+```
+
+Nominal is 0.50 and 0.90. The mean $|z|$ should sit near 0.8, the expected
+absolute value of a standard normal, if the posteriors are honest.
+
+Per-parameter, so that a single badly behaved coordinate cannot hide inside an
+average:
+
+```{r}
+#| label: coverage-byparam
+knitr::kable(
+  data.frame(parameter = c(names(beta_bar), paste0("c", 1:4)),
+             `B: 90%` = round(colMeans(res_B$cover90), 2),
+             `A: 90%` = round(colMeans(res_A$cover90), 2),
+             check.names = FALSE),
+  row.names = FALSE)
+```
+
+## 5. Cross-check against bayesm
+
+Everything so far tests our sampler against our own simulator. A coding error
+shared between them would pass every check above. So here the sampler is run in
+a mode where an independent implementation exists.
+
+Setting `choice_only = TRUE` drops the ordinal stage, leaving an ordinary
+hierarchical multinomial logit. That is exactly what `bayesm`'s
+`rhierMnlRwMixture` estimates. Same data, two implementations written by
+different people years apart.
+
+```{r}
+#| label: bayesm-data
+des <- make_panel_design(N, T_tasks, J, seed = 210)
+B   <- draw_betas(N, beta_bar, Sigma_true, seed = 310)
+dat <- simulate_dual_hb(des, B, cut_true, model = "B", seed = 410)
+
+fit_co  <- fit_dual_hb(dat, mcmc = MCMC, choice_only = TRUE, seed = 510, verbose = FALSE)
+ours_mu  <- colMeans(fit_co$draws$phibar)
+ours_Sig <- diag(apply(fit_co$draws$Sigma, c(2, 3), mean))
+```
+
+`bayesm` wants one row block per task, stacked, with the number of alternatives
+given separately.
+
+```{r}
+#| label: bayesm-fit
+lgtdata <- lapply(seq_len(N), function(i) {
+  tasks <- which(des$resp == i)
+  Xs <- do.call(rbind, lapply(tasks, function(t)
+    des$X[((t - 1) * J + 1):(t * J), , drop = FALSE]))
+  list(y = dat$jstar[tasks], X = Xs)
+})
+
+set.seed(20260913)   # explicit, so this comparison is reproducible
+invisible(capture.output(
+  bm <- bayesm::rhierMnlRwMixture(
+    Data  = list(p = J, lgtdata = lgtdata),
+    Prior = list(ncomp = 1),
+    Mcmc  = list(R = 30000, keep = 10, nprint = 0))
+))
+
+keep_idx  <- seq(1001, 3000)            # drop the first third as burn-in
+mu_draws  <- t(vapply(keep_idx, function(r) bm$nmix$compdraw[[r]][[1]]$mu, numeric(P)))
+sig_draws <- t(vapply(keep_idx, function(r) {
+  rooti <- bm$nmix$compdraw[[r]][[1]]$rooti
+  diag(solve(tcrossprod(rooti)))
+}, numeric(P)))
+bm_mu  <- colMeans(mu_draws)
+bm_Sig <- colMeans(sig_draws)
+```
+
+```{r}
+#| label: bayesm-compare
+comp <- data.frame(param = names(beta_bar), truth = as.numeric(beta_bar),
+                   ours = round(ours_mu, 3), bayesm = round(bm_mu, 3),
+                   diff = round(ours_mu - bm_mu, 3))
+knitr::kable(comp, row.names = FALSE)
+cat("diag(Sigma) -- ours:", round(ours_Sig, 3),
+    "| bayesm:", round(bm_Sig, 3), "| truth:", diag(Sigma_true), "\n")
+cat(sprintf("\nlargest disagreement on any population mean: %.4f\n",
+            max(abs(comp$diff))))
+```
+
+Both implementations sit the same distance from the truth in the same direction,
+which is what two correct samplers looking at one finite dataset should do. The
+gap between them is far smaller than the gap between either and the truth.
+
+```{r}
+#| label: bayesm-store
+out$bayesm_check <- list(comp = comp, ours_Sig = ours_Sig, bm_Sig = bm_Sig)
+```
+
+## 6. The degenerate case: no heterogeneity
+
+If the data contain no heterogeneity, the hierarchical posterior should collapse
+toward the aggregate MLE. This catches a hierarchy that is inventing variation
+that is not there.
+
+```{r}
+#| label: sigma0
+des  <- make_panel_design(N, T_tasks, J, seed = 220)
+B0   <- matrix(beta_bar, N, P, byrow = TRUE)     # every respondent identical
+dat0 <- simulate_dual_hb(des, B0, cut_true, model = "B", seed = 420)
+
+fit0 <- fit_dual_hb(dat0, mcmc = MCMC, seed = 520, verbose = FALSE)
+dat0_pooled <- list(design = dat0$design, jstar = dat0$jstar, y = dat0$y,
+                    W = W, model = "B")
+mle0 <- fit_dual_mle(dat0_pooled)
+
+comp0 <- data.frame(
+  param = c(names(beta_bar), paste0("c", 1:(W - 1))),
+  truth = c(beta_bar, cut_true),
+  hb_postmean = round(c(colMeans(fit0$draws$phibar), colMeans(fit0$draws$cut)), 3),
+  agg_mle = round(c(mle0$beta, mle0$cut), 3))
+comp0$diff <- round(comp0$hb_postmean - comp0$agg_mle, 3)
+knitr::kable(comp0, row.names = FALSE)
+
+cat("posterior mean diag(Sigma), should be small:",
+    round(diag(apply(fit0$draws$Sigma, c(2, 3), mean)), 3), "\n")
+out$sigma0_check <- comp0
+```
+
+## 7. Marginal likelihood: how optimistic is Newton-Raftery?
+
+This section backs the marginal-likelihood appendix rather than the simulation
+study. Model comparisons in this literature conventionally report the
+Newton-Raftery harmonic-mean estimator. It is known to be optimistic. In the
+aggregate model the parameter space is small enough to measure by how much,
+against bridge sampling and a Laplace approximation.
+
+```{r}
+#| label: lmd-machinery
+#| code-fold: true
+#| code-summary: "Aggregate posterior sampler and the three LMD estimators"
+logmeanexp <- function(x) { m <- max(x); m + log(mean(exp(x - m))) }
+
+lmd_nr <- function(ll_draws, trim = 0) {
+  if (trim > 0) ll_draws <- ll_draws[ll_draws >= quantile(ll_draws, trim)]
+  -logmeanexp(-ll_draws)
+}
+
+fit_dual_bayes_agg <- function(dat, iter = 20000, burn = 5000, thin = 5,
+                               tau2 = 100, seed = NULL) {
+  if (!is.null(seed)) set.seed(seed)
+  mle <- fit_dual_mle(dat)
+  d <- length(mle$par)
+  H <- optimHess(mle$par, function(p) negloglik(p, dat))
+  Lp <- t(chol(chol2inv(chol(H)))) * (2.4 / sqrt(d))
+  lpost <- function(p) -negloglik(p, dat) - 0.5 * sum(p^2) / tau2
+  cur <- mle$par; cur_lp <- lpost(cur)
+  nkeep <- floor((iter - burn) / thin)
+  draws <- matrix(NA_real_, nkeep, d); lp_draws <- numeric(nkeep)
+  acc <- 0; ki <- 0; sc <- 1
+  for (it in seq_len(iter)) {
+    prop <- cur + as.numeric(Lp %*% rnorm(d)) * sc
+    prop_lp <- lpost(prop)
+    if (log(runif(1)) < prop_lp - cur_lp) { cur <- prop; cur_lp <- prop_lp; acc <- acc + 1 }
+    if (it <= burn && it %% 200 == 0) {
+      sc <- min(max(sc * exp(1.5 * (acc / 200 - 0.234)), 0.1), 10); acc <- 0
+    }
+    if (it == burn) acc <- 0
+    if (it > burn && (it - burn) %% thin == 0) {
+      ki <- ki + 1; draws[ki, ] <- cur; lp_draws[ki] <- cur_lp
+    }
+  }
+  list(draws = draws, lp = lp_draws, accept = acc / (iter - burn),
+       mle = mle, tau2 = tau2, dat = dat)
+}
+
+bridge_lmd_agg <- function(fit_agg) {
+  dat <- fit_agg$dat; tau2 <- fit_agg$tau2
+  lpost_fn <- function(pars, data) {
+    -negloglik(pars, data) - 0.5 * sum(pars^2) / tau2 -
+      0.5 * length(pars) * log(2 * pi * tau2)
+  }
+  samples <- fit_agg$draws
+  colnames(samples) <- paste0("p", seq_len(ncol(samples)))
+  lb <- rep(-Inf, ncol(samples)); ub <- rep(Inf, ncol(samples))
+  names(lb) <- names(ub) <- colnames(samples)
+  bridgesampling::bridge_sampler(samples = samples, log_posterior = lpost_fn,
+                                 data = dat, lb = lb, ub = ub, silent = TRUE)$logml
+}
+
+lmd_nr_agg <- function(fit_agg, trim = 0) {
+  ll <- apply(fit_agg$draws, 1, function(p) -negloglik(p, fit_agg$dat))
+  lmd_nr(ll, trim = trim)
+}
+
+lmd_laplace_agg <- function(fit_agg) {
+  mle <- fit_agg$mle; d <- length(mle$par)
+  H <- optimHess(mle$par, function(p) negloglik(p, fit_agg$dat))
+  lprior <- -0.5 * sum(mle$par^2) / fit_agg$tau2 - 0.5 * d * log(2 * pi * fit_agg$tau2)
+  -mle$nll + lprior + 0.5 * d * log(2 * pi) -
+    0.5 * determinant(H, logarithm = TRUE)$modulus
+}
+
+simulate_dual <- function(design, beta, cut, model = c("A", "B"), seed) {
+  model <- match.arg(model); set.seed(seed)
+  n <- design$n_tasks; J <- design$J
+  V <- matrix(design$X %*% beta, nrow = n, ncol = J, byrow = TRUE)
+  u <- V + matrix(rgumbel(n * J), n, J)
+  jstar <- max.col(u, ties.method = "first")
+  ustar <- u[cbind(seq_len(n), jstar)]
+  latent <- if (model == "A") ustar else ustar - rgumbel(n)
+  list(design = design, jstar = jstar, y = findInterval(latent, cut) + 1L,
+       W = length(cut) + 1L, model = model)
+}
+```
+
+```{r}
+#| label: lmd-run
+des_a <- make_design(3600, J, seed = 230)
+dat_a <- simulate_dual(des_a, as.numeric(beta_bar), cut_true, model = "B", seed = 430)
+fa <- fit_dual_bayes_agg(dat_a, iter = 30000, burn = 10000, thin = 5, seed = 530)
+
+lmd_tab <- data.frame(
+  method = c("bridge", "laplace", "NR", "NR trim 5%", "NR trim 20%"),
+  lmd = c(bridge_lmd_agg(fa), lmd_laplace_agg(fa), lmd_nr_agg(fa),
+          lmd_nr_agg(fa, 0.05), lmd_nr_agg(fa, 0.20)))
+lmd_tab$vs_bridge <- round(lmd_tab$lmd - lmd_tab$lmd[1], 2)
+knitr::kable(transform(lmd_tab, lmd = round(lmd, 2)), row.names = FALSE)
+out$lmd_check <- lmd_tab
+```
+
+Bridge sampling and the Laplace approximation, two methods with nothing in
+common, agree closely. Newton-Raftery sits well above both, and trimming the
+smallest-likelihood draws makes it worse rather than better, which is the
+signature of an estimator whose problem is the tail it is averaging over rather
+than a few outliers.
+
+## 8. Results written
+
+```{r}
+#| label: save
+# Quarto executes some passes from the project root and others from this
+# file's directory, so anchor the output path on the project marker rather
+# than trusting the working directory.
+PROJ <- if (file.exists("_quarto.yml")) "." else ".."
+OUT  <- file.path(PROJ, "R", "output")
+dir.create(OUT, showWarnings = FALSE, recursive = TRUE)
+
+saveRDS(list(B = res_B, A = res_A, truth = truth,
+             settings = list(N = N, T_tasks = T_tasks, MCMC = MCMC_COV)),
+        file.path(OUT, "hb_coverage.rds"))
+
+saveRDS(out, file.path(OUT, "hb_validation.rds"))
+
+cat("wrote hb_coverage.rds and hb_validation.rds\n")
+```
+
+## 9. Related material
+
+| where | what |
+|---|---|
+| notebook 01 | the aggregate estimator, identification, and the factorization check |
+| notebook 03 | what dichotomizing the scale costs, at the individual level |
+| notebook 05 | five misspecifications, including heterogeneous cut points |
+| `R/hierarchical/hb.R` | the production sampler this notebook copies |

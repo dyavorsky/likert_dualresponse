@@ -1,0 +1,1311 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+    <meta charset="utf-8">
+    <meta name="generator" content="quarto-1.11.4">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+    <meta name="author" content="Dan Yavorsky">
+    <meta name="author" content="Geoffery Zheng">
+    <meta name="dcterms.date" content="2026-09-13">
+
+    <title>Specification Tests</title>
+    <style>
+      /* Default styles provided by pandoc.
+      ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+      */
+      span.smallcaps{font-variant: small-caps;}
+      div.columns{display: flex; gap: 1.5em;}
+      div.column{flex: auto;}
+      @media screen {
+      div.columns{gap: min(4vw, 1.5em);}
+      div.column{overflow-x: auto;}
+      }
+      div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+      ul.task-list{list-style: none;}
+      ul.task-list li input[type="checkbox"] {
+        width: 0.8em;
+        margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+        vertical-align: middle;
+      }
+      /* CSS for syntax highlighting */
+      html { -webkit-text-size-adjust: 100%; }
+      pre > code.sourceCode { white-space: pre; position: relative; }
+      pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+      pre > code.sourceCode > span:empty { height: 1.2em; }
+      .sourceCode { overflow: visible; }
+      code.sourceCode > span { color: inherit; text-decoration: inherit; }
+      div.sourceCode { margin: 1em 0; }
+      pre.sourceCode { margin: 0; }
+      @media screen {
+      div.sourceCode { overflow: auto; }
+      }
+      @media print {
+      pre > code.sourceCode { white-space: pre-wrap; }
+      pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+      }
+      pre.numberSource code
+        { counter-reset: source-line 0; }
+      pre.numberSource code > span
+        { position: relative; left: -4em; counter-increment: source-line; }
+      pre.numberSource code > span > a:first-child::before
+        { content: counter(source-line);
+          position: relative; left: -1em; text-align: right; vertical-align: baseline;
+          border: none; display: inline-block;
+          -webkit-touch-callout: none; -webkit-user-select: none;
+          -khtml-user-select: none; -moz-user-select: none;
+          -ms-user-select: none; user-select: none;
+          padding: 0 4px; width: 4em;
+        }
+      pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+      div.sourceCode
+        {   }
+      @media screen {
+      pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+      }
+    </style>
+
+    <style>
+      body.hypothesis-enabled #quarto-embed-header {
+        padding-right: 36px;
+      }
+
+      #quarto-embed-header {
+        height: 3em;
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: solid 1px;
+      }
+
+      #quarto-embed-header h6 {
+        font-size: 1.1em;
+        padding-top: 0.6em;
+        margin-left: 1em;
+        margin-right: 1em;
+        font-weight: 400;
+      }
+
+      #quarto-embed-header a.quarto-back-link,
+      #quarto-embed-header a.quarto-download-embed {
+        font-size: 0.8em;
+        margin-top: 1em;
+        margin-bottom: 1em;
+        margin-left: 1em;
+        margin-right: 1em;
+      }
+
+      .quarto-back-container {
+        padding-left: 0.5em;
+        display: flex;
+      }
+
+      .headroom {
+          will-change: transform;
+          transition: transform 200ms linear;
+      }
+
+      .headroom--pinned {
+          transform: translateY(0%);
+      }
+
+      .headroom--unpinned {
+          transform: translateY(-100%);
+      }      
+    </style>
+
+    <script>
+    window.document.addEventListener("DOMContentLoaded", function () {
+
+      var header = window.document.querySelector("#quarto-embed-header");
+      const titleBannerEl = window.document.querySelector("body > #title-block-header");
+      if (titleBannerEl) {
+        titleBannerEl.style.paddingTop = header.clientHeight + "px";
+      }
+      const contentEl = window.document.getElementById('quarto-content');
+      for (const child of contentEl.children) {
+        child.style.paddingTop = header.clientHeight + "px";
+        child.style.marginTop = "1em";
+      }
+
+      // Use the article root if the `back` call doesn't work. This isn't perfect
+      // but should typically work
+      window.quartoBackToArticle = () => {
+        var currentUrl = window.location.href;
+        window.history.back();
+        setTimeout(() => {
+            // if location was not changed in 100 ms, then there is no history back
+            if(currentUrl === window.location.href){              
+                // redirect to site root
+                window.location.href = "../index.html";
+            }
+        }, 100);
+      }
+
+      const headroom = new window.Headroom(header, {
+        tolerance: 5,
+        onPin: function () {
+        },
+        onUnpin: function () {
+        },
+      });
+      headroom.init();
+    });
+    </script>
+
+    
+<script src="../site_libs/manuscript-notebook/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-03d3dfde56ecdf7ec35882f3b46e7ba8.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-6637c74bae20b611a26c1e446f3bbec3.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+      <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script> 
+      </head>
+
+  <body class="quarto-notebook quarto-light"><a id="quarto-skip-link" class="visually-hidden-focusable" href="#quarto-document-content">Skip to main content</a>
+    <div id="quarto-embed-header" class="headroom fixed-top bg-primary">
+      
+      <a onclick="window.quartoBackToArticle(); return false;" class="btn btn-primary quarto-back-link" href=""><i class="bi bi-caret-left"></i> Back to Article</a>
+      <h6><i class="bi bi-journal-code"></i> Specification Tests</h6>
+
+            <a href="../notebooks/04-specification-tests.qmd" class="btn btn-primary quarto-download-embed" download="04-specification-tests.qmd">Download Source</a>
+          </div>
+
+     <header id="title-block-header" class="quarto-title-block default toc-left page-columns page-full">
+  <div class="quarto-title-banner page-columns page-full">
+    <div class="quarto-title column-body">
+      <h1 class="title">Specification Tests</h1>
+            <p class="subtitle lead">Two sharp tests of the behavioral story, and how well they work</p>
+          </div>
+
+    
+    <div class="quarto-title-meta-container">
+      <div class="quarto-title-meta-column-start">
+        
+        <div class="quarto-title-meta">
+
+                <div>
+            <div class="quarto-title-meta-heading">Authors</div>
+            <div class="quarto-title-meta-contents">
+                        <p>Dan Yavorsky </p>
+                        <p>Geoffery Zheng </p>
+                      </div>
+          </div>
+                
+                <div>
+            <div class="quarto-title-meta-heading">Published</div>
+            <div class="quarto-title-meta-contents">
+              <p class="date">September 13, 2026</p>
+            </div>
+          </div>
+          
+                
+              </div>
+      </div>
+      <div class="quarto-title-meta-column-end quarto-other-formats-target">
+      </div>
+    </div>
+
+
+
+    <div class="quarto-other-links-text-target">
+    </div>  </div>
+</header><div id="quarto-content" class="page-columns page-rows-contents page-layout-article toc-left">
+<div id="quarto-sidebar-toc-left" class="sidebar toc-left">
+  <nav id="TOC" role="doc-toc" aria-labelledby="toc-title" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#what-this-notebook-does" id="toc-what-this-notebook-does" class="nav-link active" data-scroll-target="#what-this-notebook-does">What this notebook does</a></li>
+  <li><a href="#machinery" id="toc-machinery" class="nav-link" data-scroll-target="#machinery">1. Machinery</a></li>
+  <li><a href="#the-two-extensions" id="toc-the-two-extensions" class="nav-link" data-scroll-target="#the-two-extensions">2. The two extensions</a></li>
+  <li><a href="#one-dataset-worked" id="toc-one-dataset-worked" class="nav-link" data-scroll-target="#one-dataset-worked">3. One dataset, worked</a></li>
+  <li><a href="#size" id="toc-size" class="nav-link" data-scroll-target="#size">4. Size</a></li>
+  <li><a href="#power" id="toc-power" class="nav-link" data-scroll-target="#power">5. Power</a></li>
+  <li><a href="#the-full-picture" id="toc-the-full-picture" class="nav-link" data-scroll-target="#the-full-picture">6. The full picture</a></li>
+  <li><a href="#results-written" id="toc-results-written" class="nav-link" data-scroll-target="#results-written">7. Results written</a></li>
+  <li><a href="#related-material" id="toc-related-material" class="nav-link" data-scroll-target="#related-material">8. Related material</a></li>
+  </ul>
+</nav>
+</div>
+<div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
+</div>
+<main class="content quarto-banner-title-block" id="quarto-document-content" tabindex="-1">      
+
+       <section id="what-this-notebook-does" class="level2">
+<h2 class="anchored" data-anchor-id="what-this-notebook-does">What this notebook does</h2>
+<p>The model makes two claims about the second response that a reader is entitled to doubt, and both can be turned into one-parameter extensions of the likelihood and tested.</p>
+<p><strong>Claim one: the slope on the inclusive value is exactly one.</strong> Because both responses come from a single, internally consistent utility draw, the ordinal stage reads <span class="math inline">\(\overline{\mu}_{it} = \ln S_{it}\)</span> with no free loading. Relax it to</p>
+<p><span class="math display">\[
+\Pr(y \le w) \;=\; G\!\left( c_w - \lambda \, \overline{\mu}_{it} \right)
+\]</span></p>
+<p>and test <span class="math inline">\(H_0 : \lambda = 1\)</span>. This is the parameter one would most naturally estimate freely, and the theory says not to.</p>
+<p><strong>Claim two: the second response depends on the choice set only through the inclusive value, not through which alternative won.</strong> By Lemma 1(ii) the distribution of the best utility does not depend on which good attained it. The competing model in the literature, DR-2Max, conditions on the chosen good’s utility instead. Nest both:</p>
+<p><span class="math display">\[
+\text{second-stage predictor} \;=\; \overline{\mu}_{it} + \delta \left( V_{itj^*} - \overline{\mu}_{it} \right)
+\]</span></p>
+<p>with <span class="math inline">\(\delta = 0\)</span> our model and <span class="math inline">\(\delta = 1\)</span> DR-2Max. Two tests fall out: <span class="math inline">\(H_0 : \delta = 0\)</span>, and, running the comparison the other way, <span class="math inline">\(H_0 : \delta = 1\)</span>.</p>
+<p>This notebook establishes that both tests hold their nominal size and have power against the alternatives that matter. It is the source of <code>spec_tests.rds</code>.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Why the <span class="math inline">\(\lambda\)</span> test earns its place
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>A coauthor observed in 2024 that fitting an ordered regression with a freely estimated slope on a latent driver can return an attenuated coefficient. That turned out to be a reverse-regression artifact which does not arise in this model’s data-generating process, but it identified the right parameter to worry about. Rather than assume <span class="math inline">\(\lambda = 1\)</span>, we estimate it and report the test. See <code>archive/identification_note.qmd</code>.</p>
+</div>
+</div>
+<div class="cell-container"><div class="cell-decorator"><pre>In [1]:</pre></div><div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">digits =</span> <span class="dv">5</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div></div>
+</section>
+<section id="machinery" class="level2">
+<h2 class="anchored" data-anchor-id="machinery">1. Machinery</h2>
+<div class="cell-container code-fold"><div class="cell-decorator"><pre>In [2]:</pre></div><div class="cell">
+<details class="code-fold">
+<summary>Design, simulator (including both alternatives), and likelihood</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>rgumbel <span class="ot">&lt;-</span> <span class="cf">function</span>(n) <span class="sc">-</span><span class="fu">log</span>(<span class="sc">-</span><span class="fu">log</span>(<span class="fu">runif</span>(n)))</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>make_design <span class="ot">&lt;-</span> <span class="cf">function</span>(n_tasks, J, seed, <span class="at">intercept =</span> <span class="cn">FALSE</span>) {</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set.seed</span>(seed)</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  n_rows <span class="ot">&lt;-</span> n_tasks <span class="sc">*</span> J</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  a <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>, n_rows, <span class="at">replace =</span> <span class="cn">TRUE</span>); b <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>, n_rows, <span class="at">replace =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  price <span class="ot">&lt;-</span> <span class="fu">runif</span>(n_rows, <span class="fl">0.5</span>, <span class="fl">2.5</span>)</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>  X <span class="ot">&lt;-</span> <span class="fu">cbind</span>(<span class="at">a2 =</span> <span class="fu">as.numeric</span>(a <span class="sc">==</span> <span class="dv">2</span>), <span class="at">a3 =</span> <span class="fu">as.numeric</span>(a <span class="sc">==</span> <span class="dv">3</span>),</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>             <span class="at">b2 =</span> <span class="fu">as.numeric</span>(b <span class="sc">==</span> <span class="dv">2</span>), <span class="at">b3 =</span> <span class="fu">as.numeric</span>(b <span class="sc">==</span> <span class="dv">3</span>), <span class="at">price =</span> price)</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (intercept) X <span class="ot">&lt;-</span> <span class="fu">cbind</span>(X, <span class="at">const =</span> <span class="dv">1</span>)</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(<span class="at">X =</span> X, <span class="at">n_tasks =</span> n_tasks, <span class="at">J =</span> J, <span class="at">P =</span> <span class="fu">ncol</span>(X))</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>par_to_cut <span class="ot">&lt;-</span> <span class="cf">function</span>(par, P, W) {</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (W <span class="sc">==</span> <span class="dv">2</span>) <span class="fu">return</span>(par[P <span class="sc">+</span> <span class="dv">1</span>])</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>  par[P <span class="sc">+</span> <span class="dv">1</span>] <span class="sc">+</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fu">cumsum</span>(<span class="fu">exp</span>(par[(P <span class="sc">+</span> <span class="dv">2</span>)<span class="sc">:</span>(P <span class="sc">+</span> W <span class="sc">-</span> <span class="dv">1</span>)])))</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>cut_to_par <span class="ot">&lt;-</span> <span class="cf">function</span>(cut) <span class="cf">if</span> (<span class="fu">length</span>(cut) <span class="sc">==</span> <span class="dv">1</span>) cut <span class="cf">else</span> <span class="fu">c</span>(cut[<span class="dv">1</span>], <span class="fu">log</span>(<span class="fu">diff</span>(cut)))</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>row_max <span class="ot">&lt;-</span> <span class="cf">function</span>(M) <span class="fu">do.call</span>(pmax, <span class="fu">as.data.frame</span>(M))</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>ord_prob_z <span class="ot">&lt;-</span> <span class="cf">function</span>(lo, hi, model) {</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (model <span class="sc">==</span> <span class="st">"B"</span>) <span class="fu">plogis</span>(hi) <span class="sc">*</span> <span class="fu">plogis</span>(<span class="sc">-</span>lo) <span class="sc">*</span> (<span class="sc">-</span><span class="fu">expm1</span>(lo <span class="sc">-</span> hi))</span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>  <span class="cf">else</span> { ea <span class="ot">&lt;-</span> <span class="fu">exp</span>(<span class="sc">-</span>lo); eb <span class="ot">&lt;-</span> <span class="fu">exp</span>(<span class="sc">-</span>hi)</span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>         p <span class="ot">&lt;-</span> <span class="fu">exp</span>(<span class="sc">-</span>eb) <span class="sc">*</span> (<span class="sc">-</span><span class="fu">expm1</span>(<span class="sc">-</span>(ea <span class="sc">-</span> eb))); p[<span class="sc">!</span><span class="fu">is.finite</span>(eb)] <span class="ot">&lt;-</span> <span class="dv">0</span>; p }</span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>ord_prob <span class="ot">&lt;-</span> <span class="cf">function</span>(mubar, cut, y, model) {</span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>  caug <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="sc">-</span><span class="cn">Inf</span>, cut, <span class="cn">Inf</span>); <span class="fu">ord_prob_z</span>(caug[y] <span class="sc">-</span> mubar, caug[y <span class="sc">+</span> <span class="dv">1</span>L] <span class="sc">-</span> mubar, model)</span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>negloglik <span class="ot">&lt;-</span> <span class="cf">function</span>(par, dat) {</span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>  design <span class="ot">&lt;-</span> dat<span class="sc">$</span>design; P <span class="ot">&lt;-</span> design<span class="sc">$</span>P; W <span class="ot">&lt;-</span> dat<span class="sc">$</span>W</span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>  n <span class="ot">&lt;-</span> design<span class="sc">$</span>n_tasks; J <span class="ot">&lt;-</span> design<span class="sc">$</span>J</span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>  beta <span class="ot">&lt;-</span> par[<span class="dv">1</span><span class="sc">:</span>P]; cut <span class="ot">&lt;-</span> <span class="fu">par_to_cut</span>(par, P, W)</span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>  V <span class="ot">&lt;-</span> <span class="fu">matrix</span>(design<span class="sc">$</span>X <span class="sc">%*%</span> beta, <span class="at">nrow =</span> n, <span class="at">ncol =</span> J, <span class="at">byrow =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>  m <span class="ot">&lt;-</span> <span class="fu">row_max</span>(V); logS <span class="ot">&lt;-</span> m <span class="sc">+</span> <span class="fu">log</span>(<span class="fu">rowSums</span>(<span class="fu">exp</span>(V <span class="sc">-</span> m)))</span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>  <span class="sc">-</span>(<span class="fu">sum</span>(V[<span class="fu">cbind</span>(<span class="fu">seq_len</span>(n), dat<span class="sc">$</span>jstar)] <span class="sc">-</span> logS) <span class="sc">+</span></span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>    <span class="fu">sum</span>(<span class="fu">log</span>(<span class="fu">pmax</span>(<span class="fu">ord_prob</span>(logS, cut, dat<span class="sc">$</span>y, dat<span class="sc">$</span>model), <span class="fl">1e-312</span>))))</span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>fit_dual_mle <span class="ot">&lt;-</span> <span class="cf">function</span>(dat, <span class="at">start =</span> <span class="cn">NULL</span>) {</span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>  design <span class="ot">&lt;-</span> dat<span class="sc">$</span>design; P <span class="ot">&lt;-</span> design<span class="sc">$</span>P; W <span class="ot">&lt;-</span> dat<span class="sc">$</span>W</span>
+<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">is.null</span>(start)) {</span>
+<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>    freq <span class="ot">&lt;-</span> <span class="fu">tabulate</span>(dat<span class="sc">$</span>y, <span class="at">nbins =</span> W)</span>
+<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a>    cumq <span class="ot">&lt;-</span> <span class="fu">pmin</span>(<span class="fu">pmax</span>(<span class="fu">cumsum</span>(freq)[<span class="dv">1</span><span class="sc">:</span>(W <span class="sc">-</span> <span class="dv">1</span>)] <span class="sc">/</span> <span class="fu">sum</span>(freq), <span class="fl">1e-4</span>), <span class="dv">1</span> <span class="sc">-</span> <span class="fl">1e-4</span>)</span>
+<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a>    ginv <span class="ot">&lt;-</span> <span class="cf">if</span> (dat<span class="sc">$</span>model <span class="sc">==</span> <span class="st">"B"</span>) qlogis <span class="cf">else</span> <span class="cf">function</span>(q) <span class="sc">-</span><span class="fu">log</span>(<span class="sc">-</span><span class="fu">log</span>(q))</span>
+<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a>    cut0 <span class="ot">&lt;-</span> <span class="fu">log</span>(design<span class="sc">$</span>J) <span class="sc">+</span> <span class="fu">ginv</span>(cumq)</span>
+<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (W <span class="sc">&gt;</span> <span class="dv">2</span>) <span class="cf">for</span> (k <span class="cf">in</span> <span class="dv">2</span><span class="sc">:</span>(W <span class="sc">-</span> <span class="dv">1</span>)) cut0[k] <span class="ot">&lt;-</span> <span class="fu">max</span>(cut0[k], cut0[k <span class="sc">-</span> <span class="dv">1</span>] <span class="sc">+</span> <span class="fl">1e-3</span>)</span>
+<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a>    start <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">rep</span>(<span class="dv">0</span>, P), <span class="fu">cut_to_par</span>(cut0))</span>
+<span id="cb2-45"><a href="#cb2-45" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb2-46"><a href="#cb2-46" aria-hidden="true" tabindex="-1"></a>  fn <span class="ot">&lt;-</span> <span class="cf">function</span>(p) <span class="fu">negloglik</span>(p, dat)</span>
+<span id="cb2-47"><a href="#cb2-47" aria-hidden="true" tabindex="-1"></a>  opt <span class="ot">&lt;-</span> <span class="fu">optim</span>(start, fn, <span class="at">method =</span> <span class="st">"BFGS"</span>, <span class="at">control =</span> <span class="fu">list</span>(<span class="at">maxit =</span> <span class="dv">1000</span>, <span class="at">reltol =</span> <span class="fl">1e-12</span>))</span>
+<span id="cb2-48"><a href="#cb2-48" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(<span class="at">beta =</span> opt<span class="sc">$</span>par[<span class="dv">1</span><span class="sc">:</span>P], <span class="at">cut =</span> <span class="fu">par_to_cut</span>(opt<span class="sc">$</span>par, P, W),</span>
+<span id="cb2-49"><a href="#cb2-49" aria-hidden="true" tabindex="-1"></a>       <span class="at">nll =</span> opt<span class="sc">$</span>value, <span class="at">convergence =</span> opt<span class="sc">$</span>convergence, <span class="at">par =</span> opt<span class="sc">$</span>par)</span>
+<span id="cb2-50"><a href="#cb2-50" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-51"><a href="#cb2-51" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-52"><a href="#cb2-52" aria-hidden="true" tabindex="-1"></a><span class="co"># Simulator carrying both alternatives:</span></span>
+<span id="cb2-53"><a href="#cb2-53" aria-hidden="true" tabindex="-1"></a><span class="co">#   model2 = "2max"  -&gt; second stage reads the CHOSEN good's utility (DR-2Max)</span></span>
+<span id="cb2-54"><a href="#cb2-54" aria-hidden="true" tabindex="-1"></a><span class="co">#   lambda != 1      -&gt; second-stage latent centred on lambda * log S</span></span>
+<span id="cb2-55"><a href="#cb2-55" aria-hidden="true" tabindex="-1"></a>simulate_dual <span class="ot">&lt;-</span> <span class="cf">function</span>(design, beta, cut, <span class="at">model =</span> <span class="fu">c</span>(<span class="st">"A"</span>, <span class="st">"B"</span>), seed,</span>
+<span id="cb2-56"><a href="#cb2-56" aria-hidden="true" tabindex="-1"></a>                          <span class="at">model2 =</span> <span class="fu">c</span>(<span class="st">"inclusive"</span>, <span class="st">"2max"</span>), <span class="at">lambda =</span> <span class="dv">1</span>) {</span>
+<span id="cb2-57"><a href="#cb2-57" aria-hidden="true" tabindex="-1"></a>  model <span class="ot">&lt;-</span> <span class="fu">match.arg</span>(model); model2 <span class="ot">&lt;-</span> <span class="fu">match.arg</span>(model2)</span>
+<span id="cb2-58"><a href="#cb2-58" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set.seed</span>(seed)</span>
+<span id="cb2-59"><a href="#cb2-59" aria-hidden="true" tabindex="-1"></a>  n <span class="ot">&lt;-</span> design<span class="sc">$</span>n_tasks; J <span class="ot">&lt;-</span> design<span class="sc">$</span>J</span>
+<span id="cb2-60"><a href="#cb2-60" aria-hidden="true" tabindex="-1"></a>  V <span class="ot">&lt;-</span> <span class="fu">matrix</span>(design<span class="sc">$</span>X <span class="sc">%*%</span> beta, <span class="at">nrow =</span> n, <span class="at">ncol =</span> J, <span class="at">byrow =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb2-61"><a href="#cb2-61" aria-hidden="true" tabindex="-1"></a>  u <span class="ot">&lt;-</span> V <span class="sc">+</span> <span class="fu">matrix</span>(<span class="fu">rgumbel</span>(n <span class="sc">*</span> J), n, J)</span>
+<span id="cb2-62"><a href="#cb2-62" aria-hidden="true" tabindex="-1"></a>  jstar <span class="ot">&lt;-</span> <span class="fu">max.col</span>(u, <span class="at">ties.method =</span> <span class="st">"first"</span>)</span>
+<span id="cb2-63"><a href="#cb2-63" aria-hidden="true" tabindex="-1"></a>  ustar <span class="ot">&lt;-</span> u[<span class="fu">cbind</span>(<span class="fu">seq_len</span>(n), jstar)]</span>
+<span id="cb2-64"><a href="#cb2-64" aria-hidden="true" tabindex="-1"></a>  m <span class="ot">&lt;-</span> <span class="fu">row_max</span>(V); logS <span class="ot">&lt;-</span> m <span class="sc">+</span> <span class="fu">log</span>(<span class="fu">rowSums</span>(<span class="fu">exp</span>(V <span class="sc">-</span> m)))</span>
+<span id="cb2-65"><a href="#cb2-65" aria-hidden="true" tabindex="-1"></a>  latent <span class="ot">&lt;-</span> <span class="cf">if</span> (model2 <span class="sc">==</span> <span class="st">"2max"</span>) {</span>
+<span id="cb2-66"><a href="#cb2-66" aria-hidden="true" tabindex="-1"></a>    V[<span class="fu">cbind</span>(<span class="fu">seq_len</span>(n), jstar)] <span class="sc">+</span> <span class="fu">rlogis</span>(n)</span>
+<span id="cb2-67"><a href="#cb2-67" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> <span class="cf">if</span> (lambda <span class="sc">!=</span> <span class="dv">1</span>) {</span>
+<span id="cb2-68"><a href="#cb2-68" aria-hidden="true" tabindex="-1"></a>    <span class="fu">rlogis</span>(n, <span class="at">location =</span> lambda <span class="sc">*</span> logS)</span>
+<span id="cb2-69"><a href="#cb2-69" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> <span class="cf">if</span> (model <span class="sc">==</span> <span class="st">"A"</span>) ustar <span class="cf">else</span> ustar <span class="sc">-</span> <span class="fu">rgumbel</span>(n)</span>
+<span id="cb2-70"><a href="#cb2-70" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(<span class="at">design =</span> design, <span class="at">jstar =</span> jstar, <span class="at">y =</span> <span class="fu">findInterval</span>(latent, cut) <span class="sc">+</span> <span class="dv">1</span>L,</span>
+<span id="cb2-71"><a href="#cb2-71" aria-hidden="true" tabindex="-1"></a>       <span class="at">W =</span> <span class="fu">length</span>(cut) <span class="sc">+</span> <span class="dv">1</span>L, <span class="at">model =</span> model, <span class="at">beta_true =</span> beta, <span class="at">cut_true =</span> cut,</span>
+<span id="cb2-72"><a href="#cb2-72" aria-hidden="true" tabindex="-1"></a>       <span class="at">model2 =</span> model2, <span class="at">lambda =</span> lambda)</span>
+<span id="cb2-73"><a href="#cb2-73" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div></div>
+</section>
+<section id="the-two-extensions" class="level2">
+<h2 class="anchored" data-anchor-id="the-two-extensions">2. The two extensions</h2>
+<p>Both tests come from one extended likelihood. The only thing that changes is what enters the ordinal stage as the predictor.</p>
+<div class="cell-container"><div class="cell-decorator"><pre>In [3]:</pre></div><div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ext = "lambda": predictor is theta * logS</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="co"># ext = "delta" : predictor is logS + theta * (V_{j*} - logS)</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co"># If `fix` is supplied the extension parameter is held there instead of estimated.</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>negloglik_ext <span class="ot">&lt;-</span> <span class="cf">function</span>(par, dat, <span class="at">ext =</span> <span class="fu">c</span>(<span class="st">"lambda"</span>, <span class="st">"delta"</span>), <span class="at">fix =</span> <span class="cn">NULL</span>) {</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  ext <span class="ot">&lt;-</span> <span class="fu">match.arg</span>(ext)</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>  design <span class="ot">&lt;-</span> dat<span class="sc">$</span>design; P <span class="ot">&lt;-</span> design<span class="sc">$</span>P; W <span class="ot">&lt;-</span> dat<span class="sc">$</span>W</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>  n <span class="ot">&lt;-</span> design<span class="sc">$</span>n_tasks; J <span class="ot">&lt;-</span> design<span class="sc">$</span>J</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">is.null</span>(fix)) { theta <span class="ot">&lt;-</span> par[P <span class="sc">+</span> W]; par_core <span class="ot">&lt;-</span> par[<span class="dv">1</span><span class="sc">:</span>(P <span class="sc">+</span> W <span class="sc">-</span> <span class="dv">1</span>)] }</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>  <span class="cf">else</span>              { theta <span class="ot">&lt;-</span> fix;        par_core <span class="ot">&lt;-</span> par }</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>  beta <span class="ot">&lt;-</span> par_core[<span class="dv">1</span><span class="sc">:</span>P]; cut <span class="ot">&lt;-</span> <span class="fu">par_to_cut</span>(par_core, P, W)</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>  V <span class="ot">&lt;-</span> <span class="fu">matrix</span>(design<span class="sc">$</span>X <span class="sc">%*%</span> beta, <span class="at">nrow =</span> n, <span class="at">ncol =</span> J, <span class="at">byrow =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>  m <span class="ot">&lt;-</span> <span class="fu">row_max</span>(V); logS <span class="ot">&lt;-</span> m <span class="sc">+</span> <span class="fu">log</span>(<span class="fu">rowSums</span>(<span class="fu">exp</span>(V <span class="sc">-</span> m)))</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>  Vstar <span class="ot">&lt;-</span> V[<span class="fu">cbind</span>(<span class="fu">seq_len</span>(n), dat<span class="sc">$</span>jstar)]</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>  pred <span class="ot">&lt;-</span> <span class="cf">if</span> (ext <span class="sc">==</span> <span class="st">"lambda"</span>) theta <span class="sc">*</span> logS <span class="cf">else</span> logS <span class="sc">+</span> theta <span class="sc">*</span> (Vstar <span class="sc">-</span> logS)</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>  <span class="sc">-</span>(<span class="fu">sum</span>(Vstar <span class="sc">-</span> logS) <span class="sc">+</span> <span class="fu">sum</span>(<span class="fu">log</span>(<span class="fu">pmax</span>(<span class="fu">ord_prob</span>(pred, cut, dat<span class="sc">$</span>y, dat<span class="sc">$</span>model), <span class="fl">1e-312</span>))))</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>fit_dual_mle_ext <span class="ot">&lt;-</span> <span class="cf">function</span>(dat, ext, start_core, theta0) {</span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>  fn <span class="ot">&lt;-</span> <span class="cf">function</span>(p) <span class="fu">negloglik_ext</span>(p, dat, <span class="at">ext =</span> ext)</span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>  opt <span class="ot">&lt;-</span> <span class="fu">optim</span>(<span class="fu">c</span>(start_core, theta0), fn, <span class="at">method =</span> <span class="st">"BFGS"</span>,</span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>               <span class="at">control =</span> <span class="fu">list</span>(<span class="at">maxit =</span> <span class="dv">1000</span>, <span class="at">reltol =</span> <span class="fl">1e-12</span>))</span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>  Vc <span class="ot">&lt;-</span> <span class="fu">tryCatch</span>(<span class="fu">solve</span>(<span class="fu">optimHess</span>(opt<span class="sc">$</span>par, fn)),</span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>                 <span class="at">error =</span> <span class="cf">function</span>(e) <span class="fu">matrix</span>(<span class="cn">NA</span>, <span class="fu">length</span>(opt<span class="sc">$</span>par), <span class="fu">length</span>(opt<span class="sc">$</span>par)))</span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>  k <span class="ot">&lt;-</span> <span class="fu">length</span>(opt<span class="sc">$</span>par)</span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(<span class="at">par =</span> opt<span class="sc">$</span>par, <span class="at">theta =</span> opt<span class="sc">$</span>par[k], <span class="at">se_theta =</span> <span class="fu">sqrt</span>(Vc[k, k]),</span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>       <span class="at">nll =</span> opt<span class="sc">$</span>value, <span class="at">convergence =</span> opt<span class="sc">$</span>convergence)</span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div></div>
+<p>Note the economy of the <span class="math inline">\(\delta\)</span> construction. At <span class="math inline">\(\delta = 0\)</span> the predictor collapses to <span class="math inline">\(\overline{\mu}\)</span>, so the restricted fit <em>is</em> the ordinary MLE and costs nothing extra. At <span class="math inline">\(\delta = 1\)</span> it collapses to <span class="math inline">\(V_{j^*}\)</span>, which is DR-2Max. One extension nests both models in the literature and ours.</p>
+<div class="cell-container"><div class="cell-decorator"><pre>In [4]:</pre></div><div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>spec_test_battery <span class="ot">&lt;-</span> <span class="cf">function</span>(dat, <span class="at">mle =</span> <span class="cn">NULL</span>) {</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">is.null</span>(mle)) mle <span class="ot">&lt;-</span> <span class="fu">fit_dual_mle</span>(dat)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  start_core <span class="ot">&lt;-</span> mle<span class="sc">$</span>par</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  fl <span class="ot">&lt;-</span> <span class="fu">fit_dual_mle_ext</span>(dat, <span class="st">"lambda"</span>, start_core, <span class="at">theta0 =</span> <span class="dv">1</span>)   <span class="co"># H0: lambda = 1</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>  lr_l <span class="ot">&lt;-</span> <span class="dv">2</span> <span class="sc">*</span> (mle<span class="sc">$</span>nll <span class="sc">-</span> fl<span class="sc">$</span>nll)</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>  fd <span class="ot">&lt;-</span> <span class="fu">fit_dual_mle_ext</span>(dat, <span class="st">"delta"</span>, start_core, <span class="at">theta0 =</span> <span class="dv">0</span>)    <span class="co"># H0: delta = 0</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>  lr_d0 <span class="ot">&lt;-</span> <span class="dv">2</span> <span class="sc">*</span> (mle<span class="sc">$</span>nll <span class="sc">-</span> fd<span class="sc">$</span>nll)</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>  fn_d1 <span class="ot">&lt;-</span> <span class="cf">function</span>(p) <span class="fu">negloglik_ext</span>(p, dat, <span class="at">ext =</span> <span class="st">"delta"</span>, <span class="at">fix =</span> <span class="dv">1</span>)</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>  opt_d1 <span class="ot">&lt;-</span> <span class="fu">optim</span>(start_core, fn_d1, <span class="at">method =</span> <span class="st">"BFGS"</span>,</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>                  <span class="at">control =</span> <span class="fu">list</span>(<span class="at">maxit =</span> <span class="dv">1000</span>, <span class="at">reltol =</span> <span class="fl">1e-12</span>))</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>  lr_d1 <span class="ot">&lt;-</span> <span class="dv">2</span> <span class="sc">*</span> (opt_d1<span class="sc">$</span>value <span class="sc">-</span> fd<span class="sc">$</span>nll)                            <span class="co"># H0: delta = 1</span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>  z <span class="ot">&lt;-</span> <span class="fu">c</span>((fl<span class="sc">$</span>theta <span class="sc">-</span> <span class="dv">1</span>) <span class="sc">/</span> fl<span class="sc">$</span>se_theta, fd<span class="sc">$</span>theta <span class="sc">/</span> fd<span class="sc">$</span>se_theta,</span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>         (fd<span class="sc">$</span>theta <span class="sc">-</span> <span class="dv">1</span>) <span class="sc">/</span> fd<span class="sc">$</span>se_theta)</span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(<span class="at">test =</span> <span class="fu">c</span>(<span class="st">"lambda = 1"</span>, <span class="st">"delta = 0"</span>, <span class="st">"delta = 1 (DR-2Max)"</span>),</span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>             <span class="at">estimate =</span> <span class="fu">c</span>(fl<span class="sc">$</span>theta, fd<span class="sc">$</span>theta, fd<span class="sc">$</span>theta),</span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>             <span class="at">se =</span> <span class="fu">c</span>(fl<span class="sc">$</span>se_theta, fd<span class="sc">$</span>se_theta, fd<span class="sc">$</span>se_theta),</span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>             <span class="at">wald_z =</span> z, <span class="at">lr =</span> <span class="fu">c</span>(lr_l, lr_d0, lr_d1),</span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>             <span class="at">p_wald =</span> <span class="dv">2</span> <span class="sc">*</span> <span class="fu">pnorm</span>(<span class="sc">-</span><span class="fu">abs</span>(z)),</span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>             <span class="at">p_lr =</span> <span class="fu">pchisq</span>(<span class="fu">c</span>(lr_l, lr_d0, lr_d1), <span class="at">df =</span> <span class="dv">1</span>, <span class="at">lower.tail =</span> <span class="cn">FALSE</span>))</span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div></div>
+</section>
+<section id="one-dataset-worked" class="level2">
+<h2 class="anchored" data-anchor-id="one-dataset-worked">3. One dataset, worked</h2>
+<p>Before the repeated-sampling study, here is the battery on a single dataset generated from the model.</p>
+<div class="cell-container"><div class="cell-decorator"><pre>In [5]:</pre></div><div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>J <span class="ot">&lt;-</span> <span class="dv">4</span>; W <span class="ot">&lt;-</span> <span class="dv">5</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>beta     <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="at">a2 =</span> <span class="fl">0.8</span>, <span class="at">a3 =</span> <span class="sc">-</span><span class="fl">0.5</span>, <span class="at">b2 =</span> <span class="fl">0.4</span>, <span class="at">b3 =</span> <span class="fl">1.0</span>, <span class="at">price =</span> <span class="sc">-</span><span class="fl">0.9</span>)</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>cut_true <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="sc">-</span><span class="fl">1.0</span>, <span class="fl">0.2</span>, <span class="fl">1.2</span>, <span class="fl">2.2</span>)</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>gen <span class="ot">&lt;-</span> <span class="cf">function</span>(n_tasks, seed, <span class="at">model =</span> <span class="st">"B"</span>, <span class="at">model2 =</span> <span class="st">"inclusive"</span>, <span class="at">lambda =</span> <span class="dv">1</span>) {</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>  des <span class="ot">&lt;-</span> <span class="fu">make_design</span>(n_tasks, J, <span class="at">seed =</span> seed)</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">simulate_dual</span>(des, beta, cut_true, <span class="at">model =</span> model, <span class="at">seed =</span> seed <span class="sc">+</span> <span class="dv">1</span>,</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>                <span class="at">model2 =</span> model2, <span class="at">lambda =</span> lambda)</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div></div>
+<div class="cell-container"><div class="cell-decorator"><pre>In [6]:</pre></div><div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="fu">spec_test_battery</span>(<span class="fu">gen</span>(<span class="dv">3600</span>, <span class="at">seed =</span> <span class="dv">20007</span>)),</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>             <span class="at">row.names =</span> <span class="cn">FALSE</span>, <span class="at">digits =</span> <span class="dv">4</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<colgroup>
+<col style="width: 29%">
+<col style="width: 13%">
+<col style="width: 10%">
+<col style="width: 13%">
+<col style="width: 13%">
+<col style="width: 10%">
+<col style="width: 10%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">test</th>
+<th style="text-align: right;">estimate</th>
+<th style="text-align: right;">se</th>
+<th style="text-align: right;">wald_z</th>
+<th style="text-align: right;">lr</th>
+<th style="text-align: right;">p_wald</th>
+<th style="text-align: right;">p_lr</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">lambda = 1</td>
+<td style="text-align: right;">1.0871</td>
+<td style="text-align: right;">0.0736</td>
+<td style="text-align: right;">1.1838</td>
+<td style="text-align: right;">1.4512</td>
+<td style="text-align: right;">0.2365</td>
+<td style="text-align: right;">0.2283</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">delta = 0</td>
+<td style="text-align: right;">0.0243</td>
+<td style="text-align: right;">0.0493</td>
+<td style="text-align: right;">0.4929</td>
+<td style="text-align: right;">0.2433</td>
+<td style="text-align: right;">0.6221</td>
+<td style="text-align: right;">0.6218</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">delta = 1 (DR-2Max)</td>
+<td style="text-align: right;">0.0243</td>
+<td style="text-align: right;">0.0493</td>
+<td style="text-align: right;">-19.8060</td>
+<td style="text-align: right;">302.5140</td>
+<td style="text-align: right;">0.0000</td>
+<td style="text-align: right;">0.0000</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div></div>
+<p>Both null tests fail to reject, as they should. The third row is the informative one: <span class="math inline">\(\delta = 1\)</span> is rejected decisively, so on data from our model the test correctly discards DR-2Max.</p>
+<p>Now the same battery on data actually generated from DR-2Max:</p>
+<div class="cell-container"><div class="cell-decorator"><pre>In [7]:</pre></div><div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="fu">spec_test_battery</span>(<span class="fu">gen</span>(<span class="dv">3600</span>, <span class="at">seed =</span> <span class="dv">70007</span>, <span class="at">model2 =</span> <span class="st">"2max"</span>)),</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>             <span class="at">row.names =</span> <span class="cn">FALSE</span>, <span class="at">digits =</span> <span class="dv">4</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<colgroup>
+<col style="width: 29%">
+<col style="width: 13%">
+<col style="width: 10%">
+<col style="width: 11%">
+<col style="width: 13%">
+<col style="width: 10%">
+<col style="width: 10%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">test</th>
+<th style="text-align: right;">estimate</th>
+<th style="text-align: right;">se</th>
+<th style="text-align: right;">wald_z</th>
+<th style="text-align: right;">lr</th>
+<th style="text-align: right;">p_wald</th>
+<th style="text-align: right;">p_lr</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">lambda = 1</td>
+<td style="text-align: right;">1.0953</td>
+<td style="text-align: right;">0.0748</td>
+<td style="text-align: right;">1.2738</td>
+<td style="text-align: right;">1.6811</td>
+<td style="text-align: right;">0.2027</td>
+<td style="text-align: right;">0.1948</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">delta = 0</td>
+<td style="text-align: right;">0.9074</td>
+<td style="text-align: right;">0.0586</td>
+<td style="text-align: right;">15.4778</td>
+<td style="text-align: right;">308.4533</td>
+<td style="text-align: right;">0.0000</td>
+<td style="text-align: right;">0.0000</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">delta = 1 (DR-2Max)</td>
+<td style="text-align: right;">0.9074</td>
+<td style="text-align: right;">0.0586</td>
+<td style="text-align: right;">-1.5796</td>
+<td style="text-align: right;">2.3992</td>
+<td style="text-align: right;">0.1142</td>
+<td style="text-align: right;">0.1214</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div></div>
+<p>The verdicts reverse. <span class="math inline">\(\hat\delta\)</span> lands near one, <span class="math inline">\(\delta = 0\)</span> is rejected, and <span class="math inline">\(\delta = 1\)</span> is not. A test that only ever rejected in one direction would be useless; this one discriminates both ways.</p>
+</section>
+<section id="size" class="level2">
+<h2 class="anchored" data-anchor-id="size">4. Size</h2>
+<p>Data generated from the correctly specified model. Nominal 5% tests should reject about 5% of the time.</p>
+<div class="cell-container"><div class="cell-decorator"><pre>In [8]:</pre></div><div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>R_SIZE <span class="ot">&lt;-</span> <span class="dv">300</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>R_POW  <span class="ot">&lt;-</span> <span class="dv">150</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>run_cell <span class="ot">&lt;-</span> <span class="cf">function</span>(label, n_tasks, reps, seed0, <span class="at">model =</span> <span class="st">"B"</span>,</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>                     <span class="at">model2 =</span> <span class="st">"inclusive"</span>, <span class="at">lambda =</span> <span class="dv">1</span>) {</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>  rej <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="dv">0</span>, reps, <span class="dv">3</span>,</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>                <span class="at">dimnames =</span> <span class="fu">list</span>(<span class="cn">NULL</span>, <span class="fu">c</span>(<span class="st">"lambda=1"</span>, <span class="st">"delta=0"</span>, <span class="st">"delta=1"</span>)))</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>  est <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="cn">NA_real_</span>, reps, <span class="dv">2</span>,</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>                <span class="at">dimnames =</span> <span class="fu">list</span>(<span class="cn">NULL</span>, <span class="fu">c</span>(<span class="st">"lambda_hat"</span>, <span class="st">"delta_hat"</span>)))</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (r <span class="cf">in</span> <span class="fu">seq_len</span>(reps)) {</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>    dat <span class="ot">&lt;-</span> <span class="fu">gen</span>(n_tasks, <span class="at">seed =</span> seed0 <span class="sc">+</span> <span class="dv">7</span> <span class="sc">*</span> r, <span class="at">model =</span> model,</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>               <span class="at">model2 =</span> model2, <span class="at">lambda =</span> lambda)</span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>    tb <span class="ot">&lt;-</span> <span class="fu">spec_test_battery</span>(dat)</span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>    rej[r, ] <span class="ot">&lt;-</span> tb<span class="sc">$</span>p_lr <span class="sc">&lt;</span> <span class="fl">0.05</span></span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>    est[r, ] <span class="ot">&lt;-</span> <span class="fu">c</span>(tb<span class="sc">$</span>estimate[<span class="dv">1</span>], tb<span class="sc">$</span>estimate[<span class="dv">2</span>])</span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(<span class="at">label =</span> label, <span class="at">n =</span> n_tasks, <span class="at">reps =</span> reps, <span class="at">reject =</span> <span class="fu">colMeans</span>(rej),</span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>       <span class="at">est_mean =</span> <span class="fu">colMeans</span>(est), <span class="at">est_sd =</span> <span class="fu">apply</span>(est, <span class="dv">2</span>, sd))</span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>cells <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>cells<span class="sc">$</span>size_B_1200 <span class="ot">&lt;-</span> <span class="fu">run_cell</span>(<span class="st">"size B"</span>, <span class="dv">1200</span>, R_SIZE, <span class="dv">10000</span>)</span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a>cells<span class="sc">$</span>size_B_3600 <span class="ot">&lt;-</span> <span class="fu">run_cell</span>(<span class="st">"size B"</span>, <span class="dv">3600</span>, R_SIZE, <span class="dv">20000</span>)</span>
+<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a>cells<span class="sc">$</span>size_A_3600 <span class="ot">&lt;-</span> <span class="fu">run_cell</span>(<span class="st">"size A"</span>, <span class="dv">3600</span>, R_SIZE, <span class="dv">30000</span>, <span class="at">model =</span> <span class="st">"A"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div></div>
+<div class="cell-container"><div class="cell-decorator"><pre>In [9]:</pre></div><div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>as_row <span class="ot">&lt;-</span> <span class="cf">function</span>(cl) <span class="fu">data.frame</span>(</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">cell =</span> cl<span class="sc">$</span>label, <span class="at">n =</span> cl<span class="sc">$</span>n, <span class="at">reps =</span> cl<span class="sc">$</span>reps,</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">reject lambda=1</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">round</span>(cl<span class="sc">$</span>reject[<span class="dv">1</span>], <span class="dv">3</span>),</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">reject delta=0</span><span class="st">`</span>  <span class="ot">=</span> <span class="fu">round</span>(cl<span class="sc">$</span>reject[<span class="dv">2</span>], <span class="dv">3</span>),</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">reject delta=1</span><span class="st">`</span>  <span class="ot">=</span> <span class="fu">round</span>(cl<span class="sc">$</span>reject[<span class="dv">3</span>], <span class="dv">3</span>),</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">mean lambda_hat</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">round</span>(cl<span class="sc">$</span>est_mean[<span class="dv">1</span>], <span class="dv">3</span>),</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">mean delta_hat</span><span class="st">`</span>  <span class="ot">=</span> <span class="fu">round</span>(cl<span class="sc">$</span>est_mean[<span class="dv">2</span>], <span class="dv">3</span>),</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">check.names =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="fu">do.call</span>(rbind, <span class="fu">lapply</span>(cells, as_row)), <span class="at">row.names =</span> <span class="cn">FALSE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<colgroup>
+<col style="width: 7%">
+<col style="width: 5%">
+<col style="width: 5%">
+<col style="width: 17%">
+<col style="width: 15%">
+<col style="width: 15%">
+<col style="width: 17%">
+<col style="width: 15%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">cell</th>
+<th style="text-align: right;">n</th>
+<th style="text-align: right;">reps</th>
+<th style="text-align: right;">reject lambda=1</th>
+<th style="text-align: right;">reject delta=0</th>
+<th style="text-align: right;">reject delta=1</th>
+<th style="text-align: right;">mean lambda_hat</th>
+<th style="text-align: right;">mean delta_hat</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">size B</td>
+<td style="text-align: right;">1200</td>
+<td style="text-align: right;">300</td>
+<td style="text-align: right;">0.067</td>
+<td style="text-align: right;">0.050</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1.005</td>
+<td style="text-align: right;">0.001</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">size B</td>
+<td style="text-align: right;">3600</td>
+<td style="text-align: right;">300</td>
+<td style="text-align: right;">0.063</td>
+<td style="text-align: right;">0.027</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.997</td>
+<td style="text-align: right;">0.000</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">size A</td>
+<td style="text-align: right;">3600</td>
+<td style="text-align: right;">300</td>
+<td style="text-align: right;">0.047</td>
+<td style="text-align: right;">0.033</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1.004</td>
+<td style="text-align: right;">0.000</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div></div>
+<p>Three things to read here. The first two rejection columns sit near 0.05, so both tests hold their size. The estimates are centred on their theoretical values, <span class="math inline">\(\lambda\)</span> on one and <span class="math inline">\(\delta\)</span> on zero, so neither extension is biased. And the third column is not a size result at all: it is the power of the <span class="math inline">\(\delta = 1\)</span> test against our model, and it is <strong>1.000 in every cell</strong>. The 2Max-versus-inclusive-value question does not need large data to settle.</p>
+</section>
+<section id="power" class="level2">
+<h2 class="anchored" data-anchor-id="power">5. Power</h2>
+<p>Two families of alternative. Slope alternatives put <span class="math inline">\(\lambda\)</span> away from one; the DR-2Max alternative generates the second response from the chosen good.</p>
+<div class="cell-container"><div class="cell-decorator"><pre>In [10]:</pre></div><div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>cells<span class="sc">$</span>pow_lam07_3600 <span class="ot">&lt;-</span> <span class="fu">run_cell</span>(<span class="st">"power lambda=0.7"</span>, <span class="dv">3600</span>, R_POW, <span class="dv">40000</span>, <span class="at">lambda =</span> <span class="fl">0.7</span>)</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>cells<span class="sc">$</span>pow_lam13_3600 <span class="ot">&lt;-</span> <span class="fu">run_cell</span>(<span class="st">"power lambda=1.3"</span>, <span class="dv">3600</span>, R_POW, <span class="dv">50000</span>, <span class="at">lambda =</span> <span class="fl">1.3</span>)</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>cells<span class="sc">$</span>pow_lam07_1200 <span class="ot">&lt;-</span> <span class="fu">run_cell</span>(<span class="st">"power lambda=0.7"</span>, <span class="dv">1200</span>, R_POW, <span class="dv">60000</span>, <span class="at">lambda =</span> <span class="fl">0.7</span>)</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>cells<span class="sc">$</span>pow_2max_3600  <span class="ot">&lt;-</span> <span class="fu">run_cell</span>(<span class="st">"power 2max (delta=1)"</span>, <span class="dv">3600</span>, R_POW, <span class="dv">70000</span>, <span class="at">model2 =</span> <span class="st">"2max"</span>)</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>cells<span class="sc">$</span>pow_2max_1200  <span class="ot">&lt;-</span> <span class="fu">run_cell</span>(<span class="st">"power 2max (delta=1)"</span>, <span class="dv">1200</span>, R_POW, <span class="dv">80000</span>, <span class="at">model2 =</span> <span class="st">"2max"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div></div>
+<div class="cell-container"><div class="cell-decorator"><pre>In [11]:</pre></div><div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="fu">do.call</span>(rbind, <span class="fu">lapply</span>(cells[<span class="dv">4</span><span class="sc">:</span><span class="dv">8</span>], as_row)), <span class="at">row.names =</span> <span class="cn">FALSE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<colgroup>
+<col style="width: 19%">
+<col style="width: 4%">
+<col style="width: 4%">
+<col style="width: 14%">
+<col style="width: 13%">
+<col style="width: 13%">
+<col style="width: 14%">
+<col style="width: 13%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">cell</th>
+<th style="text-align: right;">n</th>
+<th style="text-align: right;">reps</th>
+<th style="text-align: right;">reject lambda=1</th>
+<th style="text-align: right;">reject delta=0</th>
+<th style="text-align: right;">reject delta=1</th>
+<th style="text-align: right;">mean lambda_hat</th>
+<th style="text-align: right;">mean delta_hat</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">power lambda=0.7</td>
+<td style="text-align: right;">3600</td>
+<td style="text-align: right;">150</td>
+<td style="text-align: right;">0.993</td>
+<td style="text-align: right;">0.053</td>
+<td style="text-align: right;">1.000</td>
+<td style="text-align: right;">0.692</td>
+<td style="text-align: right;">-0.014</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">power lambda=1.3</td>
+<td style="text-align: right;">3600</td>
+<td style="text-align: right;">150</td>
+<td style="text-align: right;">0.993</td>
+<td style="text-align: right;">0.060</td>
+<td style="text-align: right;">1.000</td>
+<td style="text-align: right;">1.302</td>
+<td style="text-align: right;">0.012</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">power lambda=0.7</td>
+<td style="text-align: right;">1200</td>
+<td style="text-align: right;">150</td>
+<td style="text-align: right;">0.640</td>
+<td style="text-align: right;">0.053</td>
+<td style="text-align: right;">1.000</td>
+<td style="text-align: right;">0.712</td>
+<td style="text-align: right;">-0.013</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">power 2max (delta=1)</td>
+<td style="text-align: right;">3600</td>
+<td style="text-align: right;">150</td>
+<td style="text-align: right;">0.067</td>
+<td style="text-align: right;">1.000</td>
+<td style="text-align: right;">0.073</td>
+<td style="text-align: right;">1.046</td>
+<td style="text-align: right;">1.001</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">power 2max (delta=1)</td>
+<td style="text-align: right;">1200</td>
+<td style="text-align: right;">150</td>
+<td style="text-align: right;">0.060</td>
+<td style="text-align: right;">1.000</td>
+<td style="text-align: right;">0.053</td>
+<td style="text-align: right;">1.064</td>
+<td style="text-align: right;">1.003</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div></div>
+<p>Read each row against the alternative that generated it.</p>
+<p>Under the <strong>slope alternatives</strong>, <span class="math inline">\(\hat\lambda\)</span> recovers the true 0.7 and 1.3, the <span class="math inline">\(\lambda\)</span> test rejects with power 0.99 at 3,600 tasks, and the <span class="math inline">\(\delta\)</span> tests stay quiet: a slope problem is not mistaken for a conditioning problem. At 1,200 tasks the power falls to roughly two-thirds, which is a useful design fact. A study intending to test the unit-slope claim needs more than a thousand tasks.</p>
+<p>Under the <strong>DR-2Max alternative</strong>, <span class="math inline">\(\hat\delta\)</span> lands on one, <span class="math inline">\(\delta = 0\)</span> is rejected in every replication, and <span class="math inline">\(\delta = 1\)</span> is not rejected. The <span class="math inline">\(\lambda\)</span> test again stays quiet. Each test targets its own alternative and ignores the other, which is what makes a rejection interpretable.</p>
+</section>
+<section id="the-full-picture" class="level2">
+<h2 class="anchored" data-anchor-id="the-full-picture">6. The full picture</h2>
+<div class="cell-container"><div class="cell-decorator"><pre>In [12]:</pre></div><div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="fu">do.call</span>(rbind, <span class="fu">lapply</span>(cells, as_row)), <span class="at">row.names =</span> <span class="cn">FALSE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<colgroup>
+<col style="width: 19%">
+<col style="width: 4%">
+<col style="width: 4%">
+<col style="width: 14%">
+<col style="width: 13%">
+<col style="width: 13%">
+<col style="width: 14%">
+<col style="width: 13%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">cell</th>
+<th style="text-align: right;">n</th>
+<th style="text-align: right;">reps</th>
+<th style="text-align: right;">reject lambda=1</th>
+<th style="text-align: right;">reject delta=0</th>
+<th style="text-align: right;">reject delta=1</th>
+<th style="text-align: right;">mean lambda_hat</th>
+<th style="text-align: right;">mean delta_hat</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">size B</td>
+<td style="text-align: right;">1200</td>
+<td style="text-align: right;">300</td>
+<td style="text-align: right;">0.067</td>
+<td style="text-align: right;">0.050</td>
+<td style="text-align: right;">1.000</td>
+<td style="text-align: right;">1.005</td>
+<td style="text-align: right;">0.001</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">size B</td>
+<td style="text-align: right;">3600</td>
+<td style="text-align: right;">300</td>
+<td style="text-align: right;">0.063</td>
+<td style="text-align: right;">0.027</td>
+<td style="text-align: right;">1.000</td>
+<td style="text-align: right;">0.997</td>
+<td style="text-align: right;">0.000</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">size A</td>
+<td style="text-align: right;">3600</td>
+<td style="text-align: right;">300</td>
+<td style="text-align: right;">0.047</td>
+<td style="text-align: right;">0.033</td>
+<td style="text-align: right;">1.000</td>
+<td style="text-align: right;">1.004</td>
+<td style="text-align: right;">0.000</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">power lambda=0.7</td>
+<td style="text-align: right;">3600</td>
+<td style="text-align: right;">150</td>
+<td style="text-align: right;">0.993</td>
+<td style="text-align: right;">0.053</td>
+<td style="text-align: right;">1.000</td>
+<td style="text-align: right;">0.692</td>
+<td style="text-align: right;">-0.014</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">power lambda=1.3</td>
+<td style="text-align: right;">3600</td>
+<td style="text-align: right;">150</td>
+<td style="text-align: right;">0.993</td>
+<td style="text-align: right;">0.060</td>
+<td style="text-align: right;">1.000</td>
+<td style="text-align: right;">1.302</td>
+<td style="text-align: right;">0.012</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">power lambda=0.7</td>
+<td style="text-align: right;">1200</td>
+<td style="text-align: right;">150</td>
+<td style="text-align: right;">0.640</td>
+<td style="text-align: right;">0.053</td>
+<td style="text-align: right;">1.000</td>
+<td style="text-align: right;">0.712</td>
+<td style="text-align: right;">-0.013</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">power 2max (delta=1)</td>
+<td style="text-align: right;">3600</td>
+<td style="text-align: right;">150</td>
+<td style="text-align: right;">0.067</td>
+<td style="text-align: right;">1.000</td>
+<td style="text-align: right;">0.073</td>
+<td style="text-align: right;">1.046</td>
+<td style="text-align: right;">1.001</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">power 2max (delta=1)</td>
+<td style="text-align: right;">1200</td>
+<td style="text-align: right;">150</td>
+<td style="text-align: right;">0.060</td>
+<td style="text-align: right;">1.000</td>
+<td style="text-align: right;">0.053</td>
+<td style="text-align: right;">1.064</td>
+<td style="text-align: right;">1.003</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div></div>
+</section>
+<section id="results-written" class="level2">
+<h2 class="anchored" data-anchor-id="results-written">7. Results written</h2>
+<div class="cell-container"><div class="cell-decorator"><pre>In [13]:</pre></div><div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>PROJ <span class="ot">&lt;-</span> <span class="cf">if</span> (<span class="fu">file.exists</span>(<span class="st">"_quarto.yml"</span>)) <span class="st">"."</span> <span class="cf">else</span> <span class="st">".."</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>OUT  <span class="ot">&lt;-</span> <span class="fu">file.path</span>(PROJ, <span class="st">"R"</span>, <span class="st">"output"</span>)</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="fu">dir.create</span>(OUT, <span class="at">showWarnings =</span> <span class="cn">FALSE</span>, <span class="at">recursive =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(<span class="fu">list</span>(<span class="at">cells =</span> cells,</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>             <span class="at">settings =</span> <span class="fu">list</span>(<span class="at">beta =</span> beta, <span class="at">cut =</span> cut_true, <span class="at">J =</span> J, <span class="at">W =</span> W,</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>                             <span class="at">R_SIZE =</span> R_SIZE, <span class="at">R_POW =</span> R_POW)),</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>        <span class="fu">file.path</span>(OUT, <span class="st">"spec_tests.rds"</span>))</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"wrote spec_tests.rds</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>wrote spec_tests.rds</code></pre>
+</div>
+</div></div>
+</section>
+<section id="related-material" class="level2">
+<h2 class="anchored" data-anchor-id="related-material">8. Related material</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>where</th>
+<th>what</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>notebook 01</td>
+<td>the aggregate estimator these tests extend</td>
+</tr>
+<tr class="even">
+<td>notebook 05</td>
+<td>what happens when a misspecification is <em>not</em> tested for</td>
+</tr>
+<tr class="odd">
+<td>notebook 06</td>
+<td>why the link-discrimination question needs attractiveness variation</td>
+</tr>
+<tr class="even">
+<td><code>archive/identification_note.qmd</code></td>
+<td>where the <span class="math inline">\(\lambda\)</span> test came from</td>
+</tr>
+</tbody>
+</table>
+</section>
+     </main>
+<!-- /main column -->  <script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>  </div> <!-- /content --> 
+  
+</body></html>

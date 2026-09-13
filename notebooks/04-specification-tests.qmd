@@ -1,0 +1,375 @@
+---
+title: "Specification Tests"
+subtitle: "Two sharp tests of the behavioral story, and how well they work"
+author:
+  - name: Dan Yavorsky
+  - name: Geoffery Zheng
+date: last-modified
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    code-fold: false
+execute:
+  warning: false
+  message: false
+---
+
+## What this notebook does
+
+The model makes two claims about the second response that a reader is entitled
+to doubt, and both can be turned into one-parameter extensions of the likelihood
+and tested.
+
+**Claim one: the slope on the inclusive value is exactly one.** Because both
+responses come from a single, internally consistent utility draw, the ordinal
+stage reads $\overline{\mu}_{it} = \ln S_{it}$ with no free loading. Relax it to
+
+$$
+\Pr(y \le w) \;=\; G\!\left( c_w - \lambda \, \overline{\mu}_{it} \right)
+$$
+
+and test $H_0 : \lambda = 1$. This is the parameter one would most naturally
+estimate freely, and the theory says not to.
+
+**Claim two: the second response depends on the choice set only through the
+inclusive value, not through which alternative won.** By Lemma 1(ii) the
+distribution of the best utility does not depend on which good attained it. The
+competing model in the literature, DR-2Max, conditions on the chosen good's
+utility instead. Nest both:
+
+$$
+\text{second-stage predictor} \;=\; \overline{\mu}_{it} + \delta \left( V_{itj^*} - \overline{\mu}_{it} \right)
+$$
+
+with $\delta = 0$ our model and $\delta = 1$ DR-2Max. Two tests fall out:
+$H_0 : \delta = 0$, and, running the comparison the other way,
+$H_0 : \delta = 1$.
+
+This notebook establishes that both tests hold their nominal size and have power
+against the alternatives that matter. It is the source of `spec_tests.rds`.
+
+::: {.callout-note}
+## Why the $\lambda$ test earns its place
+
+A coauthor observed in 2024 that fitting an ordered regression with a freely
+estimated slope on a latent driver can return an attenuated coefficient. That
+turned out to be a reverse-regression artifact which does not arise in this
+model's data-generating process, but it identified the right parameter to worry
+about. Rather than assume $\lambda = 1$, we estimate it and report the test. See
+`archive/identification_note.qmd`.
+:::
+
+```{r}
+#| label: setup
+set.seed(1)
+options(digits = 5)
+```
+
+## 1. Machinery
+
+```{r}
+#| label: machinery
+#| code-fold: true
+#| code-summary: "Design, simulator (including both alternatives), and likelihood"
+rgumbel <- function(n) -log(-log(runif(n)))
+
+make_design <- function(n_tasks, J, seed, intercept = FALSE) {
+  set.seed(seed)
+  n_rows <- n_tasks * J
+  a <- sample(1:3, n_rows, replace = TRUE); b <- sample(1:3, n_rows, replace = TRUE)
+  price <- runif(n_rows, 0.5, 2.5)
+  X <- cbind(a2 = as.numeric(a == 2), a3 = as.numeric(a == 3),
+             b2 = as.numeric(b == 2), b3 = as.numeric(b == 3), price = price)
+  if (intercept) X <- cbind(X, const = 1)
+  list(X = X, n_tasks = n_tasks, J = J, P = ncol(X))
+}
+par_to_cut <- function(par, P, W) {
+  if (W == 2) return(par[P + 1])
+  par[P + 1] + c(0, cumsum(exp(par[(P + 2):(P + W - 1)])))
+}
+cut_to_par <- function(cut) if (length(cut) == 1) cut else c(cut[1], log(diff(cut)))
+row_max <- function(M) do.call(pmax, as.data.frame(M))
+ord_prob_z <- function(lo, hi, model) {
+  if (model == "B") plogis(hi) * plogis(-lo) * (-expm1(lo - hi))
+  else { ea <- exp(-lo); eb <- exp(-hi)
+         p <- exp(-eb) * (-expm1(-(ea - eb))); p[!is.finite(eb)] <- 0; p }
+}
+ord_prob <- function(mubar, cut, y, model) {
+  caug <- c(-Inf, cut, Inf); ord_prob_z(caug[y] - mubar, caug[y + 1L] - mubar, model)
+}
+negloglik <- function(par, dat) {
+  design <- dat$design; P <- design$P; W <- dat$W
+  n <- design$n_tasks; J <- design$J
+  beta <- par[1:P]; cut <- par_to_cut(par, P, W)
+  V <- matrix(design$X %*% beta, nrow = n, ncol = J, byrow = TRUE)
+  m <- row_max(V); logS <- m + log(rowSums(exp(V - m)))
+  -(sum(V[cbind(seq_len(n), dat$jstar)] - logS) +
+    sum(log(pmax(ord_prob(logS, cut, dat$y, dat$model), 1e-312))))
+}
+fit_dual_mle <- function(dat, start = NULL) {
+  design <- dat$design; P <- design$P; W <- dat$W
+  if (is.null(start)) {
+    freq <- tabulate(dat$y, nbins = W)
+    cumq <- pmin(pmax(cumsum(freq)[1:(W - 1)] / sum(freq), 1e-4), 1 - 1e-4)
+    ginv <- if (dat$model == "B") qlogis else function(q) -log(-log(q))
+    cut0 <- log(design$J) + ginv(cumq)
+    if (W > 2) for (k in 2:(W - 1)) cut0[k] <- max(cut0[k], cut0[k - 1] + 1e-3)
+    start <- c(rep(0, P), cut_to_par(cut0))
+  }
+  fn <- function(p) negloglik(p, dat)
+  opt <- optim(start, fn, method = "BFGS", control = list(maxit = 1000, reltol = 1e-12))
+  list(beta = opt$par[1:P], cut = par_to_cut(opt$par, P, W),
+       nll = opt$value, convergence = opt$convergence, par = opt$par)
+}
+
+# Simulator carrying both alternatives:
+#   model2 = "2max"  -> second stage reads the CHOSEN good's utility (DR-2Max)
+#   lambda != 1      -> second-stage latent centred on lambda * log S
+simulate_dual <- function(design, beta, cut, model = c("A", "B"), seed,
+                          model2 = c("inclusive", "2max"), lambda = 1) {
+  model <- match.arg(model); model2 <- match.arg(model2)
+  set.seed(seed)
+  n <- design$n_tasks; J <- design$J
+  V <- matrix(design$X %*% beta, nrow = n, ncol = J, byrow = TRUE)
+  u <- V + matrix(rgumbel(n * J), n, J)
+  jstar <- max.col(u, ties.method = "first")
+  ustar <- u[cbind(seq_len(n), jstar)]
+  m <- row_max(V); logS <- m + log(rowSums(exp(V - m)))
+  latent <- if (model2 == "2max") {
+    V[cbind(seq_len(n), jstar)] + rlogis(n)
+  } else if (lambda != 1) {
+    rlogis(n, location = lambda * logS)
+  } else if (model == "A") ustar else ustar - rgumbel(n)
+  list(design = design, jstar = jstar, y = findInterval(latent, cut) + 1L,
+       W = length(cut) + 1L, model = model, beta_true = beta, cut_true = cut,
+       model2 = model2, lambda = lambda)
+}
+```
+
+## 2. The two extensions
+
+Both tests come from one extended likelihood. The only thing that changes is
+what enters the ordinal stage as the predictor.
+
+```{r}
+#| label: ext-likelihood
+# ext = "lambda": predictor is theta * logS
+# ext = "delta" : predictor is logS + theta * (V_{j*} - logS)
+# If `fix` is supplied the extension parameter is held there instead of estimated.
+negloglik_ext <- function(par, dat, ext = c("lambda", "delta"), fix = NULL) {
+  ext <- match.arg(ext)
+  design <- dat$design; P <- design$P; W <- dat$W
+  n <- design$n_tasks; J <- design$J
+  if (is.null(fix)) { theta <- par[P + W]; par_core <- par[1:(P + W - 1)] }
+  else              { theta <- fix;        par_core <- par }
+  beta <- par_core[1:P]; cut <- par_to_cut(par_core, P, W)
+
+  V <- matrix(design$X %*% beta, nrow = n, ncol = J, byrow = TRUE)
+  m <- row_max(V); logS <- m + log(rowSums(exp(V - m)))
+  Vstar <- V[cbind(seq_len(n), dat$jstar)]
+
+  pred <- if (ext == "lambda") theta * logS else logS + theta * (Vstar - logS)
+  -(sum(Vstar - logS) + sum(log(pmax(ord_prob(pred, cut, dat$y, dat$model), 1e-312))))
+}
+
+fit_dual_mle_ext <- function(dat, ext, start_core, theta0) {
+  fn <- function(p) negloglik_ext(p, dat, ext = ext)
+  opt <- optim(c(start_core, theta0), fn, method = "BFGS",
+               control = list(maxit = 1000, reltol = 1e-12))
+  Vc <- tryCatch(solve(optimHess(opt$par, fn)),
+                 error = function(e) matrix(NA, length(opt$par), length(opt$par)))
+  k <- length(opt$par)
+  list(par = opt$par, theta = opt$par[k], se_theta = sqrt(Vc[k, k]),
+       nll = opt$value, convergence = opt$convergence)
+}
+```
+
+Note the economy of the $\delta$ construction. At $\delta = 0$ the predictor
+collapses to $\overline{\mu}$, so the restricted fit *is* the ordinary MLE and
+costs nothing extra. At $\delta = 1$ it collapses to $V_{j^*}$, which is DR-2Max.
+One extension nests both models in the literature and ours.
+
+```{r}
+#| label: battery
+spec_test_battery <- function(dat, mle = NULL) {
+  if (is.null(mle)) mle <- fit_dual_mle(dat)
+  start_core <- mle$par
+
+  fl <- fit_dual_mle_ext(dat, "lambda", start_core, theta0 = 1)   # H0: lambda = 1
+  lr_l <- 2 * (mle$nll - fl$nll)
+
+  fd <- fit_dual_mle_ext(dat, "delta", start_core, theta0 = 0)    # H0: delta = 0
+  lr_d0 <- 2 * (mle$nll - fd$nll)
+
+  fn_d1 <- function(p) negloglik_ext(p, dat, ext = "delta", fix = 1)
+  opt_d1 <- optim(start_core, fn_d1, method = "BFGS",
+                  control = list(maxit = 1000, reltol = 1e-12))
+  lr_d1 <- 2 * (opt_d1$value - fd$nll)                            # H0: delta = 1
+
+  z <- c((fl$theta - 1) / fl$se_theta, fd$theta / fd$se_theta,
+         (fd$theta - 1) / fd$se_theta)
+  data.frame(test = c("lambda = 1", "delta = 0", "delta = 1 (DR-2Max)"),
+             estimate = c(fl$theta, fd$theta, fd$theta),
+             se = c(fl$se_theta, fd$se_theta, fd$se_theta),
+             wald_z = z, lr = c(lr_l, lr_d0, lr_d1),
+             p_wald = 2 * pnorm(-abs(z)),
+             p_lr = pchisq(c(lr_l, lr_d0, lr_d1), df = 1, lower.tail = FALSE))
+}
+```
+
+## 3. One dataset, worked
+
+Before the repeated-sampling study, here is the battery on a single dataset
+generated from the model.
+
+```{r}
+#| label: config
+J <- 4; W <- 5
+beta     <- c(a2 = 0.8, a3 = -0.5, b2 = 0.4, b3 = 1.0, price = -0.9)
+cut_true <- c(-1.0, 0.2, 1.2, 2.2)
+
+gen <- function(n_tasks, seed, model = "B", model2 = "inclusive", lambda = 1) {
+  des <- make_design(n_tasks, J, seed = seed)
+  simulate_dual(des, beta, cut_true, model = model, seed = seed + 1,
+                model2 = model2, lambda = lambda)
+}
+```
+
+```{r}
+#| label: worked-null
+knitr::kable(spec_test_battery(gen(3600, seed = 20007)),
+             row.names = FALSE, digits = 4)
+```
+
+Both null tests fail to reject, as they should. The third row is the informative
+one: $\delta = 1$ is rejected decisively, so on data from our model the test
+correctly discards DR-2Max.
+
+Now the same battery on data actually generated from DR-2Max:
+
+```{r}
+#| label: worked-2max
+knitr::kable(spec_test_battery(gen(3600, seed = 70007, model2 = "2max")),
+             row.names = FALSE, digits = 4)
+```
+
+The verdicts reverse. $\hat\delta$ lands near one, $\delta = 0$ is rejected, and
+$\delta = 1$ is not. A test that only ever rejected in one direction would be
+useless; this one discriminates both ways.
+
+## 4. Size
+
+Data generated from the correctly specified model. Nominal 5% tests should
+reject about 5% of the time.
+
+```{r}
+#| label: study
+R_SIZE <- 300
+R_POW  <- 150
+
+run_cell <- function(label, n_tasks, reps, seed0, model = "B",
+                     model2 = "inclusive", lambda = 1) {
+  rej <- matrix(0, reps, 3,
+                dimnames = list(NULL, c("lambda=1", "delta=0", "delta=1")))
+  est <- matrix(NA_real_, reps, 2,
+                dimnames = list(NULL, c("lambda_hat", "delta_hat")))
+  for (r in seq_len(reps)) {
+    dat <- gen(n_tasks, seed = seed0 + 7 * r, model = model,
+               model2 = model2, lambda = lambda)
+    tb <- spec_test_battery(dat)
+    rej[r, ] <- tb$p_lr < 0.05
+    est[r, ] <- c(tb$estimate[1], tb$estimate[2])
+  }
+  list(label = label, n = n_tasks, reps = reps, reject = colMeans(rej),
+       est_mean = colMeans(est), est_sd = apply(est, 2, sd))
+}
+
+cells <- list()
+cells$size_B_1200 <- run_cell("size B", 1200, R_SIZE, 10000)
+cells$size_B_3600 <- run_cell("size B", 3600, R_SIZE, 20000)
+cells$size_A_3600 <- run_cell("size A", 3600, R_SIZE, 30000, model = "A")
+```
+
+```{r}
+#| label: size-table
+as_row <- function(cl) data.frame(
+  cell = cl$label, n = cl$n, reps = cl$reps,
+  `reject lambda=1` = round(cl$reject[1], 3),
+  `reject delta=0`  = round(cl$reject[2], 3),
+  `reject delta=1`  = round(cl$reject[3], 3),
+  `mean lambda_hat` = round(cl$est_mean[1], 3),
+  `mean delta_hat`  = round(cl$est_mean[2], 3),
+  check.names = FALSE)
+knitr::kable(do.call(rbind, lapply(cells, as_row)), row.names = FALSE)
+```
+
+Three things to read here. The first two rejection columns sit near 0.05, so both
+tests hold their size. The estimates are centred on their theoretical values,
+$\lambda$ on one and $\delta$ on zero, so neither extension is biased. And the
+third column is not a size result at all: it is the power of the $\delta = 1$
+test against our model, and it is **1.000 in every cell**. The
+2Max-versus-inclusive-value question does not need large data to settle.
+
+## 5. Power
+
+Two families of alternative. Slope alternatives put $\lambda$ away from one;
+the DR-2Max alternative generates the second response from the chosen good.
+
+```{r}
+#| label: power
+cells$pow_lam07_3600 <- run_cell("power lambda=0.7", 3600, R_POW, 40000, lambda = 0.7)
+cells$pow_lam13_3600 <- run_cell("power lambda=1.3", 3600, R_POW, 50000, lambda = 1.3)
+cells$pow_lam07_1200 <- run_cell("power lambda=0.7", 1200, R_POW, 60000, lambda = 0.7)
+cells$pow_2max_3600  <- run_cell("power 2max (delta=1)", 3600, R_POW, 70000, model2 = "2max")
+cells$pow_2max_1200  <- run_cell("power 2max (delta=1)", 1200, R_POW, 80000, model2 = "2max")
+```
+
+```{r}
+#| label: power-table
+knitr::kable(do.call(rbind, lapply(cells[4:8], as_row)), row.names = FALSE)
+```
+
+Read each row against the alternative that generated it.
+
+Under the **slope alternatives**, $\hat\lambda$ recovers the true 0.7 and 1.3,
+the $\lambda$ test rejects with power 0.99 at 3,600 tasks, and the $\delta$ tests
+stay quiet: a slope problem is not mistaken for a conditioning problem. At 1,200
+tasks the power falls to roughly two-thirds, which is a useful design fact. A
+study intending to test the unit-slope claim needs more than a thousand tasks.
+
+Under the **DR-2Max alternative**, $\hat\delta$ lands on one, $\delta = 0$ is
+rejected in every replication, and $\delta = 1$ is not rejected. The $\lambda$
+test again stays quiet. Each test targets its own alternative and ignores the
+other, which is what makes a rejection interpretable.
+
+## 6. The full picture
+
+```{r}
+#| label: full-table
+knitr::kable(do.call(rbind, lapply(cells, as_row)), row.names = FALSE)
+```
+
+## 7. Results written
+
+```{r}
+#| label: save
+PROJ <- if (file.exists("_quarto.yml")) "." else ".."
+OUT  <- file.path(PROJ, "R", "output")
+dir.create(OUT, showWarnings = FALSE, recursive = TRUE)
+
+saveRDS(list(cells = cells,
+             settings = list(beta = beta, cut = cut_true, J = J, W = W,
+                             R_SIZE = R_SIZE, R_POW = R_POW)),
+        file.path(OUT, "spec_tests.rds"))
+cat("wrote spec_tests.rds\n")
+```
+
+## 8. Related material
+
+| where | what |
+|---|---|
+| notebook 01 | the aggregate estimator these tests extend |
+| notebook 05 | what happens when a misspecification is *not* tested for |
+| notebook 06 | why the link-discrimination question needs attractiveness variation |
+| `archive/identification_note.qmd` | where the $\lambda$ test came from |

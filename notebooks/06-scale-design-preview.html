@@ -1,0 +1,1360 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+    <meta charset="utf-8">
+    <meta name="generator" content="quarto-1.11.4">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+    <meta name="author" content="Dan Yavorsky">
+    <meta name="author" content="Geoffery Zheng">
+    <meta name="dcterms.date" content="2026-09-13">
+
+    <title>Designing the Scale</title>
+    <style>
+      /* Default styles provided by pandoc.
+      ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+      */
+      span.smallcaps{font-variant: small-caps;}
+      div.columns{display: flex; gap: 1.5em;}
+      div.column{flex: auto;}
+      @media screen {
+      div.columns{gap: min(4vw, 1.5em);}
+      div.column{overflow-x: auto;}
+      }
+      div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+      ul.task-list{list-style: none;}
+      ul.task-list li input[type="checkbox"] {
+        width: 0.8em;
+        margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+        vertical-align: middle;
+      }
+      /* CSS for syntax highlighting */
+      html { -webkit-text-size-adjust: 100%; }
+      pre > code.sourceCode { white-space: pre; position: relative; }
+      pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+      pre > code.sourceCode > span:empty { height: 1.2em; }
+      .sourceCode { overflow: visible; }
+      code.sourceCode > span { color: inherit; text-decoration: inherit; }
+      div.sourceCode { margin: 1em 0; }
+      pre.sourceCode { margin: 0; }
+      @media screen {
+      div.sourceCode { overflow: auto; }
+      }
+      @media print {
+      pre > code.sourceCode { white-space: pre-wrap; }
+      pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+      }
+      pre.numberSource code
+        { counter-reset: source-line 0; }
+      pre.numberSource code > span
+        { position: relative; left: -4em; counter-increment: source-line; }
+      pre.numberSource code > span > a:first-child::before
+        { content: counter(source-line);
+          position: relative; left: -1em; text-align: right; vertical-align: baseline;
+          border: none; display: inline-block;
+          -webkit-touch-callout: none; -webkit-user-select: none;
+          -khtml-user-select: none; -moz-user-select: none;
+          -ms-user-select: none; user-select: none;
+          padding: 0 4px; width: 4em;
+        }
+      pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+      div.sourceCode
+        {   }
+      @media screen {
+      pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+      }
+    </style>
+
+    <style>
+      body.hypothesis-enabled #quarto-embed-header {
+        padding-right: 36px;
+      }
+
+      #quarto-embed-header {
+        height: 3em;
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: solid 1px;
+      }
+
+      #quarto-embed-header h6 {
+        font-size: 1.1em;
+        padding-top: 0.6em;
+        margin-left: 1em;
+        margin-right: 1em;
+        font-weight: 400;
+      }
+
+      #quarto-embed-header a.quarto-back-link,
+      #quarto-embed-header a.quarto-download-embed {
+        font-size: 0.8em;
+        margin-top: 1em;
+        margin-bottom: 1em;
+        margin-left: 1em;
+        margin-right: 1em;
+      }
+
+      .quarto-back-container {
+        padding-left: 0.5em;
+        display: flex;
+      }
+
+      .headroom {
+          will-change: transform;
+          transition: transform 200ms linear;
+      }
+
+      .headroom--pinned {
+          transform: translateY(0%);
+      }
+
+      .headroom--unpinned {
+          transform: translateY(-100%);
+      }      
+    </style>
+
+    <script>
+    window.document.addEventListener("DOMContentLoaded", function () {
+
+      var header = window.document.querySelector("#quarto-embed-header");
+      const titleBannerEl = window.document.querySelector("body > #title-block-header");
+      if (titleBannerEl) {
+        titleBannerEl.style.paddingTop = header.clientHeight + "px";
+      }
+      const contentEl = window.document.getElementById('quarto-content');
+      for (const child of contentEl.children) {
+        child.style.paddingTop = header.clientHeight + "px";
+        child.style.marginTop = "1em";
+      }
+
+      // Use the article root if the `back` call doesn't work. This isn't perfect
+      // but should typically work
+      window.quartoBackToArticle = () => {
+        var currentUrl = window.location.href;
+        window.history.back();
+        setTimeout(() => {
+            // if location was not changed in 100 ms, then there is no history back
+            if(currentUrl === window.location.href){              
+                // redirect to site root
+                window.location.href = "../index.html";
+            }
+        }, 100);
+      }
+
+      const headroom = new window.Headroom(header, {
+        tolerance: 5,
+        onPin: function () {
+        },
+        onUnpin: function () {
+        },
+      });
+      headroom.init();
+    });
+    </script>
+
+    
+<script src="../site_libs/manuscript-notebook/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-03d3dfde56ecdf7ec35882f3b46e7ba8.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-6637c74bae20b611a26c1e446f3bbec3.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script src="../site_libs/quarto-contrib/glightbox/glightbox.min.js"></script>
+<link href="../site_libs/quarto-contrib/glightbox/glightbox.min.css" rel="stylesheet">
+<link href="../site_libs/quarto-contrib/glightbox/lightbox.css" rel="stylesheet">
+      <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script> 
+      </head>
+
+  <body class="quarto-notebook quarto-light"><a id="quarto-skip-link" class="visually-hidden-focusable" href="#quarto-document-content">Skip to main content</a>
+    <div id="quarto-embed-header" class="headroom fixed-top bg-primary">
+      
+      <a onclick="window.quartoBackToArticle(); return false;" class="btn btn-primary quarto-back-link" href=""><i class="bi bi-caret-left"></i> Back to Article</a>
+      <h6><i class="bi bi-journal-code"></i> Designing the Scale</h6>
+
+            <a href="../notebooks/06-scale-design.qmd" class="btn btn-primary quarto-download-embed" download="06-scale-design.qmd">Download Source</a>
+          </div>
+
+     <header id="title-block-header" class="quarto-title-block default toc-left page-columns page-full">
+  <div class="quarto-title-banner page-columns page-full">
+    <div class="quarto-title column-body">
+      <h1 class="title">Designing the Scale</h1>
+            <p class="subtitle lead">How many points, where to put them, and what the design must vary</p>
+          </div>
+
+    
+    <div class="quarto-title-meta-container">
+      <div class="quarto-title-meta-column-start">
+        
+        <div class="quarto-title-meta">
+
+                <div>
+            <div class="quarto-title-meta-heading">Authors</div>
+            <div class="quarto-title-meta-contents">
+                        <p>Dan Yavorsky </p>
+                        <p>Geoffery Zheng </p>
+                      </div>
+          </div>
+                
+                <div>
+            <div class="quarto-title-meta-heading">Published</div>
+            <div class="quarto-title-meta-contents">
+              <p class="date">September 13, 2026</p>
+            </div>
+          </div>
+          
+                
+              </div>
+      </div>
+      <div class="quarto-title-meta-column-end quarto-other-formats-target">
+      </div>
+    </div>
+
+
+
+    <div class="quarto-other-links-text-target">
+    </div>  </div>
+</header><div id="quarto-content" class="page-columns page-rows-contents page-layout-article toc-left">
+<div id="quarto-sidebar-toc-left" class="sidebar toc-left">
+  <nav id="TOC" role="doc-toc" aria-labelledby="toc-title" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#what-this-notebook-does" id="toc-what-this-notebook-does" class="nav-link active" data-scroll-target="#what-this-notebook-does">What this notebook does</a></li>
+  <li><a href="#machinery" id="toc-machinery" class="nav-link" data-scroll-target="#machinery">1. Machinery</a></li>
+  <li><a href="#how-many-scale-points" id="toc-how-many-scale-points" class="nav-link" data-scroll-target="#how-many-scale-points">2. How many scale points?</a></li>
+  <li><a href="#where-should-the-cut-points-fall" id="toc-where-should-the-cut-points-fall" class="nav-link" data-scroll-target="#where-should-the-cut-points-fall">3. Where should the cut points fall?</a></li>
+  <li><a href="#what-the-design-must-vary" id="toc-what-the-design-must-vary" class="nav-link" data-scroll-target="#what-the-design-must-vary">4. What the design must vary</a></li>
+  <li><a href="#the-negative-result-designs-that-cannot-learn-the-link" id="toc-the-negative-result-designs-that-cannot-learn-the-link" class="nav-link" data-scroll-target="#the-negative-result-designs-that-cannot-learn-the-link">5. The negative result: designs that cannot learn the link</a></li>
+  <li><a href="#results-written" id="toc-results-written" class="nav-link" data-scroll-target="#results-written">6. Results written</a></li>
+  <li><a href="#related-material" id="toc-related-material" class="nav-link" data-scroll-target="#related-material">7. Related material</a></li>
+  </ul>
+</nav>
+</div>
+<div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
+</div>
+<main class="content quarto-banner-title-block" id="quarto-document-content" tabindex="-1">      
+
+       <section id="what-this-notebook-does" class="level2">
+<h2 class="anchored" data-anchor-id="what-this-notebook-does">What this notebook does</h2>
+<p>The information results in the paper are abstract. This notebook turns them into three concrete decisions a researcher has to make before fielding a study.</p>
+<ol type="1">
+<li><strong>How many scale points?</strong> A binary follow-up is the least informative member of the family and a continuous report is the limit. Where between them does a five- or seven-point scale sit?</li>
+<li><strong>Where do the cut points fall?</strong> Scale size is only half the problem. The labels a respondent sees determine where the thresholds land, and placement turns out to matter about as much as count, at least for one of the two links.</li>
+<li><strong>What must the design vary?</strong> Separately from the scale, telling Model A from Model B requires the tasks to vary in attractiveness. This is a property of the design, not of the sample size, and the distinction has real consequences: a study can collect unlimited data and still learn nothing about the link.</li>
+</ol>
+<p>The third result is the sharpest, and it is a negative one. It is also the cleanest empirical demonstration of the identification argument in the model section, since it shows exactly what is lost when the identifying variation is removed.</p>
+<p>This notebook is the source of <code>link_discrimination.rds</code>, <code>link_discrimination_squashed.rds</code>, <code>design_guidance.rds</code>, and the figure the article displays.</p>
+<div class="cell-container"><div class="cell-decorator"><pre>In [1]:</pre></div><div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">digits =</span> <span class="dv">5</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div></div>
+</section>
+<section id="machinery" class="level2">
+<h2 class="anchored" data-anchor-id="machinery">1. Machinery</h2>
+<div class="cell-container code-fold"><div class="cell-decorator"><pre>In [2]:</pre></div><div class="cell">
+<details class="code-fold">
+<summary>Design, simulator, likelihood, and the information weight omega</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>rgumbel <span class="ot">&lt;-</span> <span class="cf">function</span>(n) <span class="sc">-</span><span class="fu">log</span>(<span class="sc">-</span><span class="fu">log</span>(<span class="fu">runif</span>(n)))</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>make_design <span class="ot">&lt;-</span> <span class="cf">function</span>(n_tasks, J, seed, <span class="at">intercept =</span> <span class="cn">FALSE</span>) {</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set.seed</span>(seed)</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  n_rows <span class="ot">&lt;-</span> n_tasks <span class="sc">*</span> J</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  a <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>, n_rows, <span class="at">replace =</span> <span class="cn">TRUE</span>); b <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>, n_rows, <span class="at">replace =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  price <span class="ot">&lt;-</span> <span class="fu">runif</span>(n_rows, <span class="fl">0.5</span>, <span class="fl">2.5</span>)</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  X <span class="ot">&lt;-</span> <span class="fu">cbind</span>(<span class="at">a2 =</span> <span class="fu">as.numeric</span>(a <span class="sc">==</span> <span class="dv">2</span>), <span class="at">a3 =</span> <span class="fu">as.numeric</span>(a <span class="sc">==</span> <span class="dv">3</span>),</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>             <span class="at">b2 =</span> <span class="fu">as.numeric</span>(b <span class="sc">==</span> <span class="dv">2</span>), <span class="at">b3 =</span> <span class="fu">as.numeric</span>(b <span class="sc">==</span> <span class="dv">3</span>), <span class="at">price =</span> price)</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (intercept) X <span class="ot">&lt;-</span> <span class="fu">cbind</span>(X, <span class="at">const =</span> <span class="dv">1</span>)</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(<span class="at">X =</span> X, <span class="at">n_tasks =</span> n_tasks, <span class="at">J =</span> J, <span class="at">P =</span> <span class="fu">ncol</span>(X))</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>par_to_cut <span class="ot">&lt;-</span> <span class="cf">function</span>(par, P, W) {</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (W <span class="sc">==</span> <span class="dv">2</span>) <span class="fu">return</span>(par[P <span class="sc">+</span> <span class="dv">1</span>])</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>  par[P <span class="sc">+</span> <span class="dv">1</span>] <span class="sc">+</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fu">cumsum</span>(<span class="fu">exp</span>(par[(P <span class="sc">+</span> <span class="dv">2</span>)<span class="sc">:</span>(P <span class="sc">+</span> W <span class="sc">-</span> <span class="dv">1</span>)])))</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>cut_to_par <span class="ot">&lt;-</span> <span class="cf">function</span>(cut) <span class="cf">if</span> (<span class="fu">length</span>(cut) <span class="sc">==</span> <span class="dv">1</span>) cut <span class="cf">else</span> <span class="fu">c</span>(cut[<span class="dv">1</span>], <span class="fu">log</span>(<span class="fu">diff</span>(cut)))</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>row_max <span class="ot">&lt;-</span> <span class="cf">function</span>(M) <span class="fu">do.call</span>(pmax, <span class="fu">as.data.frame</span>(M))</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>link_cdf <span class="ot">&lt;-</span> <span class="cf">function</span>(z, model) <span class="cf">if</span> (model <span class="sc">==</span> <span class="st">"B"</span>) <span class="fu">plogis</span>(z) <span class="cf">else</span> <span class="fu">exp</span>(<span class="sc">-</span><span class="fu">exp</span>(<span class="sc">-</span>z))</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>link_pdf <span class="ot">&lt;-</span> <span class="cf">function</span>(z, model) <span class="cf">if</span> (model <span class="sc">==</span> <span class="st">"B"</span>) <span class="fu">dlogis</span>(z) <span class="cf">else</span> <span class="fu">exp</span>(<span class="sc">-</span>(z <span class="sc">+</span> <span class="fu">exp</span>(<span class="sc">-</span>z)))</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>ord_prob_z <span class="ot">&lt;-</span> <span class="cf">function</span>(lo, hi, model) {</span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (model <span class="sc">==</span> <span class="st">"B"</span>) <span class="fu">plogis</span>(hi) <span class="sc">*</span> <span class="fu">plogis</span>(<span class="sc">-</span>lo) <span class="sc">*</span> (<span class="sc">-</span><span class="fu">expm1</span>(lo <span class="sc">-</span> hi))</span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>  <span class="cf">else</span> { ea <span class="ot">&lt;-</span> <span class="fu">exp</span>(<span class="sc">-</span>lo); eb <span class="ot">&lt;-</span> <span class="fu">exp</span>(<span class="sc">-</span>hi)</span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>         p <span class="ot">&lt;-</span> <span class="fu">exp</span>(<span class="sc">-</span>eb) <span class="sc">*</span> (<span class="sc">-</span><span class="fu">expm1</span>(<span class="sc">-</span>(ea <span class="sc">-</span> eb))); p[<span class="sc">!</span><span class="fu">is.finite</span>(eb)] <span class="ot">&lt;-</span> <span class="dv">0</span>; p }</span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>ord_prob <span class="ot">&lt;-</span> <span class="cf">function</span>(mubar, cut, y, model) {</span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>  caug <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="sc">-</span><span class="cn">Inf</span>, cut, <span class="cn">Inf</span>); <span class="fu">ord_prob_z</span>(caug[y] <span class="sc">-</span> mubar, caug[y <span class="sc">+</span> <span class="dv">1</span>L] <span class="sc">-</span> mubar, model)</span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>negloglik <span class="ot">&lt;-</span> <span class="cf">function</span>(par, dat) {</span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>  design <span class="ot">&lt;-</span> dat<span class="sc">$</span>design; P <span class="ot">&lt;-</span> design<span class="sc">$</span>P; W <span class="ot">&lt;-</span> dat<span class="sc">$</span>W</span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>  n <span class="ot">&lt;-</span> design<span class="sc">$</span>n_tasks; J <span class="ot">&lt;-</span> design<span class="sc">$</span>J</span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>  beta <span class="ot">&lt;-</span> par[<span class="dv">1</span><span class="sc">:</span>P]; cut <span class="ot">&lt;-</span> <span class="fu">par_to_cut</span>(par, P, W)</span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>  V <span class="ot">&lt;-</span> <span class="fu">matrix</span>(design<span class="sc">$</span>X <span class="sc">%*%</span> beta, <span class="at">nrow =</span> n, <span class="at">ncol =</span> J, <span class="at">byrow =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>  m <span class="ot">&lt;-</span> <span class="fu">row_max</span>(V); logS <span class="ot">&lt;-</span> m <span class="sc">+</span> <span class="fu">log</span>(<span class="fu">rowSums</span>(<span class="fu">exp</span>(V <span class="sc">-</span> m)))</span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>  <span class="sc">-</span>(<span class="fu">sum</span>(V[<span class="fu">cbind</span>(<span class="fu">seq_len</span>(n), dat<span class="sc">$</span>jstar)] <span class="sc">-</span> logS) <span class="sc">+</span></span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>    <span class="fu">sum</span>(<span class="fu">log</span>(<span class="fu">pmax</span>(<span class="fu">ord_prob</span>(logS, cut, dat<span class="sc">$</span>y, dat<span class="sc">$</span>model), <span class="fl">1e-312</span>))))</span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>fit_dual_mle <span class="ot">&lt;-</span> <span class="cf">function</span>(dat, <span class="at">start =</span> <span class="cn">NULL</span>) {</span>
+<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a>  design <span class="ot">&lt;-</span> dat<span class="sc">$</span>design; P <span class="ot">&lt;-</span> design<span class="sc">$</span>P; W <span class="ot">&lt;-</span> dat<span class="sc">$</span>W</span>
+<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">is.null</span>(start)) {</span>
+<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a>    freq <span class="ot">&lt;-</span> <span class="fu">tabulate</span>(dat<span class="sc">$</span>y, <span class="at">nbins =</span> W)</span>
+<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a>    cumq <span class="ot">&lt;-</span> <span class="fu">pmin</span>(<span class="fu">pmax</span>(<span class="fu">cumsum</span>(freq)[<span class="dv">1</span><span class="sc">:</span>(W <span class="sc">-</span> <span class="dv">1</span>)] <span class="sc">/</span> <span class="fu">sum</span>(freq), <span class="fl">1e-4</span>), <span class="dv">1</span> <span class="sc">-</span> <span class="fl">1e-4</span>)</span>
+<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a>    ginv <span class="ot">&lt;-</span> <span class="cf">if</span> (dat<span class="sc">$</span>model <span class="sc">==</span> <span class="st">"B"</span>) qlogis <span class="cf">else</span> <span class="cf">function</span>(q) <span class="sc">-</span><span class="fu">log</span>(<span class="sc">-</span><span class="fu">log</span>(q))</span>
+<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a>    cut0 <span class="ot">&lt;-</span> <span class="fu">log</span>(design<span class="sc">$</span>J) <span class="sc">+</span> <span class="fu">ginv</span>(cumq)</span>
+<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (W <span class="sc">&gt;</span> <span class="dv">2</span>) <span class="cf">for</span> (k <span class="cf">in</span> <span class="dv">2</span><span class="sc">:</span>(W <span class="sc">-</span> <span class="dv">1</span>)) cut0[k] <span class="ot">&lt;-</span> <span class="fu">max</span>(cut0[k], cut0[k <span class="sc">-</span> <span class="dv">1</span>] <span class="sc">+</span> <span class="fl">1e-3</span>)</span>
+<span id="cb2-45"><a href="#cb2-45" aria-hidden="true" tabindex="-1"></a>    start <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">rep</span>(<span class="dv">0</span>, P), <span class="fu">cut_to_par</span>(cut0))</span>
+<span id="cb2-46"><a href="#cb2-46" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb2-47"><a href="#cb2-47" aria-hidden="true" tabindex="-1"></a>  fn <span class="ot">&lt;-</span> <span class="cf">function</span>(p) <span class="fu">negloglik</span>(p, dat)</span>
+<span id="cb2-48"><a href="#cb2-48" aria-hidden="true" tabindex="-1"></a>  opt <span class="ot">&lt;-</span> <span class="fu">optim</span>(start, fn, <span class="at">method =</span> <span class="st">"BFGS"</span>, <span class="at">control =</span> <span class="fu">list</span>(<span class="at">maxit =</span> <span class="dv">1000</span>, <span class="at">reltol =</span> <span class="fl">1e-12</span>))</span>
+<span id="cb2-49"><a href="#cb2-49" aria-hidden="true" tabindex="-1"></a>  H <span class="ot">&lt;-</span> <span class="fu">optimHess</span>(opt<span class="sc">$</span>par, fn)</span>
+<span id="cb2-50"><a href="#cb2-50" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(<span class="at">beta =</span> opt<span class="sc">$</span>par[<span class="dv">1</span><span class="sc">:</span>P], <span class="at">cut =</span> <span class="fu">par_to_cut</span>(opt<span class="sc">$</span>par, P, W), <span class="at">nll =</span> opt<span class="sc">$</span>value,</span>
+<span id="cb2-51"><a href="#cb2-51" aria-hidden="true" tabindex="-1"></a>       <span class="at">par =</span> opt<span class="sc">$</span>par, <span class="at">eigen =</span> <span class="fu">eigen</span>(H, <span class="at">symmetric =</span> <span class="cn">TRUE</span>, <span class="at">only.values =</span> <span class="cn">TRUE</span>)<span class="sc">$</span>values)</span>
+<span id="cb2-52"><a href="#cb2-52" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-53"><a href="#cb2-53" aria-hidden="true" tabindex="-1"></a>simulate_dual <span class="ot">&lt;-</span> <span class="cf">function</span>(design, beta, cut, <span class="at">model =</span> <span class="fu">c</span>(<span class="st">"A"</span>,<span class="st">"B"</span>), seed) {</span>
+<span id="cb2-54"><a href="#cb2-54" aria-hidden="true" tabindex="-1"></a>  model <span class="ot">&lt;-</span> <span class="fu">match.arg</span>(model); <span class="fu">set.seed</span>(seed)</span>
+<span id="cb2-55"><a href="#cb2-55" aria-hidden="true" tabindex="-1"></a>  n <span class="ot">&lt;-</span> design<span class="sc">$</span>n_tasks; J <span class="ot">&lt;-</span> design<span class="sc">$</span>J</span>
+<span id="cb2-56"><a href="#cb2-56" aria-hidden="true" tabindex="-1"></a>  V <span class="ot">&lt;-</span> <span class="fu">matrix</span>(design<span class="sc">$</span>X <span class="sc">%*%</span> beta, <span class="at">nrow =</span> n, <span class="at">ncol =</span> J, <span class="at">byrow =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb2-57"><a href="#cb2-57" aria-hidden="true" tabindex="-1"></a>  u <span class="ot">&lt;-</span> V <span class="sc">+</span> <span class="fu">matrix</span>(<span class="fu">rgumbel</span>(n <span class="sc">*</span> J), n, J)</span>
+<span id="cb2-58"><a href="#cb2-58" aria-hidden="true" tabindex="-1"></a>  jstar <span class="ot">&lt;-</span> <span class="fu">max.col</span>(u, <span class="at">ties.method =</span> <span class="st">"first"</span>)</span>
+<span id="cb2-59"><a href="#cb2-59" aria-hidden="true" tabindex="-1"></a>  ustar <span class="ot">&lt;-</span> u[<span class="fu">cbind</span>(<span class="fu">seq_len</span>(n), jstar)]</span>
+<span id="cb2-60"><a href="#cb2-60" aria-hidden="true" tabindex="-1"></a>  latent <span class="ot">&lt;-</span> <span class="cf">if</span> (model <span class="sc">==</span> <span class="st">"A"</span>) ustar <span class="cf">else</span> ustar <span class="sc">-</span> <span class="fu">rgumbel</span>(n)</span>
+<span id="cb2-61"><a href="#cb2-61" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(<span class="at">design =</span> design, <span class="at">jstar =</span> jstar, <span class="at">y =</span> <span class="fu">findInterval</span>(latent, cut) <span class="sc">+</span> <span class="dv">1</span>L,</span>
+<span id="cb2-62"><a href="#cb2-62" aria-hidden="true" tabindex="-1"></a>       <span class="at">W =</span> <span class="fu">length</span>(cut) <span class="sc">+</span> <span class="dv">1</span>L, <span class="at">model =</span> model)</span>
+<span id="cb2-63"><a href="#cb2-63" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-64"><a href="#cb2-64" aria-hidden="true" tabindex="-1"></a><span class="co"># The second-stage information weight from the paper's decomposition.</span></span>
+<span id="cb2-65"><a href="#cb2-65" aria-hidden="true" tabindex="-1"></a>omega_weight <span class="ot">&lt;-</span> <span class="cf">function</span>(mubar, cut, model) {</span>
+<span id="cb2-66"><a href="#cb2-66" aria-hidden="true" tabindex="-1"></a>  z <span class="ot">&lt;-</span> <span class="fu">outer</span>(mubar, cut, <span class="cf">function</span>(m, c) c <span class="sc">-</span> m)</span>
+<span id="cb2-67"><a href="#cb2-67" aria-hidden="true" tabindex="-1"></a>  Gz <span class="ot">&lt;-</span> <span class="fu">cbind</span>(<span class="dv">0</span>, <span class="fu">link_cdf</span>(z, model), <span class="dv">1</span>); gz <span class="ot">&lt;-</span> <span class="fu">cbind</span>(<span class="dv">0</span>, <span class="fu">link_pdf</span>(z, model), <span class="dv">0</span>)</span>
+<span id="cb2-68"><a href="#cb2-68" aria-hidden="true" tabindex="-1"></a>  W <span class="ot">&lt;-</span> <span class="fu">length</span>(cut) <span class="sc">+</span> <span class="dv">1</span>L</span>
+<span id="cb2-69"><a href="#cb2-69" aria-hidden="true" tabindex="-1"></a>  om <span class="ot">&lt;-</span> <span class="dv">0</span></span>
+<span id="cb2-70"><a href="#cb2-70" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (w <span class="cf">in</span> <span class="fu">seq_len</span>(W)) om <span class="ot">&lt;-</span> om <span class="sc">+</span> (gz[, w <span class="sc">+</span> <span class="dv">1</span>] <span class="sc">-</span> gz[, w])<span class="sc">^</span><span class="dv">2</span> <span class="sc">/</span> (Gz[, w <span class="sc">+</span> <span class="dv">1</span>] <span class="sc">-</span> Gz[, w])</span>
+<span id="cb2-71"><a href="#cb2-71" aria-hidden="true" tabindex="-1"></a>  om</span>
+<span id="cb2-72"><a href="#cb2-72" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div></div>
+<div class="cell-container"><div class="cell-decorator"><pre>In [3]:</pre></div><div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>J <span class="ot">&lt;-</span> <span class="dv">4</span>; W <span class="ot">&lt;-</span> <span class="dv">5</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>beta   <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="at">a2 =</span> <span class="fl">0.8</span>, <span class="at">a3 =</span> <span class="sc">-</span><span class="fl">0.5</span>, <span class="at">b2 =</span> <span class="fl">0.4</span>, <span class="at">b3 =</span> <span class="fl">1.0</span>, <span class="at">price =</span> <span class="sc">-</span><span class="fl">0.9</span>)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>cutB   <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="sc">-</span><span class="fl">1.0</span>, <span class="fl">0.2</span>, <span class="fl">1.2</span>, <span class="fl">2.2</span>)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>alphaA <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fl">0.10</span>, <span class="fl">0.30</span>, <span class="fl">0.60</span>, <span class="fl">0.85</span>)</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>cutA   <span class="ot">&lt;-</span> <span class="sc">-</span><span class="fu">log</span>(<span class="sc">-</span><span class="fu">log</span>(alphaA))</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>TAU2   <span class="ot">&lt;-</span> <span class="dv">100</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>R_REPS <span class="ot">&lt;-</span> <span class="dv">60</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div></div>
+</section>
+<section id="how-many-scale-points" class="level2">
+<h2 class="anchored" data-anchor-id="how-many-scale-points">2. How many scale points?</h2>
+<p>The quantity to maximize is <span class="math inline">\(\omega\)</span>, the second response’s contribution to the information matrix. It has a ceiling: the information a <em>continuous</em> report of the latent would carry, which is <span class="math inline">\(1\)</span> for the Gumbel link and <span class="math inline">\(1/3\)</span> for the logistic. Every finite scale is a partition of that continuum, and refining the partition can only add information.</p>
+<div class="cell-container"><div class="cell-decorator"><pre>In [4]:</pre></div><div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>I_LATENT <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="at">A =</span> <span class="dv">1</span>, <span class="at">B =</span> <span class="dv">1</span><span class="sc">/</span><span class="dv">3</span>)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>mean_omega <span class="ot">&lt;-</span> <span class="cf">function</span>(cut, model, m0, s, <span class="at">ngrid =</span> <span class="dv">81</span>) {</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  z <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="sc">-</span><span class="dv">4</span>, <span class="dv">4</span>, <span class="at">length.out =</span> ngrid); w <span class="ot">&lt;-</span> <span class="fu">dnorm</span>(z); w <span class="ot">&lt;-</span> w <span class="sc">/</span> <span class="fu">sum</span>(w)</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">sum</span>(w <span class="sc">*</span> <span class="fu">omega_weight</span>(m0 <span class="sc">+</span> s <span class="sc">*</span> z, cut, model))</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Cut points giving every category the same expected share.</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>equal_share_cuts <span class="ot">&lt;-</span> <span class="cf">function</span>(W, model, m0, s) {</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>  qs <span class="ot">&lt;-</span> <span class="fu">seq_len</span>(W <span class="sc">-</span> <span class="dv">1</span>) <span class="sc">/</span> W</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>  G <span class="ot">&lt;-</span> <span class="cf">if</span> (model <span class="sc">==</span> <span class="st">"B"</span>) <span class="cf">function</span>(c, m) <span class="fu">plogis</span>(c <span class="sc">-</span> m) <span class="cf">else</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>                          <span class="cf">function</span>(c, m) <span class="fu">exp</span>(<span class="sc">-</span><span class="fu">exp</span>(<span class="sc">-</span>(c <span class="sc">-</span> m)))</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>  f <span class="ot">&lt;-</span> <span class="cf">function</span>(c) <span class="fu">integrate</span>(<span class="cf">function</span>(m) <span class="fu">G</span>(c, m) <span class="sc">*</span> <span class="fu">dnorm</span>(m, m0, s),</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>                             m0 <span class="sc">-</span> <span class="dv">6</span><span class="sc">*</span>s <span class="sc">-</span> <span class="dv">10</span>, m0 <span class="sc">+</span> <span class="dv">6</span><span class="sc">*</span>s <span class="sc">+</span> <span class="dv">10</span>)<span class="sc">$</span>value</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">vapply</span>(qs, <span class="cf">function</span>(q) <span class="fu">uniroot</span>(<span class="cf">function</span>(c) <span class="fu">f</span>(c) <span class="sc">-</span> q, <span class="fu">c</span>(m0 <span class="sc">-</span> <span class="dv">20</span>, m0 <span class="sc">+</span> <span class="dv">20</span>))<span class="sc">$</span>root,</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>         <span class="fu">numeric</span>(<span class="dv">1</span>))</span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>REGIMES <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">unattractive =</span> <span class="sc">-</span><span class="fl">1.5</span>, <span class="at">typical =</span> <span class="fl">0.6</span>, <span class="at">attractive =</span> <span class="fl">2.3</span>)</span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>SPREAD  <span class="ot">&lt;-</span> <span class="fl">0.5</span></span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>WGRID   <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">5</span>, <span class="dv">7</span>, <span class="dv">9</span>, <span class="dv">11</span>)</span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>tab_w <span class="ot">&lt;-</span> <span class="fu">do.call</span>(rbind, <span class="fu">lapply</span>(<span class="fu">names</span>(REGIMES), <span class="cf">function</span>(rg) {</span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>  m0 <span class="ot">&lt;-</span> REGIMES[[rg]]</span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">do.call</span>(rbind, <span class="fu">lapply</span>(<span class="fu">c</span>(<span class="st">"A"</span>,<span class="st">"B"</span>), <span class="cf">function</span>(model) {</span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>    <span class="fu">do.call</span>(rbind, <span class="fu">lapply</span>(WGRID, <span class="cf">function</span>(Wk) {</span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>      cuts <span class="ot">&lt;-</span> <span class="fu">equal_share_cuts</span>(Wk, model, m0, SPREAD)</span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>      om <span class="ot">&lt;-</span> <span class="fu">mean_omega</span>(cuts, model, m0, SPREAD)</span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>      <span class="fu">data.frame</span>(<span class="at">regime =</span> rg, <span class="at">model =</span> model, <span class="at">W =</span> Wk, <span class="at">omega =</span> om,</span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>                 <span class="at">frac =</span> om <span class="sc">/</span> I_LATENT[model])</span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>    }))</span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a>  }))</span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a>}))</span>
+<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(</span>
+<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">reshape</span>(tab_w[, <span class="fu">c</span>(<span class="st">"regime"</span>,<span class="st">"model"</span>,<span class="st">"W"</span>,<span class="st">"frac"</span>)], <span class="at">direction =</span> <span class="st">"wide"</span>,</span>
+<span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a>          <span class="at">idvar =</span> <span class="fu">c</span>(<span class="st">"model"</span>,<span class="st">"W"</span>), <span class="at">timevar =</span> <span class="st">"regime"</span>),</span>
+<span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a>  <span class="at">row.names =</span> <span class="cn">FALSE</span>, <span class="at">digits =</span> <span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: left;">model</th>
+<th style="text-align: right;">W</th>
+<th style="text-align: right;">frac.unattractive</th>
+<th style="text-align: right;">frac.typical</th>
+<th style="text-align: right;">frac.attractive</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">A</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0.463</td>
+<td style="text-align: right;">0.463</td>
+<td style="text-align: right;">0.463</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">A</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0.634</td>
+<td style="text-align: right;">0.634</td>
+<td style="text-align: right;">0.634</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">A</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">0.777</td>
+<td style="text-align: right;">0.777</td>
+<td style="text-align: right;">0.777</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">A</td>
+<td style="text-align: right;">7</td>
+<td style="text-align: right;">0.840</td>
+<td style="text-align: right;">0.840</td>
+<td style="text-align: right;">0.840</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">A</td>
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">0.875</td>
+<td style="text-align: right;">0.875</td>
+<td style="text-align: right;">0.875</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">A</td>
+<td style="text-align: right;">11</td>
+<td style="text-align: right;">0.898</td>
+<td style="text-align: right;">0.898</td>
+<td style="text-align: right;">0.898</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">B</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0.708</td>
+<td style="text-align: right;">0.708</td>
+<td style="text-align: right;">0.708</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">B</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0.865</td>
+<td style="text-align: right;">0.865</td>
+<td style="text-align: right;">0.865</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">B</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">0.950</td>
+<td style="text-align: right;">0.950</td>
+<td style="text-align: right;">0.950</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">B</td>
+<td style="text-align: right;">7</td>
+<td style="text-align: right;">0.974</td>
+<td style="text-align: right;">0.974</td>
+<td style="text-align: right;">0.974</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">B</td>
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">0.984</td>
+<td style="text-align: right;">0.984</td>
+<td style="text-align: right;">0.984</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">B</td>
+<td style="text-align: right;">11</td>
+<td style="text-align: right;">0.990</td>
+<td style="text-align: right;">0.990</td>
+<td style="text-align: right;">0.990</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div></div>
+<div class="cell-container"><div class="cell-decorator"><pre>In [5]:</pre></div><div id="cell-fig-infoW" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">suppressMessages</span>(<span class="fu">library</span>(ggplot2))</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>tab_w<span class="sc">$</span>regime <span class="ot">&lt;-</span> <span class="fu">factor</span>(tab_w<span class="sc">$</span>regime, <span class="at">levels =</span> <span class="fu">names</span>(REGIMES))</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>g1 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(tab_w, <span class="fu">aes</span>(W, frac, <span class="at">colour =</span> regime, <span class="at">linetype =</span> model)) <span class="sc">+</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>() <span class="sc">+</span> <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="fl">1.8</span>) <span class="sc">+</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">breaks =</span> WGRID) <span class="sc">+</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"scale points W"</span>, <span class="at">y =</span> <span class="st">"share of continuous-report information"</span>,</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>       <span class="at">colour =</span> <span class="st">"task regime"</span>, <span class="at">linetype =</span> <span class="st">"link"</span>,</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>       <span class="at">title =</span> <span class="st">"Second-stage information by scale size"</span>,</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">"cut points at equal expected shares"</span>) <span class="sc">+</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">11</span>)</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>g1</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div id="fig-infoW" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-infoW-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca" class="">
+<a href="06-scale-design_files/figure-html/fig-infoW-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-1" title="Share of the continuous-report information captured by a W-point second response, cut points at equal expected shares."><img src="06-scale-design_files/figure-html/fig-infoW-1.png" class="img-fluid figure-img" width="672"></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-infoW-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Share of the continuous-report information captured by a W-point second response, cut points at equal expected shares.
+</figcaption>
+</figure>
+</div>
+</div>
+</div></div>
+<p>The shape is the finding. Going from two points to five closes most of the gap to a continuous report; going from seven to eleven adds very little. A binary follow-up is not merely <em>a</em> choice of scale, it is the least informative one available, and the first few extra categories are nearly free.</p>
+</section>
+<section id="where-should-the-cut-points-fall" class="level2">
+<h2 class="anchored" data-anchor-id="where-should-the-cut-points-fall">3. Where should the cut points fall?</h2>
+<p>Scale size is the decision researchers discuss. Placement is the one they make implicitly, by choosing labels. Compare three placements at <span class="math inline">\(W = 5\)</span>: the information-optimal one, equal expected shares, and a “conventional label” placement reproducing the bottom-heavy distribution fielded purchase-intent scales actually produce.</p>
+<div class="cell-container"><div class="cell-decorator"><pre>In [6]:</pre></div><div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>optimal_cuts <span class="ot">&lt;-</span> <span class="cf">function</span>(W, model, m0, s) {</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  start <span class="ot">&lt;-</span> <span class="fu">equal_share_cuts</span>(W, model, m0, s)</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (W <span class="sc">==</span> <span class="dv">2</span>) {</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    opt <span class="ot">&lt;-</span> <span class="fu">optimize</span>(<span class="cf">function</span>(c) <span class="sc">-</span><span class="fu">mean_omega</span>(c, model, m0, s),</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>                    <span class="at">interval =</span> <span class="fu">c</span>(m0 <span class="sc">-</span> <span class="dv">8</span>, m0 <span class="sc">+</span> <span class="dv">8</span>))</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span>(<span class="fu">list</span>(<span class="at">cut =</span> opt<span class="sc">$</span>minimum, <span class="at">omega =</span> <span class="sc">-</span>opt<span class="sc">$</span>objective))</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>  fn <span class="ot">&lt;-</span> <span class="cf">function</span>(p) <span class="sc">-</span><span class="fu">mean_omega</span>(p[<span class="dv">1</span>] <span class="sc">+</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fu">cumsum</span>(<span class="fu">exp</span>(p[<span class="sc">-</span><span class="dv">1</span>]))), model, m0, s)</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>  opt <span class="ot">&lt;-</span> <span class="fu">optim</span>(<span class="fu">c</span>(start[<span class="dv">1</span>], <span class="fu">log</span>(<span class="fu">diff</span>(start))), fn, <span class="at">method =</span> <span class="st">"BFGS"</span>,</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>               <span class="at">control =</span> <span class="fu">list</span>(<span class="at">maxit =</span> <span class="dv">500</span>))</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(<span class="at">cut =</span> opt<span class="sc">$</span>par[<span class="dv">1</span>] <span class="sc">+</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fu">cumsum</span>(<span class="fu">exp</span>(opt<span class="sc">$</span>par[<span class="sc">-</span><span class="dv">1</span>]))), <span class="at">omega =</span> <span class="sc">-</span>opt<span class="sc">$</span>value)</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>placements <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (model <span class="cf">in</span> <span class="fu">c</span>(<span class="st">"A"</span>,<span class="st">"B"</span>)) {</span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>  m0 <span class="ot">&lt;-</span> REGIMES<span class="sc">$</span>typical</span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>  eq <span class="ot">&lt;-</span> <span class="fu">equal_share_cuts</span>(<span class="dv">5</span>, model, m0, SPREAD)</span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>  op <span class="ot">&lt;-</span> <span class="fu">optimal_cuts</span>(<span class="dv">5</span>, model, m0, SPREAD)</span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>  G <span class="ot">&lt;-</span> <span class="cf">if</span> (model <span class="sc">==</span> <span class="st">"B"</span>) <span class="cf">function</span>(c, m) <span class="fu">plogis</span>(c <span class="sc">-</span> m) <span class="cf">else</span></span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>                          <span class="cf">function</span>(c, m) <span class="fu">exp</span>(<span class="sc">-</span><span class="fu">exp</span>(<span class="sc">-</span>(c <span class="sc">-</span> m)))</span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>  conv_shares <span class="ot">&lt;-</span> <span class="fu">cumsum</span>(<span class="fu">c</span>(<span class="fl">0.35</span>, <span class="fl">0.23</span>, <span class="fl">0.23</span>, <span class="fl">0.12</span>))</span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>  conv <span class="ot">&lt;-</span> <span class="fu">vapply</span>(conv_shares, <span class="cf">function</span>(q) <span class="fu">uniroot</span>(<span class="cf">function</span>(c)</span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>    <span class="fu">integrate</span>(<span class="cf">function</span>(m) <span class="fu">G</span>(c, m) <span class="sc">*</span> <span class="fu">dnorm</span>(m, m0, SPREAD),</span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>              m0 <span class="sc">-</span> <span class="dv">13</span>, m0 <span class="sc">+</span> <span class="dv">13</span>)<span class="sc">$</span>value <span class="sc">-</span> q, <span class="fu">c</span>(m0 <span class="sc">-</span> <span class="dv">20</span>, m0 <span class="sc">+</span> <span class="dv">20</span>))<span class="sc">$</span>root, <span class="fu">numeric</span>(<span class="dv">1</span>))</span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>  om <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="at">optimal =</span> op<span class="sc">$</span>omega,</span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a>          <span class="at">equal_share =</span> <span class="fu">mean_omega</span>(eq, model, m0, SPREAD),</span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a>          <span class="at">conventional =</span> <span class="fu">mean_omega</span>(conv, model, m0, SPREAD),</span>
+<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a>          <span class="at">binary_opt =</span> <span class="fu">optimal_cuts</span>(<span class="dv">2</span>, model, m0, SPREAD)<span class="sc">$</span>omega)</span>
+<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a>  placements[[model]] <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">optimal =</span> op<span class="sc">$</span>cut, <span class="at">equal =</span> eq,</span>
+<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a>                              <span class="at">conventional =</span> conv, <span class="at">omega =</span> om)</span>
+<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-33"><a href="#cb6-33" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="fu">do.call</span>(rbind, <span class="fu">lapply</span>(<span class="fu">c</span>(<span class="st">"A"</span>,<span class="st">"B"</span>), <span class="cf">function</span>(mm) {</span>
+<span id="cb6-34"><a href="#cb6-34" aria-hidden="true" tabindex="-1"></a>  om <span class="ot">&lt;-</span> placements[[mm]]<span class="sc">$</span>omega</span>
+<span id="cb6-35"><a href="#cb6-35" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(<span class="at">link =</span> mm, <span class="at">optimal =</span> <span class="fu">round</span>(om[<span class="dv">1</span>], <span class="dv">4</span>),</span>
+<span id="cb6-36"><a href="#cb6-36" aria-hidden="true" tabindex="-1"></a>             <span class="st">`</span><span class="at">equal share</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">sprintf</span>(<span class="st">"%.4f (%.0f%%)"</span>, om[<span class="dv">2</span>], <span class="dv">100</span><span class="sc">*</span>om[<span class="dv">2</span>]<span class="sc">/</span>om[<span class="dv">1</span>]),</span>
+<span id="cb6-37"><a href="#cb6-37" aria-hidden="true" tabindex="-1"></a>             <span class="at">conventional =</span> <span class="fu">sprintf</span>(<span class="st">"%.4f (%.0f%%)"</span>, om[<span class="dv">3</span>], <span class="dv">100</span><span class="sc">*</span>om[<span class="dv">3</span>]<span class="sc">/</span>om[<span class="dv">1</span>]),</span>
+<span id="cb6-38"><a href="#cb6-38" aria-hidden="true" tabindex="-1"></a>             <span class="st">`</span><span class="at">best binary</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">sprintf</span>(<span class="st">"%.4f (%.0f%%)"</span>, om[<span class="dv">4</span>], <span class="dv">100</span><span class="sc">*</span>om[<span class="dv">4</span>]<span class="sc">/</span>om[<span class="dv">1</span>]),</span>
+<span id="cb6-39"><a href="#cb6-39" aria-hidden="true" tabindex="-1"></a>             <span class="at">check.names =</span> <span class="cn">FALSE</span>)})), <span class="at">row.names =</span> <span class="cn">FALSE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: left;">link</th>
+<th style="text-align: right;">optimal</th>
+<th style="text-align: left;">equal share</th>
+<th style="text-align: left;">conventional</th>
+<th style="text-align: left;">best binary</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">A</td>
+<td style="text-align: right;">0.8940</td>
+<td style="text-align: left;">0.7774 (87%)</td>
+<td style="text-align: left;">0.6367 (71%)</td>
+<td style="text-align: left;">0.5693 (64%)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">B</td>
+<td style="text-align: right;">0.3169</td>
+<td style="text-align: left;">0.3167 (100%)</td>
+<td style="text-align: left;">0.3052 (96%)</td>
+<td style="text-align: left;">0.2361 (74%)</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div></div>
+<p>The two links behave differently, and the difference is practical. For the logistic link placement barely matters: equal shares is close to optimal. For the Gumbel link it matters, because the Gumbel density is asymmetric and the information is concentrated where it is steep. Conventional labels, which push mass toward the bottom of the scale, cost real information under both links.</p>
+<p>The bottom row is the one to keep in mind: even the <em>best possible</em> binary cut sits far below a five-point scale. Choosing the scale well cannot rescue a scale that is too coarse.</p>
+<div class="cell-container"><div class="cell-decorator"><pre>In [7]:</pre></div><div id="cell-fig-placement" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>om_tab <span class="ot">&lt;-</span> <span class="fu">do.call</span>(rbind, <span class="fu">lapply</span>(<span class="fu">names</span>(placements), <span class="cf">function</span>(mm)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(<span class="at">model =</span> mm, <span class="at">placement =</span> <span class="fu">names</span>(placements[[mm]]<span class="sc">$</span>omega),</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>             <span class="at">omega =</span> <span class="fu">as.numeric</span>(placements[[mm]]<span class="sc">$</span>omega))))</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>om_tab<span class="sc">$</span>placement <span class="ot">&lt;-</span> <span class="fu">factor</span>(om_tab<span class="sc">$</span>placement,</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"optimal"</span>,<span class="st">"equal_share"</span>,<span class="st">"conventional"</span>,<span class="st">"binary_opt"</span>))</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(om_tab, <span class="fu">aes</span>(placement, omega, <span class="at">fill =</span> model)) <span class="sc">+</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>(<span class="at">position =</span> <span class="st">"dodge"</span>) <span class="sc">+</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="cn">NULL</span>, <span class="at">y =</span> <span class="fu">expression</span>(mean<span class="sc">~</span>omega),</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>       <span class="at">title =</span> <span class="st">"Cut placement and the cost of labels (W = 5, typical tasks)"</span>) <span class="sc">+</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">11</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div id="fig-placement" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-placement-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca" class="">
+<a href="06-scale-design_files/figure-html/fig-placement-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-2" title="Cut placement and the cost of conventional labels at W = 5."><img src="06-scale-design_files/figure-html/fig-placement-1.png" class="img-fluid figure-img" width="672"></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-placement-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Cut placement and the cost of conventional labels at W = 5.
+</figcaption>
+</figure>
+</div>
+</div>
+</div></div>
+</section>
+<section id="what-the-design-must-vary" class="level2">
+<h2 class="anchored" data-anchor-id="what-the-design-must-vary">4. What the design must vary</h2>
+<p>Now a different question. Scale design controls how much information the second response carries <em>about the parameters</em>. It does not control whether the data can tell Model A from Model B. That depends on how much the tasks vary in attractiveness.</p>
+<p>The reason is the identification argument in the model section. At a single value of <span class="math inline">\(\overline{\mu}\)</span>, any two strictly increasing links reproduce the <span class="math inline">\(W\)</span> category frequencies exactly by relabelling cut points. Only variation in <span class="math inline">\(\overline{\mu}\)</span> separates them, because the two links disagree about how the response distribution should <em>move</em> as tasks get better or worse.</p>
+<p>We manipulate that variation directly. A task-level shift added to every alternative’s price moves the whole task’s inclusive value, and because it lives in the price column rather than a new constant, the design stays identified in the rank-condition sense.</p>
+<div class="cell-container"><div class="cell-decorator"><pre>In [8]:</pre></div><div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>make_spread_design <span class="ot">&lt;-</span> <span class="cf">function</span>(n_tasks, seed, sigma_task) {</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  des <span class="ot">&lt;-</span> <span class="fu">make_design</span>(n_tasks, J, <span class="at">seed =</span> seed)</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (sigma_task <span class="sc">&gt;</span> <span class="dv">0</span>) {</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    s_t <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n_tasks, <span class="dv">0</span>, sigma_task)</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    des<span class="sc">$</span>X[, <span class="st">"price"</span>] <span class="ot">&lt;-</span> des<span class="sc">$</span>X[, <span class="st">"price"</span>] <span class="sc">+</span> <span class="fu">rep</span>(s_t, <span class="at">each =</span> J)</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>  des</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>laplace_lmd <span class="ot">&lt;-</span> <span class="cf">function</span>(fit) {</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>  d <span class="ot">&lt;-</span> <span class="fu">length</span>(fit<span class="sc">$</span>par)</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>  <span class="sc">-</span>fit<span class="sc">$</span>nll <span class="sc">-</span> <span class="fl">0.5</span><span class="sc">*</span><span class="fu">sum</span>(fit<span class="sc">$</span>par<span class="sc">^</span><span class="dv">2</span>)<span class="sc">/</span>TAU2 <span class="sc">-</span> <span class="fl">0.5</span><span class="sc">*</span>d<span class="sc">*</span><span class="fu">log</span>(<span class="dv">2</span><span class="sc">*</span>pi<span class="sc">*</span>TAU2) <span class="sc">+</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>    <span class="fl">0.5</span><span class="sc">*</span>d<span class="sc">*</span><span class="fu">log</span>(<span class="dv">2</span><span class="sc">*</span>pi) <span class="sc">-</span> <span class="fl">0.5</span><span class="sc">*</span><span class="fu">sum</span>(<span class="fu">log</span>(fit<span class="sc">$</span>eigen))</span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>run_cell <span class="ot">&lt;-</span> <span class="cf">function</span>(sigma_task, n_tasks, reps, seed0) {</span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>  correct_lmd <span class="ot">&lt;-</span> correct_hll <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="cn">NA</span>, reps, <span class="dv">2</span>,</span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>                                       <span class="at">dimnames =</span> <span class="fu">list</span>(<span class="cn">NULL</span>, <span class="fu">c</span>(<span class="st">"A"</span>,<span class="st">"B"</span>)))</span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>  musd <span class="ot">&lt;-</span> <span class="fu">numeric</span>(reps)</span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (r <span class="cf">in</span> <span class="fu">seq_len</span>(reps)) {</span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>    des <span class="ot">&lt;-</span> <span class="fu">make_spread_design</span>(n_tasks, <span class="at">seed =</span> seed0 <span class="sc">+</span> <span class="dv">11</span><span class="sc">*</span>r, sigma_task)</span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>    n_hold <span class="ot">&lt;-</span> <span class="fu">floor</span>(<span class="fl">0.2</span> <span class="sc">*</span> n_tasks)</span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>    keep <span class="ot">&lt;-</span> <span class="fu">seq_len</span>(n_tasks) <span class="sc">&gt;</span> n_hold</span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a>    subdes <span class="ot">&lt;-</span> <span class="cf">function</span>(kv) { d2 <span class="ot">&lt;-</span> des; d2<span class="sc">$</span>X <span class="ot">&lt;-</span> des<span class="sc">$</span>X[<span class="fu">rep</span>(kv, <span class="at">each =</span> J), , drop <span class="ot">=</span> <span class="cn">FALSE</span>]</span>
+<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a>                             d2<span class="sc">$</span>n_tasks <span class="ot">&lt;-</span> <span class="fu">sum</span>(kv); d2 }</span>
+<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a>    des_est <span class="ot">&lt;-</span> <span class="fu">subdes</span>(keep); des_hold <span class="ot">&lt;-</span> <span class="fu">subdes</span>(<span class="sc">!</span>keep)</span>
+<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> (truth <span class="cf">in</span> <span class="fu">c</span>(<span class="st">"A"</span>,<span class="st">"B"</span>)) {</span>
+<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a>      cut_true <span class="ot">&lt;-</span> <span class="cf">if</span> (truth <span class="sc">==</span> <span class="st">"A"</span>) cutA <span class="cf">else</span> cutB</span>
+<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a>      dat_full <span class="ot">&lt;-</span> <span class="fu">simulate_dual</span>(des, <span class="fu">as.numeric</span>(beta), cut_true, <span class="at">model =</span> truth,</span>
+<span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a>                                <span class="at">seed =</span> seed0 <span class="sc">+</span> <span class="dv">11</span><span class="sc">*</span>r <span class="sc">+</span> <span class="dv">1</span>)</span>
+<span id="cb8-30"><a href="#cb8-30" aria-hidden="true" tabindex="-1"></a>      musd[r] <span class="ot">&lt;-</span> <span class="fu">sd</span>(<span class="fu">log</span>(<span class="fu">rowSums</span>(<span class="fu">exp</span>(<span class="fu">matrix</span>(des<span class="sc">$</span>X <span class="sc">%*%</span> beta, <span class="at">ncol =</span> J, <span class="at">byrow =</span> <span class="cn">TRUE</span>)))))</span>
+<span id="cb8-31"><a href="#cb8-31" aria-hidden="true" tabindex="-1"></a>      dat_est  <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">design =</span> des_est,  <span class="at">jstar =</span> dat_full<span class="sc">$</span>jstar[keep],</span>
+<span id="cb8-32"><a href="#cb8-32" aria-hidden="true" tabindex="-1"></a>                       <span class="at">y =</span> dat_full<span class="sc">$</span>y[keep], <span class="at">W =</span> W, <span class="at">model =</span> <span class="st">"A"</span>)</span>
+<span id="cb8-33"><a href="#cb8-33" aria-hidden="true" tabindex="-1"></a>      dat_hold <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">design =</span> des_hold, <span class="at">jstar =</span> dat_full<span class="sc">$</span>jstar[<span class="sc">!</span>keep],</span>
+<span id="cb8-34"><a href="#cb8-34" aria-hidden="true" tabindex="-1"></a>                       <span class="at">y =</span> dat_full<span class="sc">$</span>y[<span class="sc">!</span>keep], <span class="at">W =</span> W, <span class="at">model =</span> <span class="st">"A"</span>)</span>
+<span id="cb8-35"><a href="#cb8-35" aria-hidden="true" tabindex="-1"></a>      lmd <span class="ot">&lt;-</span> hll <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="at">A =</span> <span class="cn">NA_real_</span>, <span class="at">B =</span> <span class="cn">NA_real_</span>)</span>
+<span id="cb8-36"><a href="#cb8-36" aria-hidden="true" tabindex="-1"></a>      <span class="cf">for</span> (fl <span class="cf">in</span> <span class="fu">c</span>(<span class="st">"A"</span>,<span class="st">"B"</span>)) {</span>
+<span id="cb8-37"><a href="#cb8-37" aria-hidden="true" tabindex="-1"></a>        dat_est<span class="sc">$</span>model <span class="ot">&lt;-</span> fl; dat_hold<span class="sc">$</span>model <span class="ot">&lt;-</span> fl</span>
+<span id="cb8-38"><a href="#cb8-38" aria-hidden="true" tabindex="-1"></a>        f <span class="ot">&lt;-</span> <span class="fu">fit_dual_mle</span>(dat_est)</span>
+<span id="cb8-39"><a href="#cb8-39" aria-hidden="true" tabindex="-1"></a>        lmd[fl] <span class="ot">&lt;-</span> <span class="fu">laplace_lmd</span>(f)</span>
+<span id="cb8-40"><a href="#cb8-40" aria-hidden="true" tabindex="-1"></a>        hll[fl] <span class="ot">&lt;-</span> <span class="sc">-</span><span class="fu">negloglik</span>(f<span class="sc">$</span>par, dat_hold)</span>
+<span id="cb8-41"><a href="#cb8-41" aria-hidden="true" tabindex="-1"></a>      }</span>
+<span id="cb8-42"><a href="#cb8-42" aria-hidden="true" tabindex="-1"></a>      correct_lmd[r, truth] <span class="ot">&lt;-</span> <span class="fu">names</span>(<span class="fu">which.max</span>(lmd)) <span class="sc">==</span> truth</span>
+<span id="cb8-43"><a href="#cb8-43" aria-hidden="true" tabindex="-1"></a>      correct_hll[r, truth] <span class="ot">&lt;-</span> <span class="fu">names</span>(<span class="fu">which.max</span>(hll)) <span class="sc">==</span> truth</span>
+<span id="cb8-44"><a href="#cb8-44" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb8-45"><a href="#cb8-45" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb8-46"><a href="#cb8-46" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(<span class="at">sigma_task =</span> sigma_task, <span class="at">n =</span> n_tasks, <span class="at">mubar_sd =</span> <span class="fu">mean</span>(musd),</span>
+<span id="cb8-47"><a href="#cb8-47" aria-hidden="true" tabindex="-1"></a>       <span class="at">lmd =</span> <span class="fu">colMeans</span>(correct_lmd), <span class="at">hll =</span> <span class="fu">colMeans</span>(correct_hll))</span>
+<span id="cb8-48"><a href="#cb8-48" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb8-49"><a href="#cb8-49" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-50"><a href="#cb8-50" aria-hidden="true" tabindex="-1"></a>ld_cells <span class="ot">&lt;-</span> <span class="fu">list</span>(); seed0 <span class="ot">&lt;-</span> <span class="dv">100000</span></span>
+<span id="cb8-51"><a href="#cb8-51" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (sig <span class="cf">in</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fl">0.75</span>, <span class="fl">1.5</span>)) <span class="cf">for</span> (n <span class="cf">in</span> <span class="fu">c</span>(<span class="dv">1800</span>, <span class="dv">3600</span>, <span class="dv">7200</span>)) {</span>
+<span id="cb8-52"><a href="#cb8-52" aria-hidden="true" tabindex="-1"></a>  seed0 <span class="ot">&lt;-</span> seed0 <span class="sc">+</span> <span class="dv">5000</span></span>
+<span id="cb8-53"><a href="#cb8-53" aria-hidden="true" tabindex="-1"></a>  ld_cells[[<span class="fu">sprintf</span>(<span class="st">"sig%.2f_n%d"</span>, sig, n)]] <span class="ot">&lt;-</span> <span class="fu">run_cell</span>(sig, n, R_REPS, seed0)</span>
+<span id="cb8-54"><a href="#cb8-54" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div></div>
+<div class="cell-container"><div class="cell-decorator"><pre>In [9]:</pre></div><div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="fu">do.call</span>(rbind, <span class="fu">lapply</span>(ld_cells, <span class="cf">function</span>(cl) <span class="fu">data.frame</span>(</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">sigma task</span><span class="st">`</span> <span class="ot">=</span> cl<span class="sc">$</span>sigma_task, <span class="at">n =</span> cl<span class="sc">$</span>n,</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">mubar sd</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">round</span>(cl<span class="sc">$</span>mubar_sd, <span class="dv">2</span>),</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">P(correct | A)</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">round</span>(cl<span class="sc">$</span>lmd[<span class="st">"A"</span>], <span class="dv">2</span>),</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">P(correct | B)</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">round</span>(cl<span class="sc">$</span>lmd[<span class="st">"B"</span>], <span class="dv">2</span>),</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">holdout: A</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">round</span>(cl<span class="sc">$</span>hll[<span class="st">"A"</span>], <span class="dv">2</span>),</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">holdout: B</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">round</span>(cl<span class="sc">$</span>hll[<span class="st">"B"</span>], <span class="dv">2</span>),</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">check.names =</span> <span class="cn">FALSE</span>))), <span class="at">row.names =</span> <span class="cn">FALSE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<colgroup>
+<col style="width: 12%">
+<col style="width: 5%">
+<col style="width: 10%">
+<col style="width: 22%">
+<col style="width: 22%">
+<col style="width: 12%">
+<col style="width: 12%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: right;">sigma task</th>
+<th style="text-align: right;">n</th>
+<th style="text-align: right;">mubar sd</th>
+<th style="text-align: right;">P(correct | A)</th>
+<th style="text-align: right;">P(correct | B)</th>
+<th style="text-align: right;">holdout: A</th>
+<th style="text-align: right;">holdout: B</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">0.00</td>
+<td style="text-align: right;">1800</td>
+<td style="text-align: right;">0.47</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.98</td>
+<td style="text-align: right;">0.92</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">0.00</td>
+<td style="text-align: right;">3600</td>
+<td style="text-align: right;">0.47</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">1.00</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">0.00</td>
+<td style="text-align: right;">7200</td>
+<td style="text-align: right;">0.47</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">0.98</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">0.75</td>
+<td style="text-align: right;">1800</td>
+<td style="text-align: right;">0.82</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">0.98</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">0.75</td>
+<td style="text-align: right;">3600</td>
+<td style="text-align: right;">0.82</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">1.00</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">0.75</td>
+<td style="text-align: right;">7200</td>
+<td style="text-align: right;">0.82</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">1.00</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">1.50</td>
+<td style="text-align: right;">1800</td>
+<td style="text-align: right;">1.43</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">1.00</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">1.50</td>
+<td style="text-align: right;">3600</td>
+<td style="text-align: right;">1.43</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">1.00</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">1.50</td>
+<td style="text-align: right;">7200</td>
+<td style="text-align: right;">1.43</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">1.00</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div></div>
+<p>At this design’s natural attractiveness spread, selection is already reliable from 1,800 tasks upward, and adding engineered spread makes it more so. So on a normal conjoint design the link is learnable.</p>
+</section>
+<section id="the-negative-result-designs-that-cannot-learn-the-link" class="level2">
+<h2 class="anchored" data-anchor-id="the-negative-result-designs-that-cannot-learn-the-link">5. The negative result: designs that cannot learn the link</h2>
+<p>Now remove the identifying variation entirely. Shift each task’s prices by the common amount that equalizes its inclusive value to a target. The design still satisfies the rank condition, still has full attribute variation, still supports estimating <span class="math inline">\(\bfbeta\)</span>. It simply carries no variation in task attractiveness.</p>
+<div class="cell-container"><div class="cell-decorator"><pre>In [10]:</pre></div><div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>squash_design <span class="ot">&lt;-</span> <span class="cf">function</span>(n_tasks, seed, <span class="at">target_mu =</span> <span class="fl">0.6</span>) {</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  des <span class="ot">&lt;-</span> <span class="fu">make_design</span>(n_tasks, J, <span class="at">seed =</span> seed)</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  V <span class="ot">&lt;-</span> <span class="fu">matrix</span>(des<span class="sc">$</span>X <span class="sc">%*%</span> beta, <span class="at">ncol =</span> J, <span class="at">byrow =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  m <span class="ot">&lt;-</span> <span class="fu">row_max</span>(V); mubar <span class="ot">&lt;-</span> m <span class="sc">+</span> <span class="fu">log</span>(<span class="fu">rowSums</span>(<span class="fu">exp</span>(V <span class="sc">-</span> m)))</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  des<span class="sc">$</span>X[, <span class="st">"price"</span>] <span class="ot">&lt;-</span> des<span class="sc">$</span>X[, <span class="st">"price"</span>] <span class="sc">+</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">rep</span>((target_mu <span class="sc">-</span> mubar) <span class="sc">/</span> beta[<span class="st">"price"</span>], <span class="at">each =</span> J)</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>  des</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>run_squashed <span class="ot">&lt;-</span> <span class="cf">function</span>(n_tasks, reps, seed0) {</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>  correct <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="cn">NA</span>, reps, <span class="dv">2</span>, <span class="at">dimnames =</span> <span class="fu">list</span>(<span class="cn">NULL</span>, <span class="fu">c</span>(<span class="st">"A"</span>,<span class="st">"B"</span>)))</span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>  musd <span class="ot">&lt;-</span> <span class="fu">numeric</span>(reps)</span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (r <span class="cf">in</span> <span class="fu">seq_len</span>(reps)) {</span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>    des <span class="ot">&lt;-</span> <span class="fu">squash_design</span>(n_tasks, <span class="at">seed =</span> seed0 <span class="sc">+</span> <span class="dv">11</span><span class="sc">*</span>r)</span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>    V <span class="ot">&lt;-</span> <span class="fu">matrix</span>(des<span class="sc">$</span>X <span class="sc">%*%</span> beta, <span class="at">ncol =</span> J, <span class="at">byrow =</span> <span class="cn">TRUE</span>); m <span class="ot">&lt;-</span> <span class="fu">row_max</span>(V)</span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>    musd[r] <span class="ot">&lt;-</span> <span class="fu">sd</span>(m <span class="sc">+</span> <span class="fu">log</span>(<span class="fu">rowSums</span>(<span class="fu">exp</span>(V <span class="sc">-</span> m))))</span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> (truth <span class="cf">in</span> <span class="fu">c</span>(<span class="st">"A"</span>,<span class="st">"B"</span>)) {</span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>      cut_true <span class="ot">&lt;-</span> <span class="cf">if</span> (truth <span class="sc">==</span> <span class="st">"A"</span>) cutA <span class="cf">else</span> cutB</span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>      dat <span class="ot">&lt;-</span> <span class="fu">simulate_dual</span>(des, <span class="fu">as.numeric</span>(beta), cut_true, <span class="at">model =</span> truth,</span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a>                           <span class="at">seed =</span> seed0 <span class="sc">+</span> <span class="dv">11</span><span class="sc">*</span>r <span class="sc">+</span> <span class="dv">1</span>)</span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a>      lmd <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="at">A =</span> <span class="cn">NA_real_</span>, <span class="at">B =</span> <span class="cn">NA_real_</span>)</span>
+<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a>      <span class="cf">for</span> (fl <span class="cf">in</span> <span class="fu">c</span>(<span class="st">"A"</span>,<span class="st">"B"</span>)) { dat<span class="sc">$</span>model <span class="ot">&lt;-</span> fl; lmd[fl] <span class="ot">&lt;-</span> <span class="fu">laplace_lmd</span>(<span class="fu">fit_dual_mle</span>(dat)) }</span>
+<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a>      correct[r, truth] <span class="ot">&lt;-</span> <span class="fu">names</span>(<span class="fu">which.max</span>(lmd)) <span class="sc">==</span> truth</span>
+<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb10-26"><a href="#cb10-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(<span class="at">n =</span> n_tasks, <span class="at">mubar_sd =</span> <span class="fu">mean</span>(musd), <span class="at">correct =</span> <span class="fu">colMeans</span>(correct))</span>
+<span id="cb10-27"><a href="#cb10-27" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb10-28"><a href="#cb10-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-29"><a href="#cb10-29" aria-hidden="true" tabindex="-1"></a>sq_cells <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
+<span id="cb10-30"><a href="#cb10-30" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (n <span class="cf">in</span> <span class="fu">c</span>(<span class="dv">3600</span>, <span class="dv">7200</span>)) sq_cells[[<span class="fu">paste0</span>(<span class="st">"n"</span>, n)]] <span class="ot">&lt;-</span> <span class="fu">run_squashed</span>(n, R_REPS, <span class="dv">200000</span> <span class="sc">+</span> n)</span>
+<span id="cb10-31"><a href="#cb10-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-32"><a href="#cb10-32" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="fu">do.call</span>(rbind, <span class="fu">lapply</span>(sq_cells, <span class="cf">function</span>(cl) <span class="fu">data.frame</span>(</span>
+<span id="cb10-33"><a href="#cb10-33" aria-hidden="true" tabindex="-1"></a>  <span class="at">n =</span> cl<span class="sc">$</span>n, <span class="st">`</span><span class="at">mubar sd</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">signif</span>(cl<span class="sc">$</span>mubar_sd, <span class="dv">3</span>),</span>
+<span id="cb10-34"><a href="#cb10-34" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">P(correct | A true)</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">round</span>(cl<span class="sc">$</span>correct[<span class="st">"A"</span>], <span class="dv">2</span>),</span>
+<span id="cb10-35"><a href="#cb10-35" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">P(correct | B true)</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">round</span>(cl<span class="sc">$</span>correct[<span class="st">"B"</span>], <span class="dv">2</span>),</span>
+<span id="cb10-36"><a href="#cb10-36" aria-hidden="true" tabindex="-1"></a>  <span class="at">check.names =</span> <span class="cn">FALSE</span>))), <span class="at">row.names =</span> <span class="cn">FALSE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: right;">n</th>
+<th style="text-align: right;">mubar sd</th>
+<th style="text-align: right;">P(correct | A true)</th>
+<th style="text-align: right;">P(correct | B true)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">3600</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.98</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">7200</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.97</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div></div>
+<p>This is the result worth pausing on. The two probabilities do not both sit near 0.5, which is what “no information” might naively look like. Instead selection <strong>degenerates</strong>: the same link gets chosen almost regardless of the truth, so one row is near one and the other near zero. With no information in the data, the comparison is decided by the curvature correction in the marginal likelihood rather than by fit, and that correction does not care which model generated the data.</p>
+<p>Doubling the sample from 3,600 to 7,200 does not help, because the problem is not sampling noise. The information is absent from the design, and no quantity of data recovers it.</p>
+<p>The practical rule follows directly. A study that wants to test the behavioral story must engineer high- and low-attractiveness tasks. A study that only needs demand estimates can ignore the distinction, because notebook 05 shows the two links give nearly the same demand predictions over the range a normal design produces.</p>
+</section>
+<section id="results-written" class="level2">
+<h2 class="anchored" data-anchor-id="results-written">6. Results written</h2>
+<div class="cell-container"><div class="cell-decorator"><pre>In [11]:</pre></div><div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>PROJ <span class="ot">&lt;-</span> <span class="cf">if</span> (<span class="fu">file.exists</span>(<span class="st">"_quarto.yml"</span>)) <span class="st">"."</span> <span class="cf">else</span> <span class="st">".."</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>OUT  <span class="ot">&lt;-</span> <span class="fu">file.path</span>(PROJ, <span class="st">"R"</span>, <span class="st">"output"</span>)</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="fu">dir.create</span>(<span class="fu">file.path</span>(OUT, <span class="st">"figs"</span>), <span class="at">showWarnings =</span> <span class="cn">FALSE</span>, <span class="at">recursive =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(<span class="fu">list</span>(<span class="at">cells =</span> ld_cells,</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>             <span class="at">settings =</span> <span class="fu">list</span>(<span class="at">beta =</span> beta, <span class="at">cutB =</span> cutB, <span class="at">alphaA =</span> alphaA,</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>                             <span class="at">R_REPS =</span> R_REPS)),</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>        <span class="fu">file.path</span>(OUT, <span class="st">"link_discrimination.rds"</span>))</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(<span class="fu">list</span>(<span class="at">cells =</span> sq_cells, <span class="at">settings =</span> <span class="fu">list</span>(<span class="at">beta =</span> beta, <span class="at">R_REPS =</span> R_REPS)),</span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>        <span class="fu">file.path</span>(OUT, <span class="st">"link_discrimination_squashed.rds"</span>))</span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(<span class="fu">file.path</span>(OUT, <span class="st">"figs"</span>, <span class="st">"info_by_W.png"</span>), g1, <span class="at">width =</span> <span class="dv">7</span>, <span class="at">height =</span> <span class="fl">4.2</span>, <span class="at">dpi =</span> <span class="dv">200</span>)</span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(<span class="fu">list</span>(<span class="at">info_by_W =</span> tab_w, <span class="at">placements =</span> placements,</span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>             <span class="at">link_discrimination =</span> <span class="fu">list</span>(<span class="at">cells =</span> ld_cells),</span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a>             <span class="at">settings =</span> <span class="fu">list</span>(<span class="at">regimes =</span> REGIMES, <span class="at">spread =</span> SPREAD, <span class="at">WGRID =</span> WGRID)),</span>
+<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a>        <span class="fu">file.path</span>(OUT, <span class="st">"design_guidance.rds"</span>))</span>
+<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"wrote link_discrimination.rds, link_discrimination_squashed.rds,</span><span class="sc">\n</span><span class="st">"</span>,</span>
+<span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a>    <span class="st">"design_guidance.rds, and figs/info_by_W.png</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>wrote link_discrimination.rds, link_discrimination_squashed.rds,
+ design_guidance.rds, and figs/info_by_W.png</code></pre>
+</div>
+</div></div>
+</section>
+<section id="related-material" class="level2">
+<h2 class="anchored" data-anchor-id="related-material">7. Related material</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>where</th>
+<th>what</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>notebook 03</td>
+<td>what a coarse scale costs once the study is already fielded</td>
+</tr>
+<tr class="even">
+<td>notebook 05</td>
+<td>why link misspecification is second-order for demand</td>
+</tr>
+<tr class="odd">
+<td>notebook 04</td>
+<td>the tests that use attractiveness variation to check the model</td>
+</tr>
+</tbody>
+</table>
+</section>
+     </main>
+<!-- /main column -->  <script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>  </div> <!-- /content -->  <script>var lightboxQuarto = GLightbox({"closeEffect":"zoom","descPosition":"bottom","loop":false,"openEffect":"zoom","selector":".lightbox"});
+(function() {
+  let previousOnload = window.onload;
+  window.onload = () => {
+    if (previousOnload) {
+      previousOnload();
+    }
+    lightboxQuarto.on('slide_before_load', (data) => {
+      const { slideIndex, slideNode, slideConfig, player, trigger } = data;
+      const href = trigger.getAttribute('href');
+      if (href !== null) {
+        const imgEl = window.document.querySelector(`a[href="${href}"] img`);
+        if (imgEl !== null) {
+          const srcAttr = imgEl.getAttribute("src");
+          if (srcAttr && srcAttr.startsWith("data:")) {
+            slideConfig.href = srcAttr;
+          }
+        }
+      } 
+    });
+  
+    lightboxQuarto.on('slide_after_load', (data) => {
+      const { slideIndex, slideNode, slideConfig, player, trigger } = data;
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(slideNode);
+      }
+    });
+  
+  };
+  
+})();
+          </script> 
+  
+</body></html>

@@ -1,0 +1,1606 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+    <meta charset="utf-8">
+    <meta name="generator" content="quarto-1.11.4">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+    <meta name="author" content="Dan Yavorsky">
+    <meta name="author" content="Geoffery Zheng">
+    <meta name="dcterms.date" content="2026-09-13">
+
+    <title>The Hierarchical Sampler</title>
+    <style>
+      /* Default styles provided by pandoc.
+      ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+      */
+      span.smallcaps{font-variant: small-caps;}
+      div.columns{display: flex; gap: 1.5em;}
+      div.column{flex: auto;}
+      @media screen {
+      div.columns{gap: min(4vw, 1.5em);}
+      div.column{overflow-x: auto;}
+      }
+      div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+      ul.task-list{list-style: none;}
+      ul.task-list li input[type="checkbox"] {
+        width: 0.8em;
+        margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+        vertical-align: middle;
+      }
+      /* CSS for syntax highlighting */
+      html { -webkit-text-size-adjust: 100%; }
+      pre > code.sourceCode { white-space: pre; position: relative; }
+      pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+      pre > code.sourceCode > span:empty { height: 1.2em; }
+      .sourceCode { overflow: visible; }
+      code.sourceCode > span { color: inherit; text-decoration: inherit; }
+      div.sourceCode { margin: 1em 0; }
+      pre.sourceCode { margin: 0; }
+      @media screen {
+      div.sourceCode { overflow: auto; }
+      }
+      @media print {
+      pre > code.sourceCode { white-space: pre-wrap; }
+      pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+      }
+      pre.numberSource code
+        { counter-reset: source-line 0; }
+      pre.numberSource code > span
+        { position: relative; left: -4em; counter-increment: source-line; }
+      pre.numberSource code > span > a:first-child::before
+        { content: counter(source-line);
+          position: relative; left: -1em; text-align: right; vertical-align: baseline;
+          border: none; display: inline-block;
+          -webkit-touch-callout: none; -webkit-user-select: none;
+          -khtml-user-select: none; -moz-user-select: none;
+          -ms-user-select: none; user-select: none;
+          padding: 0 4px; width: 4em;
+        }
+      pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+      div.sourceCode
+        {   }
+      @media screen {
+      pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+      }
+    </style>
+
+    <style>
+      body.hypothesis-enabled #quarto-embed-header {
+        padding-right: 36px;
+      }
+
+      #quarto-embed-header {
+        height: 3em;
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: solid 1px;
+      }
+
+      #quarto-embed-header h6 {
+        font-size: 1.1em;
+        padding-top: 0.6em;
+        margin-left: 1em;
+        margin-right: 1em;
+        font-weight: 400;
+      }
+
+      #quarto-embed-header a.quarto-back-link,
+      #quarto-embed-header a.quarto-download-embed {
+        font-size: 0.8em;
+        margin-top: 1em;
+        margin-bottom: 1em;
+        margin-left: 1em;
+        margin-right: 1em;
+      }
+
+      .quarto-back-container {
+        padding-left: 0.5em;
+        display: flex;
+      }
+
+      .headroom {
+          will-change: transform;
+          transition: transform 200ms linear;
+      }
+
+      .headroom--pinned {
+          transform: translateY(0%);
+      }
+
+      .headroom--unpinned {
+          transform: translateY(-100%);
+      }      
+    </style>
+
+    <script>
+    window.document.addEventListener("DOMContentLoaded", function () {
+
+      var header = window.document.querySelector("#quarto-embed-header");
+      const titleBannerEl = window.document.querySelector("body > #title-block-header");
+      if (titleBannerEl) {
+        titleBannerEl.style.paddingTop = header.clientHeight + "px";
+      }
+      const contentEl = window.document.getElementById('quarto-content');
+      for (const child of contentEl.children) {
+        child.style.paddingTop = header.clientHeight + "px";
+        child.style.marginTop = "1em";
+      }
+
+      // Use the article root if the `back` call doesn't work. This isn't perfect
+      // but should typically work
+      window.quartoBackToArticle = () => {
+        var currentUrl = window.location.href;
+        window.history.back();
+        setTimeout(() => {
+            // if location was not changed in 100 ms, then there is no history back
+            if(currentUrl === window.location.href){              
+                // redirect to site root
+                window.location.href = "../index.html";
+            }
+        }, 100);
+      }
+
+      const headroom = new window.Headroom(header, {
+        tolerance: 5,
+        onPin: function () {
+        },
+        onUnpin: function () {
+        },
+      });
+      headroom.init();
+    });
+    </script>
+
+    
+<script src="../site_libs/manuscript-notebook/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-03d3dfde56ecdf7ec35882f3b46e7ba8.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-6637c74bae20b611a26c1e446f3bbec3.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+      <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script> 
+      </head>
+
+  <body class="quarto-notebook quarto-light"><a id="quarto-skip-link" class="visually-hidden-focusable" href="#quarto-document-content">Skip to main content</a>
+    <div id="quarto-embed-header" class="headroom fixed-top bg-primary">
+      
+      <a onclick="window.quartoBackToArticle(); return false;" class="btn btn-primary quarto-back-link" href=""><i class="bi bi-caret-left"></i> Back to Article</a>
+      <h6><i class="bi bi-journal-code"></i> The Hierarchical Sampler</h6>
+
+            <a href="../notebooks/02-hierarchical-recovery.qmd" class="btn btn-primary quarto-download-embed" download="02-hierarchical-recovery.qmd">Download Source</a>
+          </div>
+
+     <header id="title-block-header" class="quarto-title-block default toc-left page-columns page-full">
+  <div class="quarto-title-banner page-columns page-full">
+    <div class="quarto-title column-body">
+      <h1 class="title">The Hierarchical Sampler</h1>
+            <p class="subtitle lead">Recovery, posterior calibration, and two independent cross-checks</p>
+          </div>
+
+    
+    <div class="quarto-title-meta-container">
+      <div class="quarto-title-meta-column-start">
+        
+        <div class="quarto-title-meta">
+
+                <div>
+            <div class="quarto-title-meta-heading">Authors</div>
+            <div class="quarto-title-meta-contents">
+                        <p>Dan Yavorsky </p>
+                        <p>Geoffery Zheng </p>
+                      </div>
+          </div>
+                
+                <div>
+            <div class="quarto-title-meta-heading">Published</div>
+            <div class="quarto-title-meta-contents">
+              <p class="date">September 13, 2026</p>
+            </div>
+          </div>
+          
+                
+              </div>
+      </div>
+      <div class="quarto-title-meta-column-end quarto-other-formats-target">
+      </div>
+    </div>
+
+
+
+    <div class="quarto-other-links-text-target">
+    </div>  </div>
+</header><div id="quarto-content" class="page-columns page-rows-contents page-layout-article toc-left">
+<div id="quarto-sidebar-toc-left" class="sidebar toc-left">
+  <nav id="TOC" role="doc-toc" aria-labelledby="toc-title" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#what-this-notebook-does" id="toc-what-this-notebook-does" class="nav-link active" data-scroll-target="#what-this-notebook-does">What this notebook does</a></li>
+  <li><a href="#the-model" id="toc-the-model" class="nav-link" data-scroll-target="#the-model">1. The model</a></li>
+  <li><a href="#machinery" id="toc-machinery" class="nav-link" data-scroll-target="#machinery">2. Machinery</a></li>
+  <li><a href="#recovery" id="toc-recovery" class="nav-link" data-scroll-target="#recovery">3. Recovery</a></li>
+  <li><a href="#posterior-calibration" id="toc-posterior-calibration" class="nav-link" data-scroll-target="#posterior-calibration">4. Posterior calibration</a></li>
+  <li><a href="#cross-check-against-bayesm" id="toc-cross-check-against-bayesm" class="nav-link" data-scroll-target="#cross-check-against-bayesm">5. Cross-check against bayesm</a></li>
+  <li><a href="#the-degenerate-case-no-heterogeneity" id="toc-the-degenerate-case-no-heterogeneity" class="nav-link" data-scroll-target="#the-degenerate-case-no-heterogeneity">6. The degenerate case: no heterogeneity</a></li>
+  <li><a href="#marginal-likelihood-how-optimistic-is-newton-raftery" id="toc-marginal-likelihood-how-optimistic-is-newton-raftery" class="nav-link" data-scroll-target="#marginal-likelihood-how-optimistic-is-newton-raftery">7. Marginal likelihood: how optimistic is Newton-Raftery?</a></li>
+  <li><a href="#results-written" id="toc-results-written" class="nav-link" data-scroll-target="#results-written">8. Results written</a></li>
+  <li><a href="#related-material" id="toc-related-material" class="nav-link" data-scroll-target="#related-material">9. Related material</a></li>
+  </ul>
+</nav>
+</div>
+<div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
+</div>
+<main class="content quarto-banner-title-block" id="quarto-document-content" tabindex="-1">      
+
+       <section id="what-this-notebook-does" class="level2">
+<h2 class="anchored" data-anchor-id="what-this-notebook-does">What this notebook does</h2>
+<p>Notebook 01 established that the aggregate estimator works. This one does the same for the hierarchical Bayesian estimator, which is the one a practitioner actually runs, and which has more ways to go quietly wrong.</p>
+<p>Five checks, in increasing order of how much they would embarrass us:</p>
+<ol type="1">
+<li><strong>Recovery.</strong> Do population means, covariances, and cut points come back on synthetic panels, for both links?</li>
+<li><strong>Calibration.</strong> Do the posterior intervals mean what they say? A sampler can recover point estimates and still lie about uncertainty.</li>
+<li><strong>Cross-check against an independent implementation.</strong> The forced-choice-only special case of our sampler is an ordinary hierarchical MNL, which <code>bayesm</code> has estimated for two decades. On identical data, do we agree?</li>
+<li><strong>The degenerate case.</strong> With no heterogeneity in the data, does the hierarchical posterior collapse toward the aggregate MLE?</li>
+<li><strong>Marginal likelihood.</strong> How optimistic is the Newton-Raftery estimator that this literature reports, measured against bridge sampling?</li>
+</ol>
+<p>Checks 1 through 4 back <strong>Parameter Recovery and Identification</strong> in the simulation study. Check 5 backs the marginal-likelihood appendix.</p>
+<p>This notebook is the source of <code>hb_coverage.rds</code> and <code>hb_validation.rds</code>.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>On the bayesm comparison
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>An earlier version of this cross-check ran against a local fork of <code>bayesm</code> with a modified <code>lgtdata</code> format, and set no seed. It was therefore not reproducible by anyone else, including us. The version below uses stock CRAN <code>bayesm</code> with its standard data layout and an explicit seed, so the number it reports can be checked by a reader.</p>
+</div>
+</div>
+<div class="cell-container"><div class="cell-decorator"><pre>In [1]:</pre></div><div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">digits =</span> <span class="dv">5</span>)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">requireNamespace</span>(<span class="st">"bayesm"</span>, <span class="at">quietly =</span> <span class="cn">TRUE</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div></div>
+</section>
+<section id="the-model" class="level2">
+<h2 class="anchored" data-anchor-id="the-model">1. The model</h2>
+<p>Each respondent <span class="math inline">\(i\)</span> has her own taste vector, drawn from a population distribution:</p>
+<p><span class="math display">\[
+\bfbeta_i \sim \mathcal{N}\left( \betabar, \Sigma \right).
+\]</span></p>
+<p>Conditional on <span class="math inline">\(\bfbeta_i\)</span>, each of her <span class="math inline">\(T\)</span> tasks generates the same two responses as before: a forced choice among <span class="math inline">\(J\)</span> profiles, and an ordinal purchase report read off the task’s inclusive value. The cut points are common across respondents here; the heterogeneous-cut extension is exercised in notebook 05.</p>
+<p>The sampler is random-walk Metropolis within Gibbs, three blocks per iteration:</p>
+<ol type="1">
+<li>every respondent’s <span class="math inline">\(\bfbeta_i\)</span> proposed at once, with covariance <span class="math inline">\(s_i^2 \Sigma\)</span>, accepted or rejected individually;</li>
+<li>the common cut-point block, proposed on an unconstrained scale that keeps the cut points ordered by construction;</li>
+<li>the population moments <span class="math inline">\(\left( \betabar, \Sigma \right)\)</span>, drawn from their conjugate normal and inverse-Wishart conditionals.</li>
+</ol>
+<p>Step sizes adapt toward target acceptance rates during burn-in only, so the kept draws come from a fixed transition kernel.</p>
+</section>
+<section id="machinery" class="level2">
+<h2 class="anchored" data-anchor-id="machinery">2. Machinery</h2>
+<p>Copies of <code>R/lib/dgp.R</code>, <code>R/lib/likelihood.R</code>, <code>R/hierarchical/dgp_panel.R</code> and <code>R/hierarchical/hb.R</code>. Folded because it is long, not because it is uninteresting: the sampler is the object under test.</p>
+<div class="cell-container code-fold"><div class="cell-decorator"><pre>In [2]:</pre></div><div class="cell">
+<details class="code-fold">
+<summary>Designs, the behavioral panel simulator, and the sampler</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="co"># ---- designs and shocks (R/lib/dgp.R) --------------------------------------</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>rgumbel <span class="ot">&lt;-</span> <span class="cf">function</span>(n) <span class="sc">-</span><span class="fu">log</span>(<span class="sc">-</span><span class="fu">log</span>(<span class="fu">runif</span>(n)))</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>make_design <span class="ot">&lt;-</span> <span class="cf">function</span>(n_tasks, J, seed, <span class="at">intercept =</span> <span class="cn">FALSE</span>) {</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set.seed</span>(seed)</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  n_rows <span class="ot">&lt;-</span> n_tasks <span class="sc">*</span> J</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>  a <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>, n_rows, <span class="at">replace =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  b <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>, n_rows, <span class="at">replace =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  price <span class="ot">&lt;-</span> <span class="fu">runif</span>(n_rows, <span class="fl">0.5</span>, <span class="fl">2.5</span>)</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>  X <span class="ot">&lt;-</span> <span class="fu">cbind</span>(<span class="at">a2 =</span> <span class="fu">as.numeric</span>(a <span class="sc">==</span> <span class="dv">2</span>), <span class="at">a3 =</span> <span class="fu">as.numeric</span>(a <span class="sc">==</span> <span class="dv">3</span>),</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>             <span class="at">b2 =</span> <span class="fu">as.numeric</span>(b <span class="sc">==</span> <span class="dv">2</span>), <span class="at">b3 =</span> <span class="fu">as.numeric</span>(b <span class="sc">==</span> <span class="dv">3</span>), <span class="at">price =</span> price)</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (intercept) X <span class="ot">&lt;-</span> <span class="fu">cbind</span>(X, <span class="at">const =</span> <span class="dv">1</span>)</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(<span class="at">X =</span> X, <span class="at">n_tasks =</span> n_tasks, <span class="at">J =</span> J, <span class="at">P =</span> <span class="fu">ncol</span>(X))</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>make_panel_design <span class="ot">&lt;-</span> <span class="cf">function</span>(N, T_tasks, J, seed, <span class="at">intercept =</span> <span class="cn">FALSE</span>) {</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>  des <span class="ot">&lt;-</span> <span class="fu">make_design</span>(N <span class="sc">*</span> T_tasks, J, <span class="at">seed =</span> seed, <span class="at">intercept =</span> intercept)</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>  des<span class="sc">$</span>N <span class="ot">&lt;-</span> N</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>  des<span class="sc">$</span>T_tasks <span class="ot">&lt;-</span> T_tasks</span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>  des<span class="sc">$</span>resp <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="fu">seq_len</span>(N), <span class="at">each =</span> T_tasks)</span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>  des<span class="sc">$</span>resp_row <span class="ot">&lt;-</span> <span class="fu">rep</span>(des<span class="sc">$</span>resp, <span class="at">each =</span> J)</span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>  des</span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a><span class="co"># ---- cut-point parameterization and link (R/lib/likelihood.R) --------------</span></span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>par_to_cut <span class="ot">&lt;-</span> <span class="cf">function</span>(par, P, W) {</span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (W <span class="sc">==</span> <span class="dv">2</span>) <span class="fu">return</span>(par[P <span class="sc">+</span> <span class="dv">1</span>])</span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>  par[P <span class="sc">+</span> <span class="dv">1</span>] <span class="sc">+</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fu">cumsum</span>(<span class="fu">exp</span>(par[(P <span class="sc">+</span> <span class="dv">2</span>)<span class="sc">:</span>(P <span class="sc">+</span> W <span class="sc">-</span> <span class="dv">1</span>)])))</span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>cut_to_par <span class="ot">&lt;-</span> <span class="cf">function</span>(cut) <span class="cf">if</span> (<span class="fu">length</span>(cut) <span class="sc">==</span> <span class="dv">1</span>) cut <span class="cf">else</span> <span class="fu">c</span>(cut[<span class="dv">1</span>], <span class="fu">log</span>(<span class="fu">diff</span>(cut)))</span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>row_max <span class="ot">&lt;-</span> <span class="cf">function</span>(M) <span class="fu">do.call</span>(pmax, <span class="fu">as.data.frame</span>(M))</span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>ord_prob_z <span class="ot">&lt;-</span> <span class="cf">function</span>(lo, hi, model) {</span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (model <span class="sc">==</span> <span class="st">"B"</span>) {</span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>    <span class="fu">plogis</span>(hi) <span class="sc">*</span> <span class="fu">plogis</span>(<span class="sc">-</span>lo) <span class="sc">*</span> (<span class="sc">-</span><span class="fu">expm1</span>(lo <span class="sc">-</span> hi))</span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> {</span>
+<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a>    ea <span class="ot">&lt;-</span> <span class="fu">exp</span>(<span class="sc">-</span>lo); eb <span class="ot">&lt;-</span> <span class="fu">exp</span>(<span class="sc">-</span>hi)</span>
+<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>    p <span class="ot">&lt;-</span> <span class="fu">exp</span>(<span class="sc">-</span>eb) <span class="sc">*</span> (<span class="sc">-</span><span class="fu">expm1</span>(<span class="sc">-</span>(ea <span class="sc">-</span> eb)))</span>
+<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a>    p[<span class="sc">!</span><span class="fu">is.finite</span>(eb)] <span class="ot">&lt;-</span> <span class="dv">0</span></span>
+<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a>    p</span>
+<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a>ord_prob <span class="ot">&lt;-</span> <span class="cf">function</span>(mubar, cut, y, model) {</span>
+<span id="cb2-45"><a href="#cb2-45" aria-hidden="true" tabindex="-1"></a>  caug <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="sc">-</span><span class="cn">Inf</span>, cut, <span class="cn">Inf</span>)</span>
+<span id="cb2-46"><a href="#cb2-46" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ord_prob_z</span>(caug[y] <span class="sc">-</span> mubar, caug[y <span class="sc">+</span> <span class="dv">1</span>L] <span class="sc">-</span> mubar, model)</span>
+<span id="cb2-47"><a href="#cb2-47" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-48"><a href="#cb2-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-49"><a href="#cb2-49" aria-hidden="true" tabindex="-1"></a>negloglik <span class="ot">&lt;-</span> <span class="cf">function</span>(par, dat) {</span>
+<span id="cb2-50"><a href="#cb2-50" aria-hidden="true" tabindex="-1"></a>  design <span class="ot">&lt;-</span> dat<span class="sc">$</span>design; P <span class="ot">&lt;-</span> design<span class="sc">$</span>P; W <span class="ot">&lt;-</span> dat<span class="sc">$</span>W</span>
+<span id="cb2-51"><a href="#cb2-51" aria-hidden="true" tabindex="-1"></a>  n <span class="ot">&lt;-</span> design<span class="sc">$</span>n_tasks; J <span class="ot">&lt;-</span> design<span class="sc">$</span>J</span>
+<span id="cb2-52"><a href="#cb2-52" aria-hidden="true" tabindex="-1"></a>  beta <span class="ot">&lt;-</span> par[<span class="dv">1</span><span class="sc">:</span>P]; cut <span class="ot">&lt;-</span> <span class="fu">par_to_cut</span>(par, P, W)</span>
+<span id="cb2-53"><a href="#cb2-53" aria-hidden="true" tabindex="-1"></a>  V <span class="ot">&lt;-</span> <span class="fu">matrix</span>(design<span class="sc">$</span>X <span class="sc">%*%</span> beta, <span class="at">nrow =</span> n, <span class="at">ncol =</span> J, <span class="at">byrow =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb2-54"><a href="#cb2-54" aria-hidden="true" tabindex="-1"></a>  m <span class="ot">&lt;-</span> <span class="fu">row_max</span>(V); logS <span class="ot">&lt;-</span> m <span class="sc">+</span> <span class="fu">log</span>(<span class="fu">rowSums</span>(<span class="fu">exp</span>(V <span class="sc">-</span> m)))</span>
+<span id="cb2-55"><a href="#cb2-55" aria-hidden="true" tabindex="-1"></a>  ll_choice <span class="ot">&lt;-</span> V[<span class="fu">cbind</span>(<span class="fu">seq_len</span>(n), dat<span class="sc">$</span>jstar)] <span class="sc">-</span> logS</span>
+<span id="cb2-56"><a href="#cb2-56" aria-hidden="true" tabindex="-1"></a>  ll_ord <span class="ot">&lt;-</span> <span class="fu">log</span>(<span class="fu">pmax</span>(<span class="fu">ord_prob</span>(logS, cut, dat<span class="sc">$</span>y, dat<span class="sc">$</span>model), <span class="fl">1e-312</span>))</span>
+<span id="cb2-57"><a href="#cb2-57" aria-hidden="true" tabindex="-1"></a>  <span class="sc">-</span>(<span class="fu">sum</span>(ll_choice) <span class="sc">+</span> <span class="fu">sum</span>(ll_ord))</span>
+<span id="cb2-58"><a href="#cb2-58" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-59"><a href="#cb2-59" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-60"><a href="#cb2-60" aria-hidden="true" tabindex="-1"></a>fit_dual_mle <span class="ot">&lt;-</span> <span class="cf">function</span>(dat, <span class="at">start =</span> <span class="cn">NULL</span>) {</span>
+<span id="cb2-61"><a href="#cb2-61" aria-hidden="true" tabindex="-1"></a>  design <span class="ot">&lt;-</span> dat<span class="sc">$</span>design; P <span class="ot">&lt;-</span> design<span class="sc">$</span>P; W <span class="ot">&lt;-</span> dat<span class="sc">$</span>W</span>
+<span id="cb2-62"><a href="#cb2-62" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">is.null</span>(start)) {</span>
+<span id="cb2-63"><a href="#cb2-63" aria-hidden="true" tabindex="-1"></a>    freq <span class="ot">&lt;-</span> <span class="fu">tabulate</span>(dat<span class="sc">$</span>y, <span class="at">nbins =</span> W)</span>
+<span id="cb2-64"><a href="#cb2-64" aria-hidden="true" tabindex="-1"></a>    cumq <span class="ot">&lt;-</span> <span class="fu">pmin</span>(<span class="fu">pmax</span>(<span class="fu">cumsum</span>(freq)[<span class="dv">1</span><span class="sc">:</span>(W <span class="sc">-</span> <span class="dv">1</span>)] <span class="sc">/</span> <span class="fu">sum</span>(freq), <span class="fl">1e-4</span>), <span class="dv">1</span> <span class="sc">-</span> <span class="fl">1e-4</span>)</span>
+<span id="cb2-65"><a href="#cb2-65" aria-hidden="true" tabindex="-1"></a>    ginv <span class="ot">&lt;-</span> <span class="cf">if</span> (dat<span class="sc">$</span>model <span class="sc">==</span> <span class="st">"B"</span>) qlogis <span class="cf">else</span> <span class="cf">function</span>(q) <span class="sc">-</span><span class="fu">log</span>(<span class="sc">-</span><span class="fu">log</span>(q))</span>
+<span id="cb2-66"><a href="#cb2-66" aria-hidden="true" tabindex="-1"></a>    cut0 <span class="ot">&lt;-</span> <span class="fu">log</span>(design<span class="sc">$</span>J) <span class="sc">+</span> <span class="fu">ginv</span>(cumq)</span>
+<span id="cb2-67"><a href="#cb2-67" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (W <span class="sc">&gt;</span> <span class="dv">2</span>) <span class="cf">for</span> (k <span class="cf">in</span> <span class="dv">2</span><span class="sc">:</span>(W <span class="sc">-</span> <span class="dv">1</span>)) cut0[k] <span class="ot">&lt;-</span> <span class="fu">max</span>(cut0[k], cut0[k <span class="sc">-</span> <span class="dv">1</span>] <span class="sc">+</span> <span class="fl">1e-3</span>)</span>
+<span id="cb2-68"><a href="#cb2-68" aria-hidden="true" tabindex="-1"></a>    start <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">rep</span>(<span class="dv">0</span>, P), <span class="fu">cut_to_par</span>(cut0))</span>
+<span id="cb2-69"><a href="#cb2-69" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb2-70"><a href="#cb2-70" aria-hidden="true" tabindex="-1"></a>  fn <span class="ot">&lt;-</span> <span class="cf">function</span>(p) <span class="fu">negloglik</span>(p, dat)</span>
+<span id="cb2-71"><a href="#cb2-71" aria-hidden="true" tabindex="-1"></a>  opt <span class="ot">&lt;-</span> <span class="fu">optim</span>(start, fn, <span class="at">method =</span> <span class="st">"BFGS"</span>, <span class="at">control =</span> <span class="fu">list</span>(<span class="at">maxit =</span> <span class="dv">1000</span>, <span class="at">reltol =</span> <span class="fl">1e-12</span>))</span>
+<span id="cb2-72"><a href="#cb2-72" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(<span class="at">beta =</span> opt<span class="sc">$</span>par[<span class="dv">1</span><span class="sc">:</span>P], <span class="at">cut =</span> <span class="fu">par_to_cut</span>(opt<span class="sc">$</span>par, P, W),</span>
+<span id="cb2-73"><a href="#cb2-73" aria-hidden="true" tabindex="-1"></a>       <span class="at">nll =</span> opt<span class="sc">$</span>value, <span class="at">par =</span> opt<span class="sc">$</span>par)</span>
+<span id="cb2-74"><a href="#cb2-74" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-75"><a href="#cb2-75" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-76"><a href="#cb2-76" aria-hidden="true" tabindex="-1"></a><span class="co"># ---- panel simulation (R/hierarchical/dgp_panel.R) -------------------------</span></span>
+<span id="cb2-77"><a href="#cb2-77" aria-hidden="true" tabindex="-1"></a>draw_betas <span class="ot">&lt;-</span> <span class="cf">function</span>(N, beta_bar, Sigma, seed) {</span>
+<span id="cb2-78"><a href="#cb2-78" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set.seed</span>(seed)</span>
+<span id="cb2-79"><a href="#cb2-79" aria-hidden="true" tabindex="-1"></a>  P <span class="ot">&lt;-</span> <span class="fu">length</span>(beta_bar)</span>
+<span id="cb2-80"><a href="#cb2-80" aria-hidden="true" tabindex="-1"></a>  Z <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">rnorm</span>(N <span class="sc">*</span> P), N, P)</span>
+<span id="cb2-81"><a href="#cb2-81" aria-hidden="true" tabindex="-1"></a>  <span class="fu">sweep</span>(Z <span class="sc">%*%</span> <span class="fu">chol</span>(Sigma), <span class="dv">2</span>, beta_bar, <span class="st">"+"</span>)</span>
+<span id="cb2-82"><a href="#cb2-82" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-83"><a href="#cb2-83" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-84"><a href="#cb2-84" aria-hidden="true" tabindex="-1"></a>simulate_dual_hb <span class="ot">&lt;-</span> <span class="cf">function</span>(design, Bmat, cut, <span class="at">model =</span> <span class="fu">c</span>(<span class="st">"A"</span>, <span class="st">"B"</span>), seed,</span>
+<span id="cb2-85"><a href="#cb2-85" aria-hidden="true" tabindex="-1"></a>                             <span class="at">shock =</span> <span class="fu">c</span>(<span class="st">"gumbel"</span>, <span class="st">"normal"</span>)) {</span>
+<span id="cb2-86"><a href="#cb2-86" aria-hidden="true" tabindex="-1"></a>  model <span class="ot">&lt;-</span> <span class="fu">match.arg</span>(model); shock <span class="ot">&lt;-</span> <span class="fu">match.arg</span>(shock)</span>
+<span id="cb2-87"><a href="#cb2-87" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set.seed</span>(seed)</span>
+<span id="cb2-88"><a href="#cb2-88" aria-hidden="true" tabindex="-1"></a>  n <span class="ot">&lt;-</span> design<span class="sc">$</span>n_tasks; J <span class="ot">&lt;-</span> design<span class="sc">$</span>J; N <span class="ot">&lt;-</span> design<span class="sc">$</span>N</span>
+<span id="cb2-89"><a href="#cb2-89" aria-hidden="true" tabindex="-1"></a>  cutmat <span class="ot">&lt;-</span> <span class="cf">if</span> (<span class="fu">is.matrix</span>(cut)) cut <span class="cf">else</span> <span class="fu">matrix</span>(cut, N, <span class="fu">length</span>(cut), <span class="at">byrow =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb2-90"><a href="#cb2-90" aria-hidden="true" tabindex="-1"></a>  W <span class="ot">&lt;-</span> <span class="fu">ncol</span>(cutmat) <span class="sc">+</span> <span class="dv">1</span>L</span>
+<span id="cb2-91"><a href="#cb2-91" aria-hidden="true" tabindex="-1"></a>  Bx <span class="ot">&lt;-</span> Bmat[design<span class="sc">$</span>resp_row, , drop <span class="ot">=</span> <span class="cn">FALSE</span>]</span>
+<span id="cb2-92"><a href="#cb2-92" aria-hidden="true" tabindex="-1"></a>  V <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">rowSums</span>(design<span class="sc">$</span>X <span class="sc">*</span> Bx), <span class="at">nrow =</span> n, <span class="at">ncol =</span> J, <span class="at">byrow =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb2-93"><a href="#cb2-93" aria-hidden="true" tabindex="-1"></a>  eta <span class="ot">&lt;-</span> <span class="cf">if</span> (shock <span class="sc">==</span> <span class="st">"gumbel"</span>) <span class="fu">rgumbel</span>(n <span class="sc">*</span> J) <span class="cf">else</span> <span class="fu">rnorm</span>(n <span class="sc">*</span> J, <span class="at">sd =</span> pi <span class="sc">/</span> <span class="fu">sqrt</span>(<span class="dv">6</span>))</span>
+<span id="cb2-94"><a href="#cb2-94" aria-hidden="true" tabindex="-1"></a>  u <span class="ot">&lt;-</span> V <span class="sc">+</span> <span class="fu">matrix</span>(eta, n, J)</span>
+<span id="cb2-95"><a href="#cb2-95" aria-hidden="true" tabindex="-1"></a>  jstar <span class="ot">&lt;-</span> <span class="fu">max.col</span>(u, <span class="at">ties.method =</span> <span class="st">"first"</span>)</span>
+<span id="cb2-96"><a href="#cb2-96" aria-hidden="true" tabindex="-1"></a>  ustar <span class="ot">&lt;-</span> u[<span class="fu">cbind</span>(<span class="fu">seq_len</span>(n), jstar)]</span>
+<span id="cb2-97"><a href="#cb2-97" aria-hidden="true" tabindex="-1"></a>  latent <span class="ot">&lt;-</span> <span class="cf">if</span> (model <span class="sc">==</span> <span class="st">"A"</span>) ustar <span class="cf">else</span> ustar <span class="sc">-</span> <span class="fu">rgumbel</span>(n)</span>
+<span id="cb2-98"><a href="#cb2-98" aria-hidden="true" tabindex="-1"></a>  eff_cut <span class="ot">&lt;-</span> cutmat[design<span class="sc">$</span>resp, , drop <span class="ot">=</span> <span class="cn">FALSE</span>]</span>
+<span id="cb2-99"><a href="#cb2-99" aria-hidden="true" tabindex="-1"></a>  y <span class="ot">&lt;-</span> <span class="dv">1</span>L <span class="sc">+</span> <span class="fu">rowSums</span>(latent <span class="sc">&gt;=</span> eff_cut)</span>
+<span id="cb2-100"><a href="#cb2-100" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(<span class="at">design =</span> design, <span class="at">resp =</span> design<span class="sc">$</span>resp, <span class="at">resp_row =</span> design<span class="sc">$</span>resp_row,</span>
+<span id="cb2-101"><a href="#cb2-101" aria-hidden="true" tabindex="-1"></a>       <span class="at">N =</span> N, <span class="at">jstar =</span> jstar, <span class="at">y =</span> <span class="fu">as.integer</span>(y), <span class="at">W =</span> W, <span class="at">model =</span> model,</span>
+<span id="cb2-102"><a href="#cb2-102" aria-hidden="true" tabindex="-1"></a>       <span class="at">Bmat_true =</span> Bmat, <span class="at">cut_true =</span> cut)</span>
+<span id="cb2-103"><a href="#cb2-103" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-104"><a href="#cb2-104" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-105"><a href="#cb2-105" aria-hidden="true" tabindex="-1"></a><span class="co"># ---- the sampler (R/hierarchical/hb.R) -------------------------------------</span></span>
+<span id="cb2-106"><a href="#cb2-106" aria-hidden="true" tabindex="-1"></a>phi_to_cutmat <span class="ot">&lt;-</span> <span class="cf">function</span>(Phi, P, W) {</span>
+<span id="cb2-107"><a href="#cb2-107" aria-hidden="true" tabindex="-1"></a>  c1 <span class="ot">&lt;-</span> Phi[, P <span class="sc">+</span> <span class="dv">1</span>]</span>
+<span id="cb2-108"><a href="#cb2-108" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (W <span class="sc">==</span> <span class="dv">2</span>) <span class="fu">return</span>(<span class="fu">matrix</span>(c1, <span class="at">ncol =</span> <span class="dv">1</span>))</span>
+<span id="cb2-109"><a href="#cb2-109" aria-hidden="true" tabindex="-1"></a>  D <span class="ot">&lt;-</span> <span class="fu">exp</span>(Phi[, (P <span class="sc">+</span> <span class="dv">2</span>)<span class="sc">:</span>(P <span class="sc">+</span> W <span class="sc">-</span> <span class="dv">1</span>), <span class="at">drop =</span> <span class="cn">FALSE</span>])</span>
+<span id="cb2-110"><a href="#cb2-110" aria-hidden="true" tabindex="-1"></a>  cutmat <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="dv">0</span>, <span class="fu">nrow</span>(Phi), W <span class="sc">-</span> <span class="dv">1</span>)</span>
+<span id="cb2-111"><a href="#cb2-111" aria-hidden="true" tabindex="-1"></a>  cutmat[, <span class="dv">1</span>] <span class="ot">&lt;-</span> c1</span>
+<span id="cb2-112"><a href="#cb2-112" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (w <span class="cf">in</span> <span class="dv">2</span><span class="sc">:</span>(W <span class="sc">-</span> <span class="dv">1</span>)) cutmat[, w] <span class="ot">&lt;-</span> cutmat[, w <span class="sc">-</span> <span class="dv">1</span>] <span class="sc">+</span> D[, w <span class="sc">-</span> <span class="dv">1</span>]</span>
+<span id="cb2-113"><a href="#cb2-113" aria-hidden="true" tabindex="-1"></a>  cutmat</span>
+<span id="cb2-114"><a href="#cb2-114" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-115"><a href="#cb2-115" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-116"><a href="#cb2-116" aria-hidden="true" tabindex="-1"></a><span class="co"># N-vector of per-respondent joint log-likelihoods. Vectorized over the whole</span></span>
+<span id="cb2-117"><a href="#cb2-117" aria-hidden="true" tabindex="-1"></a><span class="co"># panel: this is what makes the all-respondents-at-once MH step affordable.</span></span>
+<span id="cb2-118"><a href="#cb2-118" aria-hidden="true" tabindex="-1"></a>resp_loglik_all <span class="ot">&lt;-</span> <span class="cf">function</span>(dat, Bmat, cutmat, <span class="at">choice_only =</span> <span class="cn">FALSE</span>) {</span>
+<span id="cb2-119"><a href="#cb2-119" aria-hidden="true" tabindex="-1"></a>  des <span class="ot">&lt;-</span> dat<span class="sc">$</span>design; n <span class="ot">&lt;-</span> des<span class="sc">$</span>n_tasks; J <span class="ot">&lt;-</span> des<span class="sc">$</span>J</span>
+<span id="cb2-120"><a href="#cb2-120" aria-hidden="true" tabindex="-1"></a>  Bx <span class="ot">&lt;-</span> Bmat[dat<span class="sc">$</span>resp_row, , drop <span class="ot">=</span> <span class="cn">FALSE</span>]</span>
+<span id="cb2-121"><a href="#cb2-121" aria-hidden="true" tabindex="-1"></a>  V <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">rowSums</span>(des<span class="sc">$</span>X <span class="sc">*</span> Bx), <span class="at">nrow =</span> n, <span class="at">ncol =</span> J, <span class="at">byrow =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb2-122"><a href="#cb2-122" aria-hidden="true" tabindex="-1"></a>  m <span class="ot">&lt;-</span> <span class="fu">row_max</span>(V); logS <span class="ot">&lt;-</span> m <span class="sc">+</span> <span class="fu">log</span>(<span class="fu">rowSums</span>(<span class="fu">exp</span>(V <span class="sc">-</span> m)))</span>
+<span id="cb2-123"><a href="#cb2-123" aria-hidden="true" tabindex="-1"></a>  ll <span class="ot">&lt;-</span> V[<span class="fu">cbind</span>(<span class="fu">seq_len</span>(n), dat<span class="sc">$</span>jstar)] <span class="sc">-</span> logS</span>
+<span id="cb2-124"><a href="#cb2-124" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="sc">!</span>choice_only) {</span>
+<span id="cb2-125"><a href="#cb2-125" aria-hidden="true" tabindex="-1"></a>    cut_aug <span class="ot">&lt;-</span> <span class="fu">cbind</span>(<span class="sc">-</span><span class="cn">Inf</span>, cutmat, <span class="cn">Inf</span>)</span>
+<span id="cb2-126"><a href="#cb2-126" aria-hidden="true" tabindex="-1"></a>    lo <span class="ot">&lt;-</span> cut_aug[<span class="fu">cbind</span>(dat<span class="sc">$</span>resp, dat<span class="sc">$</span>y)] <span class="sc">-</span> logS</span>
+<span id="cb2-127"><a href="#cb2-127" aria-hidden="true" tabindex="-1"></a>    hi <span class="ot">&lt;-</span> cut_aug[<span class="fu">cbind</span>(dat<span class="sc">$</span>resp, dat<span class="sc">$</span>y <span class="sc">+</span> <span class="dv">1</span>L)] <span class="sc">-</span> logS</span>
+<span id="cb2-128"><a href="#cb2-128" aria-hidden="true" tabindex="-1"></a>    ll <span class="ot">&lt;-</span> ll <span class="sc">+</span> <span class="fu">log</span>(<span class="fu">pmax</span>(<span class="fu">ord_prob_z</span>(lo, hi, dat<span class="sc">$</span>model), <span class="fl">1e-312</span>))</span>
+<span id="cb2-129"><a href="#cb2-129" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb2-130"><a href="#cb2-130" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.numeric</span>(<span class="fu">rowsum</span>(ll, dat<span class="sc">$</span>resp, <span class="at">reorder =</span> <span class="cn">TRUE</span>))</span>
+<span id="cb2-131"><a href="#cb2-131" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-132"><a href="#cb2-132" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-133"><a href="#cb2-133" aria-hidden="true" tabindex="-1"></a>default_hb_priors <span class="ot">&lt;-</span> <span class="cf">function</span>(dim_phi) {</span>
+<span id="cb2-134"><a href="#cb2-134" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(<span class="at">phibar0 =</span> <span class="fu">rep</span>(<span class="dv">0</span>, dim_phi), <span class="at">A =</span> <span class="dv">1</span> <span class="sc">/</span> <span class="dv">100</span>,</span>
+<span id="cb2-135"><a href="#cb2-135" aria-hidden="true" tabindex="-1"></a>       <span class="at">nu =</span> dim_phi <span class="sc">+</span> <span class="dv">3</span>, <span class="at">V0 =</span> (dim_phi <span class="sc">+</span> <span class="dv">3</span>) <span class="sc">*</span> <span class="fu">diag</span>(dim_phi),</span>
+<span id="cb2-136"><a href="#cb2-136" aria-hidden="true" tabindex="-1"></a>       <span class="at">zeta_prec =</span> <span class="dv">1</span> <span class="sc">/</span> <span class="dv">100</span>)</span>
+<span id="cb2-137"><a href="#cb2-137" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-138"><a href="#cb2-138" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-139"><a href="#cb2-139" aria-hidden="true" tabindex="-1"></a>draw_phibar <span class="ot">&lt;-</span> <span class="cf">function</span>(Phi, Sigma, priors) {</span>
+<span id="cb2-140"><a href="#cb2-140" aria-hidden="true" tabindex="-1"></a>  N <span class="ot">&lt;-</span> <span class="fu">nrow</span>(Phi)</span>
+<span id="cb2-141"><a href="#cb2-141" aria-hidden="true" tabindex="-1"></a>  Sinv <span class="ot">&lt;-</span> <span class="fu">chol2inv</span>(<span class="fu">chol</span>(Sigma))</span>
+<span id="cb2-142"><a href="#cb2-142" aria-hidden="true" tabindex="-1"></a>  prec <span class="ot">&lt;-</span> N <span class="sc">*</span> Sinv <span class="sc">+</span> priors<span class="sc">$</span>A <span class="sc">*</span> <span class="fu">diag</span>(<span class="fu">ncol</span>(Phi))</span>
+<span id="cb2-143"><a href="#cb2-143" aria-hidden="true" tabindex="-1"></a>  Vb <span class="ot">&lt;-</span> <span class="fu">chol2inv</span>(<span class="fu">chol</span>(prec))</span>
+<span id="cb2-144"><a href="#cb2-144" aria-hidden="true" tabindex="-1"></a>  m <span class="ot">&lt;-</span> Vb <span class="sc">%*%</span> (Sinv <span class="sc">%*%</span> (N <span class="sc">*</span> <span class="fu">colMeans</span>(Phi)) <span class="sc">+</span> priors<span class="sc">$</span>A <span class="sc">*</span> priors<span class="sc">$</span>phibar0)</span>
+<span id="cb2-145"><a href="#cb2-145" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.numeric</span>(m <span class="sc">+</span> <span class="fu">t</span>(<span class="fu">chol</span>(Vb)) <span class="sc">%*%</span> <span class="fu">rnorm</span>(<span class="fu">ncol</span>(Phi)))</span>
+<span id="cb2-146"><a href="#cb2-146" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-147"><a href="#cb2-147" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-148"><a href="#cb2-148" aria-hidden="true" tabindex="-1"></a>draw_sigma <span class="ot">&lt;-</span> <span class="cf">function</span>(Phi, phibar, priors) {</span>
+<span id="cb2-149"><a href="#cb2-149" aria-hidden="true" tabindex="-1"></a>  R <span class="ot">&lt;-</span> <span class="fu">sweep</span>(Phi, <span class="dv">2</span>, phibar)</span>
+<span id="cb2-150"><a href="#cb2-150" aria-hidden="true" tabindex="-1"></a>  Vn <span class="ot">&lt;-</span> priors<span class="sc">$</span>V0 <span class="sc">+</span> <span class="fu">crossprod</span>(R)</span>
+<span id="cb2-151"><a href="#cb2-151" aria-hidden="true" tabindex="-1"></a>  nun <span class="ot">&lt;-</span> priors<span class="sc">$</span>nu <span class="sc">+</span> <span class="fu">nrow</span>(Phi)</span>
+<span id="cb2-152"><a href="#cb2-152" aria-hidden="true" tabindex="-1"></a>  Winv <span class="ot">&lt;-</span> <span class="fu">chol2inv</span>(<span class="fu">chol</span>(Vn))</span>
+<span id="cb2-153"><a href="#cb2-153" aria-hidden="true" tabindex="-1"></a>  Wdraw <span class="ot">&lt;-</span> <span class="fu">rWishart</span>(<span class="dv">1</span>, <span class="at">df =</span> nun, <span class="at">Sigma =</span> Winv)[, , <span class="dv">1</span>]</span>
+<span id="cb2-154"><a href="#cb2-154" aria-hidden="true" tabindex="-1"></a>  <span class="fu">chol2inv</span>(<span class="fu">chol</span>(Wdraw))</span>
+<span id="cb2-155"><a href="#cb2-155" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-156"><a href="#cb2-156" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-157"><a href="#cb2-157" aria-hidden="true" tabindex="-1"></a>fit_dual_hb <span class="ot">&lt;-</span> <span class="cf">function</span>(dat, <span class="at">mcmc =</span> <span class="fu">list</span>(<span class="at">R =</span> <span class="dv">30000</span>, <span class="at">burn =</span> <span class="dv">10000</span>, <span class="at">thin =</span> <span class="dv">10</span>),</span>
+<span id="cb2-158"><a href="#cb2-158" aria-hidden="true" tabindex="-1"></a>                        <span class="at">het_cut =</span> <span class="cn">FALSE</span>, <span class="at">choice_only =</span> <span class="cn">FALSE</span>, <span class="at">priors =</span> <span class="cn">NULL</span>,</span>
+<span id="cb2-159"><a href="#cb2-159" aria-hidden="true" tabindex="-1"></a>                        <span class="at">keep_phi =</span> <span class="cn">TRUE</span>, <span class="at">seed =</span> <span class="cn">NULL</span>, <span class="at">verbose =</span> <span class="cn">TRUE</span>) {</span>
+<span id="cb2-160"><a href="#cb2-160" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(seed)) <span class="fu">set.seed</span>(seed)</span>
+<span id="cb2-161"><a href="#cb2-161" aria-hidden="true" tabindex="-1"></a>  des <span class="ot">&lt;-</span> dat<span class="sc">$</span>design; N <span class="ot">&lt;-</span> dat<span class="sc">$</span>N; P <span class="ot">&lt;-</span> des<span class="sc">$</span>P; W <span class="ot">&lt;-</span> dat<span class="sc">$</span>W</span>
+<span id="cb2-162"><a href="#cb2-162" aria-hidden="true" tabindex="-1"></a>  dim_phi <span class="ot">&lt;-</span> <span class="cf">if</span> (het_cut) P <span class="sc">+</span> W <span class="sc">-</span> <span class="dv">1</span> <span class="cf">else</span> P</span>
+<span id="cb2-163"><a href="#cb2-163" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">is.null</span>(priors)) priors <span class="ot">&lt;-</span> <span class="fu">default_hb_priors</span>(dim_phi)</span>
+<span id="cb2-164"><a href="#cb2-164" aria-hidden="true" tabindex="-1"></a>  R_iter <span class="ot">&lt;-</span> mcmc<span class="sc">$</span>R; burn <span class="ot">&lt;-</span> mcmc<span class="sc">$</span>burn; thin <span class="ot">&lt;-</span> mcmc<span class="sc">$</span>thin</span>
+<span id="cb2-165"><a href="#cb2-165" aria-hidden="true" tabindex="-1"></a>  nkeep <span class="ot">&lt;-</span> <span class="fu">floor</span>((R_iter <span class="sc">-</span> burn) <span class="sc">/</span> thin)</span>
+<span id="cb2-166"><a href="#cb2-166" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-167"><a href="#cb2-167" aria-hidden="true" tabindex="-1"></a>  Phi <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="dv">0</span>, N, dim_phi)</span>
+<span id="cb2-168"><a href="#cb2-168" aria-hidden="true" tabindex="-1"></a>  freq <span class="ot">&lt;-</span> <span class="fu">tabulate</span>(dat<span class="sc">$</span>y, <span class="at">nbins =</span> W)</span>
+<span id="cb2-169"><a href="#cb2-169" aria-hidden="true" tabindex="-1"></a>  cumq <span class="ot">&lt;-</span> <span class="fu">pmin</span>(<span class="fu">pmax</span>(<span class="fu">cumsum</span>(freq)[<span class="dv">1</span><span class="sc">:</span>(W <span class="sc">-</span> <span class="dv">1</span>)] <span class="sc">/</span> <span class="fu">sum</span>(freq), <span class="fl">1e-4</span>), <span class="dv">1</span> <span class="sc">-</span> <span class="fl">1e-4</span>)</span>
+<span id="cb2-170"><a href="#cb2-170" aria-hidden="true" tabindex="-1"></a>  ginv <span class="ot">&lt;-</span> <span class="cf">if</span> (dat<span class="sc">$</span>model <span class="sc">==</span> <span class="st">"B"</span>) qlogis <span class="cf">else</span> <span class="cf">function</span>(q) <span class="sc">-</span><span class="fu">log</span>(<span class="sc">-</span><span class="fu">log</span>(q))</span>
+<span id="cb2-171"><a href="#cb2-171" aria-hidden="true" tabindex="-1"></a>  cut0 <span class="ot">&lt;-</span> <span class="fu">log</span>(des<span class="sc">$</span>J) <span class="sc">+</span> <span class="fu">ginv</span>(cumq)</span>
+<span id="cb2-172"><a href="#cb2-172" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (W <span class="sc">&gt;</span> <span class="dv">2</span>) <span class="cf">for</span> (k <span class="cf">in</span> <span class="dv">2</span><span class="sc">:</span>(W <span class="sc">-</span> <span class="dv">1</span>)) cut0[k] <span class="ot">&lt;-</span> <span class="fu">max</span>(cut0[k], cut0[k <span class="sc">-</span> <span class="dv">1</span>] <span class="sc">+</span> <span class="fl">1e-3</span>)</span>
+<span id="cb2-173"><a href="#cb2-173" aria-hidden="true" tabindex="-1"></a>  zeta <span class="ot">&lt;-</span> <span class="fu">cut_to_par</span>(cut0)</span>
+<span id="cb2-174"><a href="#cb2-174" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (het_cut) Phi[, (P <span class="sc">+</span> <span class="dv">1</span>)<span class="sc">:</span>(P <span class="sc">+</span> W <span class="sc">-</span> <span class="dv">1</span>)] <span class="ot">&lt;-</span> <span class="fu">matrix</span>(zeta, N, W <span class="sc">-</span> <span class="dv">1</span>, <span class="at">byrow =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb2-175"><a href="#cb2-175" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-176"><a href="#cb2-176" aria-hidden="true" tabindex="-1"></a>  phibar <span class="ot">&lt;-</span> <span class="fu">colMeans</span>(Phi); Sigma <span class="ot">&lt;-</span> <span class="fu">diag</span>(dim_phi)</span>
+<span id="cb2-177"><a href="#cb2-177" aria-hidden="true" tabindex="-1"></a>  cur_cutmat <span class="ot">&lt;-</span> <span class="cf">if</span> (het_cut) <span class="fu">phi_to_cutmat</span>(Phi, P, W)</span>
+<span id="cb2-178"><a href="#cb2-178" aria-hidden="true" tabindex="-1"></a>                <span class="cf">else</span> <span class="fu">matrix</span>(<span class="fu">par_to_cut</span>(zeta, <span class="dv">0</span>, W), N, W <span class="sc">-</span> <span class="dv">1</span>, <span class="at">byrow =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb2-179"><a href="#cb2-179" aria-hidden="true" tabindex="-1"></a>  cur_ll <span class="ot">&lt;-</span> <span class="fu">resp_loglik_all</span>(dat, Phi[, <span class="dv">1</span><span class="sc">:</span>P, <span class="at">drop =</span> <span class="cn">FALSE</span>], cur_cutmat, choice_only)</span>
+<span id="cb2-180"><a href="#cb2-180" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-181"><a href="#cb2-181" aria-hidden="true" tabindex="-1"></a>  s_phi <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="fl">2.93</span> <span class="sc">/</span> <span class="fu">sqrt</span>(dim_phi), N); acc_phi <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">0</span>, N)</span>
+<span id="cb2-182"><a href="#cb2-182" aria-hidden="true" tabindex="-1"></a>  s_zeta <span class="ot">&lt;-</span> <span class="fl">0.05</span>; acc_zeta <span class="ot">&lt;-</span> <span class="dv">0</span>; window <span class="ot">&lt;-</span> <span class="dv">100</span></span>
+<span id="cb2-183"><a href="#cb2-183" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-184"><a href="#cb2-184" aria-hidden="true" tabindex="-1"></a>  keep_betabar <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="cn">NA_real_</span>, nkeep, dim_phi)</span>
+<span id="cb2-185"><a href="#cb2-185" aria-hidden="true" tabindex="-1"></a>  keep_Sigma <span class="ot">&lt;-</span> <span class="fu">array</span>(<span class="cn">NA_real_</span>, <span class="fu">c</span>(nkeep, dim_phi, dim_phi))</span>
+<span id="cb2-186"><a href="#cb2-186" aria-hidden="true" tabindex="-1"></a>  keep_cut <span class="ot">&lt;-</span> <span class="cf">if</span> (<span class="sc">!</span>het_cut <span class="sc">&amp;&amp;</span> <span class="sc">!</span>choice_only) <span class="fu">matrix</span>(<span class="cn">NA_real_</span>, nkeep, W <span class="sc">-</span> <span class="dv">1</span>) <span class="cf">else</span> <span class="cn">NULL</span></span>
+<span id="cb2-187"><a href="#cb2-187" aria-hidden="true" tabindex="-1"></a>  keep_ll <span class="ot">&lt;-</span> <span class="fu">numeric</span>(nkeep)</span>
+<span id="cb2-188"><a href="#cb2-188" aria-hidden="true" tabindex="-1"></a>  keep_ll_resp <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="cn">NA_real_</span>, nkeep, N)</span>
+<span id="cb2-189"><a href="#cb2-189" aria-hidden="true" tabindex="-1"></a>  keep_Phi <span class="ot">&lt;-</span> <span class="cf">if</span> (keep_phi) <span class="fu">array</span>(<span class="cn">NA_real_</span>, <span class="fu">c</span>(nkeep, N, dim_phi)) <span class="cf">else</span> <span class="cn">NULL</span></span>
+<span id="cb2-190"><a href="#cb2-190" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-191"><a href="#cb2-191" aria-hidden="true" tabindex="-1"></a>  t0 <span class="ot">&lt;-</span> <span class="fu">Sys.time</span>(); ki <span class="ot">&lt;-</span> <span class="dv">0</span></span>
+<span id="cb2-192"><a href="#cb2-192" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (it <span class="cf">in</span> <span class="fu">seq_len</span>(R_iter)) {</span>
+<span id="cb2-193"><a href="#cb2-193" aria-hidden="true" tabindex="-1"></a>    <span class="co"># (1) all respondents at once</span></span>
+<span id="cb2-194"><a href="#cb2-194" aria-hidden="true" tabindex="-1"></a>    U <span class="ot">&lt;-</span> <span class="fu">chol</span>(Sigma)</span>
+<span id="cb2-195"><a href="#cb2-195" aria-hidden="true" tabindex="-1"></a>    Z <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">rnorm</span>(N <span class="sc">*</span> dim_phi), N, dim_phi) <span class="sc">%*%</span> U</span>
+<span id="cb2-196"><a href="#cb2-196" aria-hidden="true" tabindex="-1"></a>    Prop <span class="ot">&lt;-</span> Phi <span class="sc">+</span> Z <span class="sc">*</span> s_phi</span>
+<span id="cb2-197"><a href="#cb2-197" aria-hidden="true" tabindex="-1"></a>    prop_cutmat <span class="ot">&lt;-</span> <span class="cf">if</span> (het_cut) <span class="fu">phi_to_cutmat</span>(Prop, P, W) <span class="cf">else</span> cur_cutmat</span>
+<span id="cb2-198"><a href="#cb2-198" aria-hidden="true" tabindex="-1"></a>    prop_ll <span class="ot">&lt;-</span> <span class="fu">resp_loglik_all</span>(dat, Prop[, <span class="dv">1</span><span class="sc">:</span>P, <span class="at">drop =</span> <span class="cn">FALSE</span>], prop_cutmat, choice_only)</span>
+<span id="cb2-199"><a href="#cb2-199" aria-hidden="true" tabindex="-1"></a>    Sinv <span class="ot">&lt;-</span> <span class="fu">chol2inv</span>(<span class="fu">chol</span>(Sigma))</span>
+<span id="cb2-200"><a href="#cb2-200" aria-hidden="true" tabindex="-1"></a>    dcur <span class="ot">&lt;-</span> <span class="fu">sweep</span>(Phi, <span class="dv">2</span>, phibar); dprop <span class="ot">&lt;-</span> <span class="fu">sweep</span>(Prop, <span class="dv">2</span>, phibar)</span>
+<span id="cb2-201"><a href="#cb2-201" aria-hidden="true" tabindex="-1"></a>    qcur <span class="ot">&lt;-</span> <span class="fu">rowSums</span>((dcur <span class="sc">%*%</span> Sinv) <span class="sc">*</span> dcur)</span>
+<span id="cb2-202"><a href="#cb2-202" aria-hidden="true" tabindex="-1"></a>    qprop <span class="ot">&lt;-</span> <span class="fu">rowSums</span>((dprop <span class="sc">%*%</span> Sinv) <span class="sc">*</span> dprop)</span>
+<span id="cb2-203"><a href="#cb2-203" aria-hidden="true" tabindex="-1"></a>    log_alpha <span class="ot">&lt;-</span> (prop_ll <span class="sc">-</span> <span class="fl">0.5</span> <span class="sc">*</span> qprop) <span class="sc">-</span> (cur_ll <span class="sc">-</span> <span class="fl">0.5</span> <span class="sc">*</span> qcur)</span>
+<span id="cb2-204"><a href="#cb2-204" aria-hidden="true" tabindex="-1"></a>    accept <span class="ot">&lt;-</span> <span class="fu">log</span>(<span class="fu">runif</span>(N)) <span class="sc">&lt;</span> log_alpha</span>
+<span id="cb2-205"><a href="#cb2-205" aria-hidden="true" tabindex="-1"></a>    Phi[accept, ] <span class="ot">&lt;-</span> Prop[accept, ]</span>
+<span id="cb2-206"><a href="#cb2-206" aria-hidden="true" tabindex="-1"></a>    cur_ll[accept] <span class="ot">&lt;-</span> prop_ll[accept]</span>
+<span id="cb2-207"><a href="#cb2-207" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (het_cut <span class="sc">&amp;&amp;</span> <span class="fu">any</span>(accept)) cur_cutmat[accept, ] <span class="ot">&lt;-</span> prop_cutmat[accept, , drop <span class="ot">=</span> <span class="cn">FALSE</span>]</span>
+<span id="cb2-208"><a href="#cb2-208" aria-hidden="true" tabindex="-1"></a>    acc_phi <span class="ot">&lt;-</span> acc_phi <span class="sc">+</span> accept</span>
+<span id="cb2-209"><a href="#cb2-209" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-210"><a href="#cb2-210" aria-hidden="true" tabindex="-1"></a>    <span class="co"># (2) common cut block</span></span>
+<span id="cb2-211"><a href="#cb2-211" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="sc">!</span>het_cut <span class="sc">&amp;&amp;</span> <span class="sc">!</span>choice_only) {</span>
+<span id="cb2-212"><a href="#cb2-212" aria-hidden="true" tabindex="-1"></a>      zeta_prop <span class="ot">&lt;-</span> zeta <span class="sc">+</span> <span class="fu">rnorm</span>(W <span class="sc">-</span> <span class="dv">1</span>, <span class="at">sd =</span> s_zeta)</span>
+<span id="cb2-213"><a href="#cb2-213" aria-hidden="true" tabindex="-1"></a>      cut_prop <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">par_to_cut</span>(zeta_prop, <span class="dv">0</span>, W), N, W <span class="sc">-</span> <span class="dv">1</span>, <span class="at">byrow =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb2-214"><a href="#cb2-214" aria-hidden="true" tabindex="-1"></a>      ll_prop <span class="ot">&lt;-</span> <span class="fu">resp_loglik_all</span>(dat, Phi[, <span class="dv">1</span><span class="sc">:</span>P, <span class="at">drop =</span> <span class="cn">FALSE</span>], cut_prop, choice_only)</span>
+<span id="cb2-215"><a href="#cb2-215" aria-hidden="true" tabindex="-1"></a>      lp <span class="ot">&lt;-</span> (<span class="fu">sum</span>(ll_prop) <span class="sc">-</span> <span class="fl">0.5</span> <span class="sc">*</span> priors<span class="sc">$</span>zeta_prec <span class="sc">*</span> <span class="fu">sum</span>(zeta_prop<span class="sc">^</span><span class="dv">2</span>)) <span class="sc">-</span></span>
+<span id="cb2-216"><a href="#cb2-216" aria-hidden="true" tabindex="-1"></a>            (<span class="fu">sum</span>(cur_ll) <span class="sc">-</span> <span class="fl">0.5</span> <span class="sc">*</span> priors<span class="sc">$</span>zeta_prec <span class="sc">*</span> <span class="fu">sum</span>(zeta<span class="sc">^</span><span class="dv">2</span>))</span>
+<span id="cb2-217"><a href="#cb2-217" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> (<span class="fu">log</span>(<span class="fu">runif</span>(<span class="dv">1</span>)) <span class="sc">&lt;</span> lp) {</span>
+<span id="cb2-218"><a href="#cb2-218" aria-hidden="true" tabindex="-1"></a>        zeta <span class="ot">&lt;-</span> zeta_prop; cur_cutmat <span class="ot">&lt;-</span> cut_prop; cur_ll <span class="ot">&lt;-</span> ll_prop</span>
+<span id="cb2-219"><a href="#cb2-219" aria-hidden="true" tabindex="-1"></a>        acc_zeta <span class="ot">&lt;-</span> acc_zeta <span class="sc">+</span> <span class="dv">1</span></span>
+<span id="cb2-220"><a href="#cb2-220" aria-hidden="true" tabindex="-1"></a>      }</span>
+<span id="cb2-221"><a href="#cb2-221" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb2-222"><a href="#cb2-222" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-223"><a href="#cb2-223" aria-hidden="true" tabindex="-1"></a>    <span class="co"># (3) hyperparameters</span></span>
+<span id="cb2-224"><a href="#cb2-224" aria-hidden="true" tabindex="-1"></a>    phibar <span class="ot">&lt;-</span> <span class="fu">draw_phibar</span>(Phi, Sigma, priors)</span>
+<span id="cb2-225"><a href="#cb2-225" aria-hidden="true" tabindex="-1"></a>    Sigma <span class="ot">&lt;-</span> <span class="fu">draw_sigma</span>(Phi, phibar, priors)</span>
+<span id="cb2-226"><a href="#cb2-226" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-227"><a href="#cb2-227" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (it <span class="sc">&lt;=</span> burn <span class="sc">&amp;&amp;</span> it <span class="sc">%%</span> window <span class="sc">==</span> <span class="dv">0</span>) {</span>
+<span id="cb2-228"><a href="#cb2-228" aria-hidden="true" tabindex="-1"></a>      s_phi <span class="ot">&lt;-</span> <span class="fu">pmin</span>(<span class="fu">pmax</span>(s_phi <span class="sc">*</span> <span class="fu">exp</span>(<span class="fl">1.5</span> <span class="sc">*</span> (acc_phi <span class="sc">/</span> window <span class="sc">-</span> <span class="fl">0.23</span>)), <span class="fl">0.01</span>), <span class="dv">10</span>)</span>
+<span id="cb2-229"><a href="#cb2-229" aria-hidden="true" tabindex="-1"></a>      acc_phi <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">0</span>, N)</span>
+<span id="cb2-230"><a href="#cb2-230" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> (<span class="sc">!</span>het_cut <span class="sc">&amp;&amp;</span> <span class="sc">!</span>choice_only) {</span>
+<span id="cb2-231"><a href="#cb2-231" aria-hidden="true" tabindex="-1"></a>        s_zeta <span class="ot">&lt;-</span> <span class="fu">min</span>(<span class="fu">max</span>(s_zeta <span class="sc">*</span> <span class="fu">exp</span>(<span class="fl">1.5</span> <span class="sc">*</span> (acc_zeta <span class="sc">/</span> window <span class="sc">-</span> <span class="fl">0.30</span>)), <span class="fl">1e-3</span>), <span class="dv">2</span>)</span>
+<span id="cb2-232"><a href="#cb2-232" aria-hidden="true" tabindex="-1"></a>        acc_zeta <span class="ot">&lt;-</span> <span class="dv">0</span></span>
+<span id="cb2-233"><a href="#cb2-233" aria-hidden="true" tabindex="-1"></a>      }</span>
+<span id="cb2-234"><a href="#cb2-234" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb2-235"><a href="#cb2-235" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (it <span class="sc">==</span> burn) { acc_phi <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">0</span>, N); acc_zeta <span class="ot">&lt;-</span> <span class="dv">0</span> }</span>
+<span id="cb2-236"><a href="#cb2-236" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-237"><a href="#cb2-237" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (it <span class="sc">&gt;</span> burn <span class="sc">&amp;&amp;</span> (it <span class="sc">-</span> burn) <span class="sc">%%</span> thin <span class="sc">==</span> <span class="dv">0</span>) {</span>
+<span id="cb2-238"><a href="#cb2-238" aria-hidden="true" tabindex="-1"></a>      ki <span class="ot">&lt;-</span> ki <span class="sc">+</span> <span class="dv">1</span></span>
+<span id="cb2-239"><a href="#cb2-239" aria-hidden="true" tabindex="-1"></a>      keep_betabar[ki, ] <span class="ot">&lt;-</span> phibar</span>
+<span id="cb2-240"><a href="#cb2-240" aria-hidden="true" tabindex="-1"></a>      keep_Sigma[ki, , ] <span class="ot">&lt;-</span> Sigma</span>
+<span id="cb2-241"><a href="#cb2-241" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(keep_cut)) keep_cut[ki, ] <span class="ot">&lt;-</span> <span class="fu">par_to_cut</span>(zeta, <span class="dv">0</span>, W)</span>
+<span id="cb2-242"><a href="#cb2-242" aria-hidden="true" tabindex="-1"></a>      keep_ll[ki] <span class="ot">&lt;-</span> <span class="fu">sum</span>(cur_ll)</span>
+<span id="cb2-243"><a href="#cb2-243" aria-hidden="true" tabindex="-1"></a>      keep_ll_resp[ki, ] <span class="ot">&lt;-</span> cur_ll</span>
+<span id="cb2-244"><a href="#cb2-244" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> (keep_phi) keep_Phi[ki, , ] <span class="ot">&lt;-</span> Phi</span>
+<span id="cb2-245"><a href="#cb2-245" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb2-246"><a href="#cb2-246" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb2-247"><a href="#cb2-247" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-248"><a href="#cb2-248" aria-hidden="true" tabindex="-1"></a>  post_iters <span class="ot">&lt;-</span> R_iter <span class="sc">-</span> burn</span>
+<span id="cb2-249"><a href="#cb2-249" aria-hidden="true" tabindex="-1"></a>  <span class="fu">structure</span>(<span class="fu">list</span>(</span>
+<span id="cb2-250"><a href="#cb2-250" aria-hidden="true" tabindex="-1"></a>    <span class="at">draws =</span> <span class="fu">list</span>(<span class="at">phibar =</span> keep_betabar, <span class="at">Sigma =</span> keep_Sigma, <span class="at">cut =</span> keep_cut, <span class="at">Phi =</span> keep_Phi),</span>
+<span id="cb2-251"><a href="#cb2-251" aria-hidden="true" tabindex="-1"></a>    <span class="at">ll =</span> keep_ll, <span class="at">ll_resp =</span> keep_ll_resp,</span>
+<span id="cb2-252"><a href="#cb2-252" aria-hidden="true" tabindex="-1"></a>    <span class="at">accept =</span> <span class="fu">list</span>(<span class="at">phi =</span> <span class="fu">mean</span>(acc_phi <span class="sc">/</span> post_iters),</span>
+<span id="cb2-253"><a href="#cb2-253" aria-hidden="true" tabindex="-1"></a>                  <span class="at">zeta =</span> <span class="cf">if</span> (het_cut <span class="sc">||</span> choice_only) <span class="cn">NA</span> <span class="cf">else</span> acc_zeta <span class="sc">/</span> post_iters),</span>
+<span id="cb2-254"><a href="#cb2-254" aria-hidden="true" tabindex="-1"></a>    <span class="at">settings =</span> <span class="fu">list</span>(<span class="at">mcmc =</span> mcmc, <span class="at">het_cut =</span> het_cut, <span class="at">choice_only =</span> choice_only,</span>
+<span id="cb2-255"><a href="#cb2-255" aria-hidden="true" tabindex="-1"></a>                    <span class="at">P =</span> P, <span class="at">W =</span> W, <span class="at">N =</span> N, <span class="at">model =</span> dat<span class="sc">$</span>model, <span class="at">priors =</span> priors),</span>
+<span id="cb2-256"><a href="#cb2-256" aria-hidden="true" tabindex="-1"></a>    <span class="at">runtime_min =</span> <span class="fu">as.numeric</span>(<span class="fu">difftime</span>(<span class="fu">Sys.time</span>(), t0, <span class="at">units =</span> <span class="st">"mins"</span>))</span>
+<span id="cb2-257"><a href="#cb2-257" aria-hidden="true" tabindex="-1"></a>  ), <span class="at">class =</span> <span class="st">"dr_hb_fit"</span>)</span>
+<span id="cb2-258"><a href="#cb2-258" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-259"><a href="#cb2-259" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-260"><a href="#cb2-260" aria-hidden="true" tabindex="-1"></a>hb_beta_i <span class="ot">&lt;-</span> <span class="cf">function</span>(fit)</span>
+<span id="cb2-261"><a href="#cb2-261" aria-hidden="true" tabindex="-1"></a>  <span class="fu">apply</span>(fit<span class="sc">$</span>draws<span class="sc">$</span>Phi[, , <span class="dv">1</span><span class="sc">:</span>fit<span class="sc">$</span>settings<span class="sc">$</span>P, <span class="at">drop =</span> <span class="cn">FALSE</span>], <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">3</span>), mean)</span>
+<span id="cb2-262"><a href="#cb2-262" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-263"><a href="#cb2-263" aria-hidden="true" tabindex="-1"></a>summary_dr_hb <span class="ot">&lt;-</span> <span class="cf">function</span>(fit, <span class="at">truth =</span> <span class="cn">NULL</span>) {</span>
+<span id="cb2-264"><a href="#cb2-264" aria-hidden="true" tabindex="-1"></a>  pm <span class="ot">&lt;-</span> <span class="fu">colMeans</span>(fit<span class="sc">$</span>draws<span class="sc">$</span>phibar); psd <span class="ot">&lt;-</span> <span class="fu">apply</span>(fit<span class="sc">$</span>draws<span class="sc">$</span>phibar, <span class="dv">2</span>, sd)</span>
+<span id="cb2-265"><a href="#cb2-265" aria-hidden="true" tabindex="-1"></a>  out <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">param =</span> <span class="fu">paste0</span>(<span class="st">"phibar"</span>, <span class="fu">seq_along</span>(pm)), <span class="at">post_mean =</span> pm, <span class="at">post_sd =</span> psd)</span>
+<span id="cb2-266"><a href="#cb2-266" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(fit<span class="sc">$</span>draws<span class="sc">$</span>cut)) {</span>
+<span id="cb2-267"><a href="#cb2-267" aria-hidden="true" tabindex="-1"></a>    out <span class="ot">&lt;-</span> <span class="fu">rbind</span>(out, <span class="fu">data.frame</span>(<span class="at">param =</span> <span class="fu">paste0</span>(<span class="st">"c"</span>, <span class="fu">seq_len</span>(<span class="fu">ncol</span>(fit<span class="sc">$</span>draws<span class="sc">$</span>cut))),</span>
+<span id="cb2-268"><a href="#cb2-268" aria-hidden="true" tabindex="-1"></a>                                 <span class="at">post_mean =</span> <span class="fu">colMeans</span>(fit<span class="sc">$</span>draws<span class="sc">$</span>cut),</span>
+<span id="cb2-269"><a href="#cb2-269" aria-hidden="true" tabindex="-1"></a>                                 <span class="at">post_sd =</span> <span class="fu">apply</span>(fit<span class="sc">$</span>draws<span class="sc">$</span>cut, <span class="dv">2</span>, sd)))</span>
+<span id="cb2-270"><a href="#cb2-270" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb2-271"><a href="#cb2-271" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(truth)) { out<span class="sc">$</span>truth <span class="ot">&lt;-</span> truth; out<span class="sc">$</span>z <span class="ot">&lt;-</span> (out<span class="sc">$</span>post_mean <span class="sc">-</span> truth) <span class="sc">/</span> out<span class="sc">$</span>post_sd }</span>
+<span id="cb2-272"><a href="#cb2-272" aria-hidden="true" tabindex="-1"></a>  out</span>
+<span id="cb2-273"><a href="#cb2-273" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div></div>
+<div class="cell-container"><div class="cell-decorator"><pre>In [3]:</pre></div><div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>N <span class="ot">&lt;-</span> <span class="dv">300</span>; T_tasks <span class="ot">&lt;-</span> <span class="dv">12</span>; J <span class="ot">&lt;-</span> <span class="dv">4</span>; W <span class="ot">&lt;-</span> <span class="dv">5</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>beta_bar   <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="at">a2 =</span> <span class="fl">0.8</span>, <span class="at">a3 =</span> <span class="sc">-</span><span class="fl">0.5</span>, <span class="at">b2 =</span> <span class="fl">0.4</span>, <span class="at">b3 =</span> <span class="fl">1.0</span>, <span class="at">price =</span> <span class="sc">-</span><span class="fl">0.9</span>)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>Sigma_true <span class="ot">&lt;-</span> <span class="fu">diag</span>(<span class="fu">c</span>(<span class="fl">0.6</span>, <span class="fl">0.6</span>, <span class="fl">0.6</span>, <span class="fl">0.6</span>, <span class="fl">0.3</span>))</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>cut_true   <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="sc">-</span><span class="fl">1.0</span>, <span class="fl">0.2</span>, <span class="fl">1.2</span>, <span class="fl">2.2</span>)</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>P <span class="ot">&lt;-</span> <span class="fu">length</span>(beta_bar)</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>MCMC <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">R =</span> <span class="dv">30000</span>, <span class="at">burn =</span> <span class="dv">10000</span>, <span class="at">thin =</span> <span class="dv">10</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div></div>
+<p>Three hundred respondents, twelve tasks each, which is a commercially realistic study rather than an asymptotic fantasy. The heterogeneity is substantial: a standard deviation of about 0.77 on coefficients whose means run from 0.4 to 1.0, so respondents genuinely differ in sign on some attributes.</p>
+</section>
+<section id="recovery" class="level2">
+<h2 class="anchored" data-anchor-id="recovery">3. Recovery</h2>
+<div class="cell-container"><div class="cell-decorator"><pre>In [4]:</pre></div><div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>out <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (model <span class="cf">in</span> <span class="fu">c</span>(<span class="st">"B"</span>, <span class="st">"A"</span>)) {</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  des <span class="ot">&lt;-</span> <span class="fu">make_panel_design</span>(N, T_tasks, J, <span class="at">seed =</span> <span class="dv">200</span> <span class="sc">+</span> (model <span class="sc">==</span> <span class="st">"A"</span>))</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  B   <span class="ot">&lt;-</span> <span class="fu">draw_betas</span>(N, beta_bar, Sigma_true, <span class="at">seed =</span> <span class="dv">300</span> <span class="sc">+</span> (model <span class="sc">==</span> <span class="st">"A"</span>))</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  dat <span class="ot">&lt;-</span> <span class="fu">simulate_dual_hb</span>(des, B, cut_true, <span class="at">model =</span> model, <span class="at">seed =</span> <span class="dv">400</span> <span class="sc">+</span> (model <span class="sc">==</span> <span class="st">"A"</span>))</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">"</span><span class="sc">\n</span><span class="st">=== Model %s ===</span><span class="sc">\n</span><span class="st">category shares: %s</span><span class="sc">\n</span><span class="st">"</span>, model,</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>              <span class="fu">paste</span>(<span class="fu">round</span>(<span class="fu">tabulate</span>(dat<span class="sc">$</span>y, W) <span class="sc">/</span> <span class="fu">length</span>(dat<span class="sc">$</span>y), <span class="dv">3</span>), <span class="at">collapse =</span> <span class="st">" "</span>)))</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>  fit <span class="ot">&lt;-</span> <span class="fu">fit_dual_hb</span>(dat, <span class="at">mcmc =</span> MCMC, <span class="at">seed =</span> <span class="dv">500</span>, <span class="at">verbose =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>  s <span class="ot">&lt;-</span> <span class="fu">summary_dr_hb</span>(fit, <span class="at">truth =</span> <span class="fu">c</span>(beta_bar, cut_true))</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(knitr<span class="sc">::</span><span class="fu">kable</span>(s, <span class="at">row.names =</span> <span class="cn">FALSE</span>, <span class="at">digits =</span> <span class="dv">3</span>))</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>  Sig_pm <span class="ot">&lt;-</span> <span class="fu">apply</span>(fit<span class="sc">$</span>draws<span class="sc">$</span>Sigma, <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">3</span>), mean)</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="st">"posterior mean diag(Sigma):"</span>, <span class="fu">round</span>(<span class="fu">diag</span>(Sig_pm), <span class="dv">3</span>),</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>      <span class="st">"| truth:"</span>, <span class="fu">diag</span>(Sigma_true), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">"acceptance: phi %.2f, cut block %.2f | runtime %.1f min</span><span class="sc">\n</span><span class="st">"</span>,</span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>              fit<span class="sc">$</span>accept<span class="sc">$</span>phi, fit<span class="sc">$</span>accept<span class="sc">$</span>zeta, fit<span class="sc">$</span>runtime_min))</span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>  bi <span class="ot">&lt;-</span> <span class="fu">hb_beta_i</span>(fit)</span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">"individual beta_i posterior-mean RMSE: %.3f (sd of true beta_i: %.3f)</span><span class="sc">\n</span><span class="st">"</span>,</span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>              <span class="fu">sqrt</span>(<span class="fu">mean</span>((bi <span class="sc">-</span> dat<span class="sc">$</span>Bmat_true)<span class="sc">^</span><span class="dv">2</span>)), <span class="fu">sqrt</span>(<span class="fu">mean</span>(<span class="fu">diag</span>(Sigma_true)))))</span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>  out[[<span class="fu">paste0</span>(<span class="st">"recovery_"</span>, model)]] <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">summary =</span> s, <span class="at">Sigma_pm =</span> Sig_pm, <span class="at">accept =</span> fit<span class="sc">$</span>accept,</span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">runtime =</span> fit<span class="sc">$</span>runtime_min, <span class="at">beta_i_rmse =</span> <span class="fu">sqrt</span>(<span class="fu">mean</span>((bi <span class="sc">-</span> dat<span class="sc">$</span>Bmat_true)<span class="sc">^</span><span class="dv">2</span>)))</span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+=== Model B ===
+category shares: 0.141 0.166 0.181 0.192 0.32
+
+
+|param   | post_mean| post_sd| truth|      z|
+|:-------|---------:|-------:|-----:|------:|
+|phibar1 |     0.814|   0.070|   0.8|  0.206|
+|phibar2 |    -0.565|   0.077|  -0.5| -0.844|
+|phibar3 |     0.255|   0.075|   0.4| -1.919|
+|phibar4 |     0.950|   0.077|   1.0| -0.652|
+|phibar5 |    -0.816|   0.053|  -0.9|  1.591|
+|c1      |    -1.148|   0.084|  -1.0| -1.772|
+|c2      |     0.076|   0.079|   0.2| -1.574|
+|c3      |     1.059|   0.079|   1.2| -1.792|
+|c4      |     2.082|   0.079|   2.2| -1.495|
+posterior mean diag(Sigma): 0.705 0.669 0.695 0.805 0.357 | truth: 0.6 0.6 0.6 0.6 0.3 
+acceptance: phi 0.23, cut block 0.28 | runtime 0.9 min
+individual beta_i posterior-mean RMSE: 0.527 (sd of true beta_i: 0.735)
+
+=== Model A ===
+category shares: 0.058 0.169 0.226 0.214 0.332
+
+
+|param   | post_mean| post_sd| truth|      z|
+|:-------|---------:|-------:|-----:|------:|
+|phibar1 |     0.793|   0.065|   0.8| -0.106|
+|phibar2 |    -0.496|   0.070|  -0.5|  0.057|
+|phibar3 |     0.410|   0.073|   0.4|  0.132|
+|phibar4 |     1.010|   0.073|   1.0|  0.138|
+|phibar5 |    -0.993|   0.052|  -0.9| -1.785|
+|c1      |    -1.123|   0.070|  -1.0| -1.748|
+|c2      |     0.174|   0.062|   0.2| -0.415|
+|c3      |     1.208|   0.062|   1.2|  0.133|
+|c4      |     2.167|   0.065|   2.2| -0.517|
+posterior mean diag(Sigma): 0.677 0.523 0.82 0.813 0.403 | truth: 0.6 0.6 0.6 0.6 0.3 
+acceptance: phi 0.23, cut block 0.27 | runtime 0.9 min
+individual beta_i posterior-mean RMSE: 0.498 (sd of true beta_i: 0.735)</code></pre>
+</div>
+</div></div>
+<p>The <span class="math inline">\(z\)</span> column is the posterior mean’s distance from the truth in posterior standard deviations. Values inside about two say the truth sits comfortably within the posterior.</p>
+<p>Two things worth noting beyond the table. The individual-level RMSE is substantially smaller than the population standard deviation, which is the hierarchical prior doing its job: twelve tasks alone would not pin down five coefficients per person, and shrinkage toward the population mean supplies the rest. And the acceptance rates land near their targets of 0.23 and 0.30, which is the adaptation working as intended.</p>
+</section>
+<section id="posterior-calibration" class="level2">
+<h2 class="anchored" data-anchor-id="posterior-calibration">4. Posterior calibration</h2>
+<p>Recovery is necessary but not sufficient. A sampler can land on the right answer and still report intervals that are systematically too narrow, which would make every inference in the paper overconfident.</p>
+<p>The check is coverage. Over repeated datasets drawn from fixed true hyperparameters, the 50% and 90% central posterior intervals should contain the truth about 50% and 90% of the time. This is the lightweight cousin of simulation-based calibration; full SBC would draw the truth from the prior, but fixed-truth coverage at interior values catches sign errors, scale errors, and hierarchy bugs, which is what we are worried about.</p>
+<div class="cell-container"><div class="cell-decorator"><pre>In [5]:</pre></div><div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>REPS_B <span class="ot">&lt;-</span> <span class="dv">20</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>REPS_A <span class="ot">&lt;-</span> <span class="dv">8</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>truth <span class="ot">&lt;-</span> <span class="fu">c</span>(beta_bar, cut_true)</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>K <span class="ot">&lt;-</span> <span class="fu">length</span>(truth)</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>MCMC_COV <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">R =</span> <span class="dv">20000</span>, <span class="at">burn =</span> <span class="dv">8000</span>, <span class="at">thin =</span> <span class="dv">12</span>)</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>run_reps <span class="ot">&lt;-</span> <span class="cf">function</span>(model, reps, seed0) {</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>  cover50 <span class="ot">&lt;-</span> cover90 <span class="ot">&lt;-</span> zstats <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="cn">NA</span>, reps, K)</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (r <span class="cf">in</span> <span class="fu">seq_len</span>(reps)) {</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>    des <span class="ot">&lt;-</span> <span class="fu">make_panel_design</span>(N, T_tasks, J, <span class="at">seed =</span> seed0 <span class="sc">+</span> <span class="dv">3</span> <span class="sc">*</span> r)</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>    B   <span class="ot">&lt;-</span> <span class="fu">draw_betas</span>(N, beta_bar, Sigma_true, <span class="at">seed =</span> seed0 <span class="sc">+</span> <span class="dv">3</span> <span class="sc">*</span> r <span class="sc">+</span> <span class="dv">1</span>)</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>    dat <span class="ot">&lt;-</span> <span class="fu">simulate_dual_hb</span>(des, B, cut_true, <span class="at">model =</span> model, <span class="at">seed =</span> seed0 <span class="sc">+</span> <span class="dv">3</span> <span class="sc">*</span> r <span class="sc">+</span> <span class="dv">2</span>)</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>    fit <span class="ot">&lt;-</span> <span class="fu">fit_dual_hb</span>(dat, <span class="at">mcmc =</span> MCMC_COV, <span class="at">seed =</span> seed0 <span class="sc">+</span> r,</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>                       <span class="at">verbose =</span> <span class="cn">FALSE</span>, <span class="at">keep_phi =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>    draws <span class="ot">&lt;-</span> <span class="fu">cbind</span>(fit<span class="sc">$</span>draws<span class="sc">$</span>phibar, fit<span class="sc">$</span>draws<span class="sc">$</span>cut)</span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> (k <span class="cf">in</span> <span class="fu">seq_len</span>(K)) {</span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>      q50 <span class="ot">&lt;-</span> <span class="fu">quantile</span>(draws[, k], <span class="fu">c</span>(<span class="fl">0.25</span>, <span class="fl">0.75</span>))</span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>      q90 <span class="ot">&lt;-</span> <span class="fu">quantile</span>(draws[, k], <span class="fu">c</span>(<span class="fl">0.05</span>, <span class="fl">0.95</span>))</span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>      cover50[r, k] <span class="ot">&lt;-</span> truth[k] <span class="sc">&gt;=</span> q50[<span class="dv">1</span>] <span class="sc">&amp;&amp;</span> truth[k] <span class="sc">&lt;=</span> q50[<span class="dv">2</span>]</span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>      cover90[r, k] <span class="ot">&lt;-</span> truth[k] <span class="sc">&gt;=</span> q90[<span class="dv">1</span>] <span class="sc">&amp;&amp;</span> truth[k] <span class="sc">&lt;=</span> q90[<span class="dv">2</span>]</span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>      zstats[r, k]  <span class="ot">&lt;-</span> (<span class="fu">mean</span>(draws[, k]) <span class="sc">-</span> truth[k]) <span class="sc">/</span> <span class="fu">sd</span>(draws[, k])</span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(<span class="at">cover50 =</span> cover50, <span class="at">cover90 =</span> cover90, <span class="at">z =</span> zstats)</span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a>res_B <span class="ot">&lt;-</span> <span class="fu">run_reps</span>(<span class="st">"B"</span>, REPS_B, <span class="at">seed0 =</span> <span class="dv">7000</span>)</span>
+<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a>res_A <span class="ot">&lt;-</span> <span class="fu">run_reps</span>(<span class="st">"A"</span>, REPS_A, <span class="at">seed0 =</span> <span class="dv">9000</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div></div>
+<div class="cell-container"><div class="cell-decorator"><pre>In [6]:</pre></div><div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>cov_tab <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">model =</span> <span class="fu">c</span>(<span class="st">"B"</span>, <span class="st">"A"</span>),</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">reps  =</span> <span class="fu">c</span>(REPS_B, REPS_A),</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">50% coverage</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="fu">mean</span>(res_B<span class="sc">$</span>cover50), <span class="fu">mean</span>(res_A<span class="sc">$</span>cover50)),</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">90% coverage</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="fu">mean</span>(res_B<span class="sc">$</span>cover90), <span class="fu">mean</span>(res_A<span class="sc">$</span>cover90)),</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">mean |z|</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="fu">mean</span>(<span class="fu">abs</span>(res_B<span class="sc">$</span>z)), <span class="fu">mean</span>(<span class="fu">abs</span>(res_A<span class="sc">$</span>z))),</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">check.names =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(cov_tab, <span class="at">row.names =</span> <span class="cn">FALSE</span>, <span class="at">digits =</span> <span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: left;">model</th>
+<th style="text-align: right;">reps</th>
+<th style="text-align: right;">50% coverage</th>
+<th style="text-align: right;">90% coverage</th>
+<th style="text-align: right;">mean |z|</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">B</td>
+<td style="text-align: right;">20</td>
+<td style="text-align: right;">0.506</td>
+<td style="text-align: right;">0.894</td>
+<td style="text-align: right;">0.792</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">A</td>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">0.431</td>
+<td style="text-align: right;">0.833</td>
+<td style="text-align: right;">0.985</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div></div>
+<p>Nominal is 0.50 and 0.90. The mean <span class="math inline">\(|z|\)</span> should sit near 0.8, the expected absolute value of a standard normal, if the posteriors are honest.</p>
+<p>Per-parameter, so that a single badly behaved coordinate cannot hide inside an average:</p>
+<div class="cell-container"><div class="cell-decorator"><pre>In [7]:</pre></div><div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(<span class="at">parameter =</span> <span class="fu">c</span>(<span class="fu">names</span>(beta_bar), <span class="fu">paste0</span>(<span class="st">"c"</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>)),</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>             <span class="st">`</span><span class="at">B: 90%</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">round</span>(<span class="fu">colMeans</span>(res_B<span class="sc">$</span>cover90), <span class="dv">2</span>),</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>             <span class="st">`</span><span class="at">A: 90%</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">round</span>(<span class="fu">colMeans</span>(res_A<span class="sc">$</span>cover90), <span class="dv">2</span>),</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>             <span class="at">check.names =</span> <span class="cn">FALSE</span>),</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">row.names =</span> <span class="cn">FALSE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: left;">parameter</th>
+<th style="text-align: right;">B: 90%</th>
+<th style="text-align: right;">A: 90%</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">a2</td>
+<td style="text-align: right;">0.95</td>
+<td style="text-align: right;">1.00</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">a3</td>
+<td style="text-align: right;">0.75</td>
+<td style="text-align: right;">0.75</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">b2</td>
+<td style="text-align: right;">0.95</td>
+<td style="text-align: right;">1.00</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">b3</td>
+<td style="text-align: right;">0.90</td>
+<td style="text-align: right;">0.88</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">price</td>
+<td style="text-align: right;">0.90</td>
+<td style="text-align: right;">0.62</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">c1</td>
+<td style="text-align: right;">0.90</td>
+<td style="text-align: right;">0.75</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">c2</td>
+<td style="text-align: right;">0.95</td>
+<td style="text-align: right;">0.75</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">c3</td>
+<td style="text-align: right;">0.90</td>
+<td style="text-align: right;">0.88</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">c4</td>
+<td style="text-align: right;">0.85</td>
+<td style="text-align: right;">0.88</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div></div>
+</section>
+<section id="cross-check-against-bayesm" class="level2">
+<h2 class="anchored" data-anchor-id="cross-check-against-bayesm">5. Cross-check against bayesm</h2>
+<p>Everything so far tests our sampler against our own simulator. A coding error shared between them would pass every check above. So here the sampler is run in a mode where an independent implementation exists.</p>
+<p>Setting <code>choice_only = TRUE</code> drops the ordinal stage, leaving an ordinary hierarchical multinomial logit. That is exactly what <code>bayesm</code>’s <code>rhierMnlRwMixture</code> estimates. Same data, two implementations written by different people years apart.</p>
+<div class="cell-container"><div class="cell-decorator"><pre>In [8]:</pre></div><div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>des <span class="ot">&lt;-</span> <span class="fu">make_panel_design</span>(N, T_tasks, J, <span class="at">seed =</span> <span class="dv">210</span>)</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>B   <span class="ot">&lt;-</span> <span class="fu">draw_betas</span>(N, beta_bar, Sigma_true, <span class="at">seed =</span> <span class="dv">310</span>)</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>dat <span class="ot">&lt;-</span> <span class="fu">simulate_dual_hb</span>(des, B, cut_true, <span class="at">model =</span> <span class="st">"B"</span>, <span class="at">seed =</span> <span class="dv">410</span>)</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>fit_co  <span class="ot">&lt;-</span> <span class="fu">fit_dual_hb</span>(dat, <span class="at">mcmc =</span> MCMC, <span class="at">choice_only =</span> <span class="cn">TRUE</span>, <span class="at">seed =</span> <span class="dv">510</span>, <span class="at">verbose =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>ours_mu  <span class="ot">&lt;-</span> <span class="fu">colMeans</span>(fit_co<span class="sc">$</span>draws<span class="sc">$</span>phibar)</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>ours_Sig <span class="ot">&lt;-</span> <span class="fu">diag</span>(<span class="fu">apply</span>(fit_co<span class="sc">$</span>draws<span class="sc">$</span>Sigma, <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">3</span>), mean))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div></div>
+<p><code>bayesm</code> wants one row block per task, stacked, with the number of alternatives given separately.</p>
+<div class="cell-container"><div class="cell-decorator"><pre>In [9]:</pre></div><div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>lgtdata <span class="ot">&lt;-</span> <span class="fu">lapply</span>(<span class="fu">seq_len</span>(N), <span class="cf">function</span>(i) {</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  tasks <span class="ot">&lt;-</span> <span class="fu">which</span>(des<span class="sc">$</span>resp <span class="sc">==</span> i)</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  Xs <span class="ot">&lt;-</span> <span class="fu">do.call</span>(rbind, <span class="fu">lapply</span>(tasks, <span class="cf">function</span>(t)</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>    des<span class="sc">$</span>X[((t <span class="sc">-</span> <span class="dv">1</span>) <span class="sc">*</span> J <span class="sc">+</span> <span class="dv">1</span>)<span class="sc">:</span>(t <span class="sc">*</span> J), , <span class="at">drop =</span> <span class="cn">FALSE</span>]))</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(<span class="at">y =</span> dat<span class="sc">$</span>jstar[tasks], <span class="at">X =</span> Xs)</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">20260913</span>)   <span class="co"># explicit, so this comparison is reproducible</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a><span class="fu">invisible</span>(<span class="fu">capture.output</span>(</span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>  bm <span class="ot">&lt;-</span> bayesm<span class="sc">::</span><span class="fu">rhierMnlRwMixture</span>(</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">Data  =</span> <span class="fu">list</span>(<span class="at">p =</span> J, <span class="at">lgtdata =</span> lgtdata),</span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">Prior =</span> <span class="fu">list</span>(<span class="at">ncomp =</span> <span class="dv">1</span>),</span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">Mcmc  =</span> <span class="fu">list</span>(<span class="at">R =</span> <span class="dv">30000</span>, <span class="at">keep =</span> <span class="dv">10</span>, <span class="at">nprint =</span> <span class="dv">0</span>))</span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>))</span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>keep_idx  <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="dv">1001</span>, <span class="dv">3000</span>)            <span class="co"># drop the first third as burn-in</span></span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>mu_draws  <span class="ot">&lt;-</span> <span class="fu">t</span>(<span class="fu">vapply</span>(keep_idx, <span class="cf">function</span>(r) bm<span class="sc">$</span>nmix<span class="sc">$</span>compdraw[[r]][[<span class="dv">1</span>]]<span class="sc">$</span>mu, <span class="fu">numeric</span>(P)))</span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>sig_draws <span class="ot">&lt;-</span> <span class="fu">t</span>(<span class="fu">vapply</span>(keep_idx, <span class="cf">function</span>(r) {</span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>  rooti <span class="ot">&lt;-</span> bm<span class="sc">$</span>nmix<span class="sc">$</span>compdraw[[r]][[<span class="dv">1</span>]]<span class="sc">$</span>rooti</span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">diag</span>(<span class="fu">solve</span>(<span class="fu">tcrossprod</span>(rooti)))</span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a>}, <span class="fu">numeric</span>(P)))</span>
+<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a>bm_mu  <span class="ot">&lt;-</span> <span class="fu">colMeans</span>(mu_draws)</span>
+<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a>bm_Sig <span class="ot">&lt;-</span> <span class="fu">colMeans</span>(sig_draws)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div></div>
+<div class="cell-container"><div class="cell-decorator"><pre>In [10]:</pre></div><div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>comp <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">param =</span> <span class="fu">names</span>(beta_bar), <span class="at">truth =</span> <span class="fu">as.numeric</span>(beta_bar),</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>                   <span class="at">ours =</span> <span class="fu">round</span>(ours_mu, <span class="dv">3</span>), <span class="at">bayesm =</span> <span class="fu">round</span>(bm_mu, <span class="dv">3</span>),</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>                   <span class="at">diff =</span> <span class="fu">round</span>(ours_mu <span class="sc">-</span> bm_mu, <span class="dv">3</span>))</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(comp, <span class="at">row.names =</span> <span class="cn">FALSE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: left;">param</th>
+<th style="text-align: right;">truth</th>
+<th style="text-align: right;">ours</th>
+<th style="text-align: right;">bayesm</th>
+<th style="text-align: right;">diff</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">a2</td>
+<td style="text-align: right;">0.8</td>
+<td style="text-align: right;">0.736</td>
+<td style="text-align: right;">0.729</td>
+<td style="text-align: right;">0.007</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">a3</td>
+<td style="text-align: right;">-0.5</td>
+<td style="text-align: right;">-0.626</td>
+<td style="text-align: right;">-0.623</td>
+<td style="text-align: right;">-0.003</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">b2</td>
+<td style="text-align: right;">0.4</td>
+<td style="text-align: right;">0.413</td>
+<td style="text-align: right;">0.412</td>
+<td style="text-align: right;">0.002</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">b3</td>
+<td style="text-align: right;">1.0</td>
+<td style="text-align: right;">1.000</td>
+<td style="text-align: right;">0.994</td>
+<td style="text-align: right;">0.006</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">price</td>
+<td style="text-align: right;">-0.9</td>
+<td style="text-align: right;">-0.854</td>
+<td style="text-align: right;">-0.854</td>
+<td style="text-align: right;">-0.001</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"diag(Sigma) -- ours:"</span>, <span class="fu">round</span>(ours_Sig, <span class="dv">3</span>),</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"| bayesm:"</span>, <span class="fu">round</span>(bm_Sig, <span class="dv">3</span>), <span class="st">"| truth:"</span>, <span class="fu">diag</span>(Sigma_true), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>diag(Sigma) -- ours: 0.599 0.678 0.811 0.632 0.436 | bayesm: 0.591 0.653 0.766 0.642 0.437 | truth: 0.6 0.6 0.6 0.6 0.3 </code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">"</span><span class="sc">\n</span><span class="st">largest disagreement on any population mean: %.4f</span><span class="sc">\n</span><span class="st">"</span>,</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>            <span class="fu">max</span>(<span class="fu">abs</span>(comp<span class="sc">$</span>diff))))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+largest disagreement on any population mean: 0.0070</code></pre>
+</div>
+</div></div>
+<p>Both implementations sit the same distance from the truth in the same direction, which is what two correct samplers looking at one finite dataset should do. The gap between them is far smaller than the gap between either and the truth.</p>
+<div class="cell-container"><div class="cell-decorator"><pre>In [11]:</pre></div><div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>out<span class="sc">$</span>bayesm_check <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">comp =</span> comp, <span class="at">ours_Sig =</span> ours_Sig, <span class="at">bm_Sig =</span> bm_Sig)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div></div>
+</section>
+<section id="the-degenerate-case-no-heterogeneity" class="level2">
+<h2 class="anchored" data-anchor-id="the-degenerate-case-no-heterogeneity">6. The degenerate case: no heterogeneity</h2>
+<p>If the data contain no heterogeneity, the hierarchical posterior should collapse toward the aggregate MLE. This catches a hierarchy that is inventing variation that is not there.</p>
+<div class="cell-container"><div class="cell-decorator"><pre>In [12]:</pre></div><div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>des  <span class="ot">&lt;-</span> <span class="fu">make_panel_design</span>(N, T_tasks, J, <span class="at">seed =</span> <span class="dv">220</span>)</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>B0   <span class="ot">&lt;-</span> <span class="fu">matrix</span>(beta_bar, N, P, <span class="at">byrow =</span> <span class="cn">TRUE</span>)     <span class="co"># every respondent identical</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>dat0 <span class="ot">&lt;-</span> <span class="fu">simulate_dual_hb</span>(des, B0, cut_true, <span class="at">model =</span> <span class="st">"B"</span>, <span class="at">seed =</span> <span class="dv">420</span>)</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>fit0 <span class="ot">&lt;-</span> <span class="fu">fit_dual_hb</span>(dat0, <span class="at">mcmc =</span> MCMC, <span class="at">seed =</span> <span class="dv">520</span>, <span class="at">verbose =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>dat0_pooled <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">design =</span> dat0<span class="sc">$</span>design, <span class="at">jstar =</span> dat0<span class="sc">$</span>jstar, <span class="at">y =</span> dat0<span class="sc">$</span>y,</span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>                    <span class="at">W =</span> W, <span class="at">model =</span> <span class="st">"B"</span>)</span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>mle0 <span class="ot">&lt;-</span> <span class="fu">fit_dual_mle</span>(dat0_pooled)</span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>comp0 <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">param =</span> <span class="fu">c</span>(<span class="fu">names</span>(beta_bar), <span class="fu">paste0</span>(<span class="st">"c"</span>, <span class="dv">1</span><span class="sc">:</span>(W <span class="sc">-</span> <span class="dv">1</span>))),</span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">truth =</span> <span class="fu">c</span>(beta_bar, cut_true),</span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">hb_postmean =</span> <span class="fu">round</span>(<span class="fu">c</span>(<span class="fu">colMeans</span>(fit0<span class="sc">$</span>draws<span class="sc">$</span>phibar), <span class="fu">colMeans</span>(fit0<span class="sc">$</span>draws<span class="sc">$</span>cut)), <span class="dv">3</span>),</span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">agg_mle =</span> <span class="fu">round</span>(<span class="fu">c</span>(mle0<span class="sc">$</span>beta, mle0<span class="sc">$</span>cut), <span class="dv">3</span>))</span>
+<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a>comp0<span class="sc">$</span>diff <span class="ot">&lt;-</span> <span class="fu">round</span>(comp0<span class="sc">$</span>hb_postmean <span class="sc">-</span> comp0<span class="sc">$</span>agg_mle, <span class="dv">3</span>)</span>
+<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(comp0, <span class="at">row.names =</span> <span class="cn">FALSE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: left;">param</th>
+<th style="text-align: right;">truth</th>
+<th style="text-align: right;">hb_postmean</th>
+<th style="text-align: right;">agg_mle</th>
+<th style="text-align: right;">diff</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">a2</td>
+<td style="text-align: right;">0.8</td>
+<td style="text-align: right;">0.808</td>
+<td style="text-align: right;">0.771</td>
+<td style="text-align: right;">0.037</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">a3</td>
+<td style="text-align: right;">-0.5</td>
+<td style="text-align: right;">-0.649</td>
+<td style="text-align: right;">-0.582</td>
+<td style="text-align: right;">-0.067</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">b2</td>
+<td style="text-align: right;">0.4</td>
+<td style="text-align: right;">0.376</td>
+<td style="text-align: right;">0.374</td>
+<td style="text-align: right;">0.002</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">b3</td>
+<td style="text-align: right;">1.0</td>
+<td style="text-align: right;">0.998</td>
+<td style="text-align: right;">0.959</td>
+<td style="text-align: right;">0.039</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">price</td>
+<td style="text-align: right;">-0.9</td>
+<td style="text-align: right;">-0.917</td>
+<td style="text-align: right;">-0.857</td>
+<td style="text-align: right;">-0.060</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">c1</td>
+<td style="text-align: right;">-1.0</td>
+<td style="text-align: right;">-1.054</td>
+<td style="text-align: right;">-0.982</td>
+<td style="text-align: right;">-0.072</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">c2</td>
+<td style="text-align: right;">0.2</td>
+<td style="text-align: right;">0.170</td>
+<td style="text-align: right;">0.194</td>
+<td style="text-align: right;">-0.024</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">c3</td>
+<td style="text-align: right;">1.2</td>
+<td style="text-align: right;">1.216</td>
+<td style="text-align: right;">1.190</td>
+<td style="text-align: right;">0.026</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">c4</td>
+<td style="text-align: right;">2.2</td>
+<td style="text-align: right;">2.210</td>
+<td style="text-align: right;">2.141</td>
+<td style="text-align: right;">0.069</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"posterior mean diag(Sigma), should be small:"</span>,</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">round</span>(<span class="fu">diag</span>(<span class="fu">apply</span>(fit0<span class="sc">$</span>draws<span class="sc">$</span>Sigma, <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">3</span>), mean)), <span class="dv">3</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>posterior mean diag(Sigma), should be small: 0.243 0.341 0.232 0.252 0.146 </code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>out<span class="sc">$</span>sigma0_check <span class="ot">&lt;-</span> comp0</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div></div>
+</section>
+<section id="marginal-likelihood-how-optimistic-is-newton-raftery" class="level2">
+<h2 class="anchored" data-anchor-id="marginal-likelihood-how-optimistic-is-newton-raftery">7. Marginal likelihood: how optimistic is Newton-Raftery?</h2>
+<p>This section backs the marginal-likelihood appendix rather than the simulation study. Model comparisons in this literature conventionally report the Newton-Raftery harmonic-mean estimator. It is known to be optimistic. In the aggregate model the parameter space is small enough to measure by how much, against bridge sampling and a Laplace approximation.</p>
+<div class="cell-container code-fold"><div class="cell-decorator"><pre>In [13]:</pre></div><div class="cell">
+<details class="code-fold">
+<summary>Aggregate posterior sampler and the three LMD estimators</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>logmeanexp <span class="ot">&lt;-</span> <span class="cf">function</span>(x) { m <span class="ot">&lt;-</span> <span class="fu">max</span>(x); m <span class="sc">+</span> <span class="fu">log</span>(<span class="fu">mean</span>(<span class="fu">exp</span>(x <span class="sc">-</span> m))) }</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>lmd_nr <span class="ot">&lt;-</span> <span class="cf">function</span>(ll_draws, <span class="at">trim =</span> <span class="dv">0</span>) {</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (trim <span class="sc">&gt;</span> <span class="dv">0</span>) ll_draws <span class="ot">&lt;-</span> ll_draws[ll_draws <span class="sc">&gt;=</span> <span class="fu">quantile</span>(ll_draws, trim)]</span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>  <span class="sc">-</span><span class="fu">logmeanexp</span>(<span class="sc">-</span>ll_draws)</span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>fit_dual_bayes_agg <span class="ot">&lt;-</span> <span class="cf">function</span>(dat, <span class="at">iter =</span> <span class="dv">20000</span>, <span class="at">burn =</span> <span class="dv">5000</span>, <span class="at">thin =</span> <span class="dv">5</span>,</span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>                               <span class="at">tau2 =</span> <span class="dv">100</span>, <span class="at">seed =</span> <span class="cn">NULL</span>) {</span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(seed)) <span class="fu">set.seed</span>(seed)</span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>  mle <span class="ot">&lt;-</span> <span class="fu">fit_dual_mle</span>(dat)</span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>  d <span class="ot">&lt;-</span> <span class="fu">length</span>(mle<span class="sc">$</span>par)</span>
+<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a>  H <span class="ot">&lt;-</span> <span class="fu">optimHess</span>(mle<span class="sc">$</span>par, <span class="cf">function</span>(p) <span class="fu">negloglik</span>(p, dat))</span>
+<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a>  Lp <span class="ot">&lt;-</span> <span class="fu">t</span>(<span class="fu">chol</span>(<span class="fu">chol2inv</span>(<span class="fu">chol</span>(H)))) <span class="sc">*</span> (<span class="fl">2.4</span> <span class="sc">/</span> <span class="fu">sqrt</span>(d))</span>
+<span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a>  lpost <span class="ot">&lt;-</span> <span class="cf">function</span>(p) <span class="sc">-</span><span class="fu">negloglik</span>(p, dat) <span class="sc">-</span> <span class="fl">0.5</span> <span class="sc">*</span> <span class="fu">sum</span>(p<span class="sc">^</span><span class="dv">2</span>) <span class="sc">/</span> tau2</span>
+<span id="cb21-16"><a href="#cb21-16" aria-hidden="true" tabindex="-1"></a>  cur <span class="ot">&lt;-</span> mle<span class="sc">$</span>par; cur_lp <span class="ot">&lt;-</span> <span class="fu">lpost</span>(cur)</span>
+<span id="cb21-17"><a href="#cb21-17" aria-hidden="true" tabindex="-1"></a>  nkeep <span class="ot">&lt;-</span> <span class="fu">floor</span>((iter <span class="sc">-</span> burn) <span class="sc">/</span> thin)</span>
+<span id="cb21-18"><a href="#cb21-18" aria-hidden="true" tabindex="-1"></a>  draws <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="cn">NA_real_</span>, nkeep, d); lp_draws <span class="ot">&lt;-</span> <span class="fu">numeric</span>(nkeep)</span>
+<span id="cb21-19"><a href="#cb21-19" aria-hidden="true" tabindex="-1"></a>  acc <span class="ot">&lt;-</span> <span class="dv">0</span>; ki <span class="ot">&lt;-</span> <span class="dv">0</span>; sc <span class="ot">&lt;-</span> <span class="dv">1</span></span>
+<span id="cb21-20"><a href="#cb21-20" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (it <span class="cf">in</span> <span class="fu">seq_len</span>(iter)) {</span>
+<span id="cb21-21"><a href="#cb21-21" aria-hidden="true" tabindex="-1"></a>    prop <span class="ot">&lt;-</span> cur <span class="sc">+</span> <span class="fu">as.numeric</span>(Lp <span class="sc">%*%</span> <span class="fu">rnorm</span>(d)) <span class="sc">*</span> sc</span>
+<span id="cb21-22"><a href="#cb21-22" aria-hidden="true" tabindex="-1"></a>    prop_lp <span class="ot">&lt;-</span> <span class="fu">lpost</span>(prop)</span>
+<span id="cb21-23"><a href="#cb21-23" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="fu">log</span>(<span class="fu">runif</span>(<span class="dv">1</span>)) <span class="sc">&lt;</span> prop_lp <span class="sc">-</span> cur_lp) { cur <span class="ot">&lt;-</span> prop; cur_lp <span class="ot">&lt;-</span> prop_lp; acc <span class="ot">&lt;-</span> acc <span class="sc">+</span> <span class="dv">1</span> }</span>
+<span id="cb21-24"><a href="#cb21-24" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (it <span class="sc">&lt;=</span> burn <span class="sc">&amp;&amp;</span> it <span class="sc">%%</span> <span class="dv">200</span> <span class="sc">==</span> <span class="dv">0</span>) {</span>
+<span id="cb21-25"><a href="#cb21-25" aria-hidden="true" tabindex="-1"></a>      sc <span class="ot">&lt;-</span> <span class="fu">min</span>(<span class="fu">max</span>(sc <span class="sc">*</span> <span class="fu">exp</span>(<span class="fl">1.5</span> <span class="sc">*</span> (acc <span class="sc">/</span> <span class="dv">200</span> <span class="sc">-</span> <span class="fl">0.234</span>)), <span class="fl">0.1</span>), <span class="dv">10</span>); acc <span class="ot">&lt;-</span> <span class="dv">0</span></span>
+<span id="cb21-26"><a href="#cb21-26" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb21-27"><a href="#cb21-27" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (it <span class="sc">==</span> burn) acc <span class="ot">&lt;-</span> <span class="dv">0</span></span>
+<span id="cb21-28"><a href="#cb21-28" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (it <span class="sc">&gt;</span> burn <span class="sc">&amp;&amp;</span> (it <span class="sc">-</span> burn) <span class="sc">%%</span> thin <span class="sc">==</span> <span class="dv">0</span>) {</span>
+<span id="cb21-29"><a href="#cb21-29" aria-hidden="true" tabindex="-1"></a>      ki <span class="ot">&lt;-</span> ki <span class="sc">+</span> <span class="dv">1</span>; draws[ki, ] <span class="ot">&lt;-</span> cur; lp_draws[ki] <span class="ot">&lt;-</span> cur_lp</span>
+<span id="cb21-30"><a href="#cb21-30" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb21-31"><a href="#cb21-31" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb21-32"><a href="#cb21-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(<span class="at">draws =</span> draws, <span class="at">lp =</span> lp_draws, <span class="at">accept =</span> acc <span class="sc">/</span> (iter <span class="sc">-</span> burn),</span>
+<span id="cb21-33"><a href="#cb21-33" aria-hidden="true" tabindex="-1"></a>       <span class="at">mle =</span> mle, <span class="at">tau2 =</span> tau2, <span class="at">dat =</span> dat)</span>
+<span id="cb21-34"><a href="#cb21-34" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb21-35"><a href="#cb21-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-36"><a href="#cb21-36" aria-hidden="true" tabindex="-1"></a>bridge_lmd_agg <span class="ot">&lt;-</span> <span class="cf">function</span>(fit_agg) {</span>
+<span id="cb21-37"><a href="#cb21-37" aria-hidden="true" tabindex="-1"></a>  dat <span class="ot">&lt;-</span> fit_agg<span class="sc">$</span>dat; tau2 <span class="ot">&lt;-</span> fit_agg<span class="sc">$</span>tau2</span>
+<span id="cb21-38"><a href="#cb21-38" aria-hidden="true" tabindex="-1"></a>  lpost_fn <span class="ot">&lt;-</span> <span class="cf">function</span>(pars, data) {</span>
+<span id="cb21-39"><a href="#cb21-39" aria-hidden="true" tabindex="-1"></a>    <span class="sc">-</span><span class="fu">negloglik</span>(pars, data) <span class="sc">-</span> <span class="fl">0.5</span> <span class="sc">*</span> <span class="fu">sum</span>(pars<span class="sc">^</span><span class="dv">2</span>) <span class="sc">/</span> tau2 <span class="sc">-</span></span>
+<span id="cb21-40"><a href="#cb21-40" aria-hidden="true" tabindex="-1"></a>      <span class="fl">0.5</span> <span class="sc">*</span> <span class="fu">length</span>(pars) <span class="sc">*</span> <span class="fu">log</span>(<span class="dv">2</span> <span class="sc">*</span> pi <span class="sc">*</span> tau2)</span>
+<span id="cb21-41"><a href="#cb21-41" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb21-42"><a href="#cb21-42" aria-hidden="true" tabindex="-1"></a>  samples <span class="ot">&lt;-</span> fit_agg<span class="sc">$</span>draws</span>
+<span id="cb21-43"><a href="#cb21-43" aria-hidden="true" tabindex="-1"></a>  <span class="fu">colnames</span>(samples) <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">"p"</span>, <span class="fu">seq_len</span>(<span class="fu">ncol</span>(samples)))</span>
+<span id="cb21-44"><a href="#cb21-44" aria-hidden="true" tabindex="-1"></a>  lb <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="sc">-</span><span class="cn">Inf</span>, <span class="fu">ncol</span>(samples)); ub <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="cn">Inf</span>, <span class="fu">ncol</span>(samples))</span>
+<span id="cb21-45"><a href="#cb21-45" aria-hidden="true" tabindex="-1"></a>  <span class="fu">names</span>(lb) <span class="ot">&lt;-</span> <span class="fu">names</span>(ub) <span class="ot">&lt;-</span> <span class="fu">colnames</span>(samples)</span>
+<span id="cb21-46"><a href="#cb21-46" aria-hidden="true" tabindex="-1"></a>  bridgesampling<span class="sc">::</span><span class="fu">bridge_sampler</span>(<span class="at">samples =</span> samples, <span class="at">log_posterior =</span> lpost_fn,</span>
+<span id="cb21-47"><a href="#cb21-47" aria-hidden="true" tabindex="-1"></a>                                 <span class="at">data =</span> dat, <span class="at">lb =</span> lb, <span class="at">ub =</span> ub, <span class="at">silent =</span> <span class="cn">TRUE</span>)<span class="sc">$</span>logml</span>
+<span id="cb21-48"><a href="#cb21-48" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb21-49"><a href="#cb21-49" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-50"><a href="#cb21-50" aria-hidden="true" tabindex="-1"></a>lmd_nr_agg <span class="ot">&lt;-</span> <span class="cf">function</span>(fit_agg, <span class="at">trim =</span> <span class="dv">0</span>) {</span>
+<span id="cb21-51"><a href="#cb21-51" aria-hidden="true" tabindex="-1"></a>  ll <span class="ot">&lt;-</span> <span class="fu">apply</span>(fit_agg<span class="sc">$</span>draws, <span class="dv">1</span>, <span class="cf">function</span>(p) <span class="sc">-</span><span class="fu">negloglik</span>(p, fit_agg<span class="sc">$</span>dat))</span>
+<span id="cb21-52"><a href="#cb21-52" aria-hidden="true" tabindex="-1"></a>  <span class="fu">lmd_nr</span>(ll, <span class="at">trim =</span> trim)</span>
+<span id="cb21-53"><a href="#cb21-53" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb21-54"><a href="#cb21-54" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-55"><a href="#cb21-55" aria-hidden="true" tabindex="-1"></a>lmd_laplace_agg <span class="ot">&lt;-</span> <span class="cf">function</span>(fit_agg) {</span>
+<span id="cb21-56"><a href="#cb21-56" aria-hidden="true" tabindex="-1"></a>  mle <span class="ot">&lt;-</span> fit_agg<span class="sc">$</span>mle; d <span class="ot">&lt;-</span> <span class="fu">length</span>(mle<span class="sc">$</span>par)</span>
+<span id="cb21-57"><a href="#cb21-57" aria-hidden="true" tabindex="-1"></a>  H <span class="ot">&lt;-</span> <span class="fu">optimHess</span>(mle<span class="sc">$</span>par, <span class="cf">function</span>(p) <span class="fu">negloglik</span>(p, fit_agg<span class="sc">$</span>dat))</span>
+<span id="cb21-58"><a href="#cb21-58" aria-hidden="true" tabindex="-1"></a>  lprior <span class="ot">&lt;-</span> <span class="sc">-</span><span class="fl">0.5</span> <span class="sc">*</span> <span class="fu">sum</span>(mle<span class="sc">$</span>par<span class="sc">^</span><span class="dv">2</span>) <span class="sc">/</span> fit_agg<span class="sc">$</span>tau2 <span class="sc">-</span> <span class="fl">0.5</span> <span class="sc">*</span> d <span class="sc">*</span> <span class="fu">log</span>(<span class="dv">2</span> <span class="sc">*</span> pi <span class="sc">*</span> fit_agg<span class="sc">$</span>tau2)</span>
+<span id="cb21-59"><a href="#cb21-59" aria-hidden="true" tabindex="-1"></a>  <span class="sc">-</span>mle<span class="sc">$</span>nll <span class="sc">+</span> lprior <span class="sc">+</span> <span class="fl">0.5</span> <span class="sc">*</span> d <span class="sc">*</span> <span class="fu">log</span>(<span class="dv">2</span> <span class="sc">*</span> pi) <span class="sc">-</span></span>
+<span id="cb21-60"><a href="#cb21-60" aria-hidden="true" tabindex="-1"></a>    <span class="fl">0.5</span> <span class="sc">*</span> <span class="fu">determinant</span>(H, <span class="at">logarithm =</span> <span class="cn">TRUE</span>)<span class="sc">$</span>modulus</span>
+<span id="cb21-61"><a href="#cb21-61" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb21-62"><a href="#cb21-62" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-63"><a href="#cb21-63" aria-hidden="true" tabindex="-1"></a>simulate_dual <span class="ot">&lt;-</span> <span class="cf">function</span>(design, beta, cut, <span class="at">model =</span> <span class="fu">c</span>(<span class="st">"A"</span>, <span class="st">"B"</span>), seed) {</span>
+<span id="cb21-64"><a href="#cb21-64" aria-hidden="true" tabindex="-1"></a>  model <span class="ot">&lt;-</span> <span class="fu">match.arg</span>(model); <span class="fu">set.seed</span>(seed)</span>
+<span id="cb21-65"><a href="#cb21-65" aria-hidden="true" tabindex="-1"></a>  n <span class="ot">&lt;-</span> design<span class="sc">$</span>n_tasks; J <span class="ot">&lt;-</span> design<span class="sc">$</span>J</span>
+<span id="cb21-66"><a href="#cb21-66" aria-hidden="true" tabindex="-1"></a>  V <span class="ot">&lt;-</span> <span class="fu">matrix</span>(design<span class="sc">$</span>X <span class="sc">%*%</span> beta, <span class="at">nrow =</span> n, <span class="at">ncol =</span> J, <span class="at">byrow =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb21-67"><a href="#cb21-67" aria-hidden="true" tabindex="-1"></a>  u <span class="ot">&lt;-</span> V <span class="sc">+</span> <span class="fu">matrix</span>(<span class="fu">rgumbel</span>(n <span class="sc">*</span> J), n, J)</span>
+<span id="cb21-68"><a href="#cb21-68" aria-hidden="true" tabindex="-1"></a>  jstar <span class="ot">&lt;-</span> <span class="fu">max.col</span>(u, <span class="at">ties.method =</span> <span class="st">"first"</span>)</span>
+<span id="cb21-69"><a href="#cb21-69" aria-hidden="true" tabindex="-1"></a>  ustar <span class="ot">&lt;-</span> u[<span class="fu">cbind</span>(<span class="fu">seq_len</span>(n), jstar)]</span>
+<span id="cb21-70"><a href="#cb21-70" aria-hidden="true" tabindex="-1"></a>  latent <span class="ot">&lt;-</span> <span class="cf">if</span> (model <span class="sc">==</span> <span class="st">"A"</span>) ustar <span class="cf">else</span> ustar <span class="sc">-</span> <span class="fu">rgumbel</span>(n)</span>
+<span id="cb21-71"><a href="#cb21-71" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(<span class="at">design =</span> design, <span class="at">jstar =</span> jstar, <span class="at">y =</span> <span class="fu">findInterval</span>(latent, cut) <span class="sc">+</span> <span class="dv">1</span>L,</span>
+<span id="cb21-72"><a href="#cb21-72" aria-hidden="true" tabindex="-1"></a>       <span class="at">W =</span> <span class="fu">length</span>(cut) <span class="sc">+</span> <span class="dv">1</span>L, <span class="at">model =</span> model)</span>
+<span id="cb21-73"><a href="#cb21-73" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div></div>
+<div class="cell-container"><div class="cell-decorator"><pre>In [14]:</pre></div><div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>des_a <span class="ot">&lt;-</span> <span class="fu">make_design</span>(<span class="dv">3600</span>, J, <span class="at">seed =</span> <span class="dv">230</span>)</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>dat_a <span class="ot">&lt;-</span> <span class="fu">simulate_dual</span>(des_a, <span class="fu">as.numeric</span>(beta_bar), cut_true, <span class="at">model =</span> <span class="st">"B"</span>, <span class="at">seed =</span> <span class="dv">430</span>)</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>fa <span class="ot">&lt;-</span> <span class="fu">fit_dual_bayes_agg</span>(dat_a, <span class="at">iter =</span> <span class="dv">30000</span>, <span class="at">burn =</span> <span class="dv">10000</span>, <span class="at">thin =</span> <span class="dv">5</span>, <span class="at">seed =</span> <span class="dv">530</span>)</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>lmd_tab <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">method =</span> <span class="fu">c</span>(<span class="st">"bridge"</span>, <span class="st">"laplace"</span>, <span class="st">"NR"</span>, <span class="st">"NR trim 5%"</span>, <span class="st">"NR trim 20%"</span>),</span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">lmd =</span> <span class="fu">c</span>(<span class="fu">bridge_lmd_agg</span>(fa), <span class="fu">lmd_laplace_agg</span>(fa), <span class="fu">lmd_nr_agg</span>(fa),</span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>          <span class="fu">lmd_nr_agg</span>(fa, <span class="fl">0.05</span>), <span class="fu">lmd_nr_agg</span>(fa, <span class="fl">0.20</span>)))</span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>lmd_tab<span class="sc">$</span>vs_bridge <span class="ot">&lt;-</span> <span class="fu">round</span>(lmd_tab<span class="sc">$</span>lmd <span class="sc">-</span> lmd_tab<span class="sc">$</span>lmd[<span class="dv">1</span>], <span class="dv">2</span>)</span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="fu">transform</span>(lmd_tab, <span class="at">lmd =</span> <span class="fu">round</span>(lmd, <span class="dv">2</span>)), <span class="at">row.names =</span> <span class="cn">FALSE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: left;">method</th>
+<th style="text-align: right;">lmd</th>
+<th style="text-align: right;">vs_bridge</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">bridge</td>
+<td style="text-align: right;">-9844.1</td>
+<td style="text-align: right;">0.00</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">laplace</td>
+<td style="text-align: right;">-9844.1</td>
+<td style="text-align: right;">-0.01</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">NR</td>
+<td style="text-align: right;">-9801.8</td>
+<td style="text-align: right;">42.36</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">NR trim 5%</td>
+<td style="text-align: right;">-9799.6</td>
+<td style="text-align: right;">44.51</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">NR trim 20%</td>
+<td style="text-align: right;">-9798.4</td>
+<td style="text-align: right;">45.73</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>out<span class="sc">$</span>lmd_check <span class="ot">&lt;-</span> lmd_tab</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div></div>
+<p>Bridge sampling and the Laplace approximation, two methods with nothing in common, agree closely. Newton-Raftery sits well above both, and trimming the smallest-likelihood draws makes it worse rather than better, which is the signature of an estimator whose problem is the tail it is averaging over rather than a few outliers.</p>
+</section>
+<section id="results-written" class="level2">
+<h2 class="anchored" data-anchor-id="results-written">8. Results written</h2>
+<div class="cell-container"><div class="cell-decorator"><pre>In [15]:</pre></div><div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Quarto executes some passes from the project root and others from this</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="co"># file's directory, so anchor the output path on the project marker rather</span></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a><span class="co"># than trusting the working directory.</span></span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>PROJ <span class="ot">&lt;-</span> <span class="cf">if</span> (<span class="fu">file.exists</span>(<span class="st">"_quarto.yml"</span>)) <span class="st">"."</span> <span class="cf">else</span> <span class="st">".."</span></span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>OUT  <span class="ot">&lt;-</span> <span class="fu">file.path</span>(PROJ, <span class="st">"R"</span>, <span class="st">"output"</span>)</span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a><span class="fu">dir.create</span>(OUT, <span class="at">showWarnings =</span> <span class="cn">FALSE</span>, <span class="at">recursive =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(<span class="fu">list</span>(<span class="at">B =</span> res_B, <span class="at">A =</span> res_A, <span class="at">truth =</span> truth,</span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a>             <span class="at">settings =</span> <span class="fu">list</span>(<span class="at">N =</span> N, <span class="at">T_tasks =</span> T_tasks, <span class="at">MCMC =</span> MCMC_COV)),</span>
+<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a>        <span class="fu">file.path</span>(OUT, <span class="st">"hb_coverage.rds"</span>))</span>
+<span id="cb24-11"><a href="#cb24-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-12"><a href="#cb24-12" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(out, <span class="fu">file.path</span>(OUT, <span class="st">"hb_validation.rds"</span>))</span>
+<span id="cb24-13"><a href="#cb24-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-14"><a href="#cb24-14" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"wrote hb_coverage.rds and hb_validation.rds</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>wrote hb_coverage.rds and hb_validation.rds</code></pre>
+</div>
+</div></div>
+</section>
+<section id="related-material" class="level2">
+<h2 class="anchored" data-anchor-id="related-material">9. Related material</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>where</th>
+<th>what</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>notebook 01</td>
+<td>the aggregate estimator, identification, and the factorization check</td>
+</tr>
+<tr class="even">
+<td>notebook 03</td>
+<td>what dichotomizing the scale costs, at the individual level</td>
+</tr>
+<tr class="odd">
+<td>notebook 05</td>
+<td>five misspecifications, including heterogeneous cut points</td>
+</tr>
+<tr class="even">
+<td><code>R/hierarchical/hb.R</code></td>
+<td>the production sampler this notebook copies</td>
+</tr>
+</tbody>
+</table>
+</section>
+     </main>
+<!-- /main column -->  <script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>  </div> <!-- /content --> 
+  
+</body></html>
