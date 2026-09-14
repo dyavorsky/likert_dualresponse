@@ -1,0 +1,52 @@
+---
+title: "Outside Good Uncertainty"
+subtitle: "Ordinal Dual Response in Choice-Based Conjoint Analysis"
+author: "Dan Yavorsky (GBK Collective) and Geoffery Zheng (NYU Shanghai)"
+format:
+  pdf:
+    documentclass: article
+    geometry:
+      - margin=0.85in
+    fontsize: 10pt
+    colorlinks: true
+    include-in-header:
+      - text: |
+          \usepackage{parskip}
+          \usepackage{titlesec}
+          \titlespacing*{\section}{0pt}{1.1ex plus .2ex}{0.6ex}
+          \usepackage{enumitem}
+          \setlist[itemize]{itemsep=1pt, topsep=2pt, parsep=0pt}
+          \usepackage{titling}
+          \setlength{\droptitle}{-2.5em}
+          \posttitle{\par\end{center}\vskip 0.3em}
+---
+
+\vspace{-2em}
+
+*Proposal for the Sawtooth Research Conference 2027 — methodological track, 30-minute presentation.*
+
+## Dual Response in Conjoint
+
+Dual-response conjoint puts a forced choice among the displayed profiles, then asks whether the respondent would actually purchase her selection. That follow-up is hypothetical, and asks her to resolve something she may not yet have resolved, so what she holds is a probability rather than a decision. A finer scale asks instead for her degree of conviction, which many studies already field because respondents find it easier to answer. The natural extension is an *ordinal* follow-up, "how likely are you to buy it?", and this paper supplies the model that question implies.
+
+## What we do
+
+We provide a behavioral model that rationalizes the ordinal dual-response design: the respondent ranks what she sees because everything relevant about it is on the screen, but she is genuinely uncertain about the outside good. An ordinal scale lets her report that uncertainty, and it yields an estimable closed-form likelihood.
+
+The model comes in variants. Two differ in when she resolves her uncertainty, which implies the link function in the likelihood, and at two scale points one variant reduces exactly to DR-AnyMax, making today's binary dual response a special case. Heterogeneous preferences are handled by a hierarchical Bayes sampler, with a further variant for respondents who use the scale differently from one another. We compare the full ordinal model against current practice: the binary follow-up, collapsing the scale to yes/no, and assigning each scale point a fixed purchase probability.
+
+## What attendees would take away
+
+The estimators are built and the simulations are being run. Our results are a work in progress: 
+
+- **What you give up by simplifying the answer.** Suppose you ask a five-point question and then score it as a simple yes or no. Your preference estimates come through fine. What suffers is the thing you added the question for in the first place: how likely each individual is to buy. Our simulations show that if you dichotomize the ordinal follow-up question by top-2-box, it happens to work well. Another cut using top-box, does noticeably worse. 
+
+- **Why fixed probabilities break pricing work.** A familiar shortcut converts each scale point into a number, so "top box" becomes, say, a 95% chance of buying, and you average those across respondents. On the data already collected, this is fine. It stops being fine the moment you change a price, because those numbers cannot move. The model then predicts that the same share of people would buy no matter what you charge. 
+
+- **How many scale points to use.** A yes/no follow-up is worth roughly half to two-thirds of what you would learn by asking for an actual probability. Five points recover most of the remaining gap. Seven adds very little. Also, where the labels sit turns out to matter nearly as much as how many there are.
+
+- **An answer to a question Sawtooth raised in 2006.** Should the follow-up question depend on everything shown in the task, or only on the option the respondent picked? DR-AnyMax and DR-2Max assume different answers. Our model implies one rather than assuming it, and supplies a test. 
+
+- **An empirical application**, which we aim to have estimated before the conference: a commercial conjoint study with an ordinal dual response, fielded with a consumer insights consultancy.
+
+- **Working code.** Everything is publicly hosted on GitHub: complete R code, each simulation laid out as a notebook that runs end to end, and a second implementation in Apollo as an independent check. No proprietary or patented methods, and nothing in the method is AI-driven.

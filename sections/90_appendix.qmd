@@ -62,7 +62,7 @@ Model comparisons in the paper report the log marginal density (LMD). For hierar
 
 ```{r}
 #| label: tbl-lmd-check
-#| tbl-cap: "Aggregate-model log marginal density by estimator (simulated data, n = 3,600 tasks; from notebook 2)."
+#| tbl-cap: "Aggregate-model log marginal density by estimator (simulated data, n = 3,600 tasks; from notebook 03)."
 #| echo: false
 hv <- readRDS(file.path("R", "output", "hb_validation.rds"))
 knitr::kable(transform(hv$lmd_check, lmd = round(lmd, 2)), row.names = FALSE,

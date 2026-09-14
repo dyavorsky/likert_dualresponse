@@ -20,32 +20,35 @@ project:
   # precede nothing in particular, but 06 writes link_discrimination.rds
   # which its own design-guidance section consumes, so keep it whole.)
   render:
-    - notebooks/01-aggregate-recovery.qmd
-    - notebooks/02-hierarchical-recovery.qmd
-    - notebooks/03-dichotomization-cost.qmd
-    - notebooks/04-specification-tests.qmd
-    - notebooks/05-misspecification.qmd
-    - notebooks/06-scale-design.qmd
-    - notebooks/07-pricing-counterfactual.qmd
+    - notebooks/01-the-model-and-likelihood.qmd
+    - notebooks/02-aggregate-recovery.qmd
+    - notebooks/03-hierarchical-recovery.qmd
+    - notebooks/04-dichotomization-cost.qmd
+    - notebooks/05-specification-tests.qmd
+    - notebooks/06-misspecification.qmd
+    - notebooks/07-scale-design.qmd
+    - notebooks/08-pricing-counterfactual.qmd
     - index.qmd
 
 manuscript:
   article: index.qmd
   notebooks:
-    - notebook: notebooks/01-aggregate-recovery.qmd
-      title: "01. Parameter Recovery and Identification"
-    - notebook: notebooks/02-hierarchical-recovery.qmd
-      title: "02. The Hierarchical Sampler"
-    - notebook: notebooks/03-dichotomization-cost.qmd
-      title: "03. The Cost of Dichotomization"
-    - notebook: notebooks/04-specification-tests.qmd
-      title: "04. Specification Tests"
-    - notebook: notebooks/05-misspecification.qmd
-      title: "05. Misspecification Robustness"
-    - notebook: notebooks/06-scale-design.qmd
-      title: "06. Designing the Scale"
-    - notebook: notebooks/07-pricing-counterfactual.qmd
-      title: "07. Economic Stakes"
+    - notebook: notebooks/01-the-model-and-likelihood.qmd
+      title: "01. The Model and the Likelihood"
+    - notebook: notebooks/02-aggregate-recovery.qmd
+      title: "02. Aggregate Recovery"
+    - notebook: notebooks/03-hierarchical-recovery.qmd
+      title: "03. The Hierarchical Sampler"
+    - notebook: notebooks/04-dichotomization-cost.qmd
+      title: "04. The Cost of Dichotomization"
+    - notebook: notebooks/05-specification-tests.qmd
+      title: "05. Specification Tests"
+    - notebook: notebooks/06-misspecification.qmd
+      title: "06. Misspecification Robustness"
+    - notebook: notebooks/07-scale-design.qmd
+      title: "07. Designing the Scale"
+    - notebook: notebooks/08-pricing-counterfactual.qmd
+      title: "08. Economic Stakes"
 
 execute:
   freeze: auto

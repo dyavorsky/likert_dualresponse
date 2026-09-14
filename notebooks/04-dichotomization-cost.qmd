@@ -1,0 +1,776 @@
+---
+title: "The Cost of Dichotomization"
+subtitle: "What collapsing the scale to a yes/no answer actually costs"
+author:
+  - name: Dan Yavorsky
+  - name: Geoffery Zheng
+date: last-modified
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    code-fold: false
+execute:
+  warning: false
+  message: false
+---
+
+{{< include ../latex_commands.qmd >}}
+
+## What this notebook does
+
+The binary dual-response model is the incumbent. If a practitioner fields a
+five-point purchase-likelihood scale and then collapses it ("top-2-box counts as
+a buy"), the resulting binary model is **correctly specified**: collapsing a
+cumulative-link model at one of its own cut points gives back a cumulative-link
+model with one cut point. So dichotomization costs no consistency. What it costs
+is precision, and this notebook measures how much, three ways:
+
+1. **Exactly**, from the Fisher information. No simulation noise at all: the
+   asymptotic variance of every estimator is computed in closed form across four
+   parameter configurations.
+2. **By paired Monte Carlo**, fitting the ordinal model and every binary variant
+   to the *same* simulated datasets, so nothing differs except the coarsening of
+   the second response.
+3. **At the individual level**, in the hierarchical model a practitioner would
+   actually estimate, where each respondent contributes only twelve tasks and
+   pooled cut points can no longer rescue a coarsened second stage.
+
+The third is where the argument turns. The aggregate penalties are real but
+modest, and an honest reading of them alone would say dichotomization is a minor
+sin. It is not, and the reason is that aggregate prediction variance is
+dominated by the forced-choice stage that both estimators share.
+
+This notebook is the source of `dichotomization_study.rds` and
+`hb_simstudy_dichot.rds`.
+
+```{r}
+#| label: setup
+set.seed(1)
+options(digits = 5)
+```
+
+## 1. Why coarsening is lossy but not biased
+
+Under the model, $\Pr(y \ge k) = 1 - G(c_{k-1} - \overline{\mu})$. Define a
+binary variable $b = \mathbb{1}\{y \ge k\}$ and its likelihood is exactly a
+binary dual-response model with the single cut point $c_{k-1}$. The parameters
+$\bfbeta$ and $c_{k-1}$ are still identified and still consistently estimated.
+
+What is lost is the information in the other $W - 2$ thresholds. The paper's
+information decomposition makes this precise: the second response contributes
+$\omega(\overline{\mu}; \mathbf{c}) \, \bar{x} \bar{x}'$ to the information
+matrix, where
+
+$$
+\omega = \sum_{w} \frac{\left( g_w - g_{w-1} \right)^2}{\pi_w}
+$$
+
+sums over the categories. Dropping categories drops terms. The quantity
+$\omega$ is computable in closed form, so we can say exactly what fraction of
+the second response's information each coarsening retains, independent of any
+particular design.
+
+## 2. Machinery
+
+Copies of `R/lib/dgp.R`, `R/lib/likelihood.R` and `R/homogeneous/fisher.R`. The
+Fisher block is the part worth reading: it implements the paper's information
+decomposition directly.
+
+```{r}
+#| label: machinery
+#| code-fold: true
+#| code-summary: "Design, simulator, likelihood, and exact Fisher information"
+rgumbel <- function(n) -log(-log(runif(n)))
+
+make_design <- function(n_tasks, J, seed, intercept = FALSE) {
+  set.seed(seed)
+  n_rows <- n_tasks * J
+  a <- sample(1:3, n_rows, replace = TRUE); b <- sample(1:3, n_rows, replace = TRUE)
+  price <- runif(n_rows, 0.5, 2.5)
+  X <- cbind(a2 = as.numeric(a == 2), a3 = as.numeric(a == 3),
+             b2 = as.numeric(b == 2), b3 = as.numeric(b == 3), price = price)
+  if (intercept) X <- cbind(X, const = 1)
+  list(X = X, n_tasks = n_tasks, J = J, P = ncol(X))
+}
+id_rank_check <- function(X) {
+  aug <- cbind(X, 1); list(rank = qr(aug)$rank, required = ncol(aug),
+                           pass = qr(aug)$rank == ncol(aug))
+}
+par_to_cut <- function(par, P, W) {
+  if (W == 2) return(par[P + 1])
+  par[P + 1] + c(0, cumsum(exp(par[(P + 2):(P + W - 1)])))
+}
+cut_to_par <- function(cut) if (length(cut) == 1) cut else c(cut[1], log(diff(cut)))
+row_max <- function(M) do.call(pmax, as.data.frame(M))
+
+ord_prob_z <- function(lo, hi, model) {
+  if (model == "B") plogis(hi) * plogis(-lo) * (-expm1(lo - hi))
+  else { ea <- exp(-lo); eb <- exp(-hi)
+         p <- exp(-eb) * (-expm1(-(ea - eb))); p[!is.finite(eb)] <- 0; p }
+}
+ord_prob <- function(mubar, cut, y, model) {
+  caug <- c(-Inf, cut, Inf); ord_prob_z(caug[y] - mubar, caug[y + 1L] - mubar, model)
+}
+negloglik <- function(par, dat) {
+  design <- dat$design; P <- design$P; W <- dat$W
+  n <- design$n_tasks; J <- design$J
+  beta <- par[1:P]; cut <- par_to_cut(par, P, W)
+  V <- matrix(design$X %*% beta, nrow = n, ncol = J, byrow = TRUE)
+  m <- row_max(V); logS <- m + log(rowSums(exp(V - m)))
+  -(sum(V[cbind(seq_len(n), dat$jstar)] - logS) +
+    sum(log(pmax(ord_prob(logS, cut, dat$y, dat$model), 1e-312))))
+}
+num_grad <- function(f, x, eps = 1e-6) {
+  vapply(seq_along(x), function(k) {
+    h <- eps * max(1, abs(x[k])); xp <- x; xp[k] <- xp[k] + h
+    xm <- x; xm[k] <- xm[k] - h; (f(xp) - f(xm)) / (2 * h) }, numeric(1))
+}
+simulate_dual <- function(design, beta, cut, model = c("A","B"), seed) {
+  model <- match.arg(model); set.seed(seed)
+  n <- design$n_tasks; J <- design$J
+  V <- matrix(design$X %*% beta, nrow = n, ncol = J, byrow = TRUE)
+  u <- V + matrix(rgumbel(n * J), n, J)
+  jstar <- max.col(u, ties.method = "first")
+  ustar <- u[cbind(seq_len(n), jstar)]
+  latent <- if (model == "A") ustar else ustar - rgumbel(n)
+  list(design = design, jstar = jstar, y = findInterval(latent, cut) + 1L,
+       W = length(cut) + 1L, model = model, beta_true = beta, cut_true = cut)
+}
+fit_dual_mle <- function(dat, start = NULL) {
+  design <- dat$design; P <- design$P; W <- dat$W
+  if (is.null(start)) {
+    freq <- tabulate(dat$y, nbins = W)
+    cumq <- pmin(pmax(cumsum(freq)[1:(W - 1)] / sum(freq), 1e-4), 1 - 1e-4)
+    ginv <- if (dat$model == "B") qlogis else function(q) -log(-log(q))
+    cut0 <- log(design$J) + ginv(cumq)
+    if (W > 2) for (k in 2:(W - 1)) cut0[k] <- max(cut0[k], cut0[k - 1] + 1e-3)
+    start <- c(rep(0, P), cut_to_par(cut0))
+  }
+  fn <- function(p) negloglik(p, dat)
+  opt <- optim(start, fn, method = "BFGS", control = list(maxit = 1000, reltol = 1e-12))
+  H <- optimHess(opt$par, fn); ev <- eigen(H, symmetric = TRUE, only.values = TRUE)$values
+  cut_hat <- par_to_cut(opt$par, P, W)
+  Jc <- matrix(0, W - 1, length(opt$par)); Jc[, P + 1] <- 1
+  if (W > 2) { d <- exp(opt$par[(P + 2):(P + W - 1)])
+    for (w in 2:(W - 1)) Jc[w, (P + 2):(P + w)] <- d[1:(w - 1)] }
+  Vpar <- tryCatch(solve(H), error = function(e) matrix(NA, length(opt$par), length(opt$par)))
+  list(beta = opt$par[1:P], se_beta = sqrt(diag(Vpar)[1:P]), cut = cut_hat,
+       se_cut = sqrt(diag(Jc %*% Vpar %*% t(Jc))), nll = opt$value,
+       convergence = opt$convergence, grad_max = max(abs(num_grad(fn, opt$par))),
+       eigen = ev, min_eig = min(ev),
+       cond = max(ev) / max(min(ev), .Machine$double.eps), par = opt$par)
+}
+
+# ---- exact Fisher information (R/homogeneous/fisher.R) ---------------------
+link_cdf <- function(z, model) if (model == "B") plogis(z) else exp(-exp(-z))
+link_pdf <- function(z, model) if (model == "B") dlogis(z) else exp(-(z + exp(-z)))
+
+# Information from one task: the MNL block plus the ordinal-stage block.
+fisher_task <- function(Xt, beta, cut, model) {
+  P <- ncol(Xt); W <- length(cut) + 1L; K <- P + W - 1L
+  V <- as.numeric(Xt %*% beta)
+  eV <- exp(V - max(V)); p <- eV / sum(eV)
+  mubar <- max(V) + log(sum(eV))
+  I <- matrix(0, K, K)
+  I[1:P, 1:P] <- t(Xt) %*% (diag(p) - tcrossprod(p)) %*% Xt   # choice stage
+  z <- cut - mubar
+  Gz <- c(0, link_cdf(z, model), 1); gz <- c(0, link_pdf(z, model), 0)
+  pi_w <- diff(Gz)
+  xbar <- as.numeric(t(p) %*% Xt)
+  for (w in seq_len(W)) {                                      # ordinal stage
+    s <- numeric(K)
+    s[1:P] <- -(gz[w + 1] - gz[w]) / pi_w[w] * xbar
+    if (w <= W - 1) s[P + w] <- s[P + w] + gz[w + 1] / pi_w[w]
+    if (w >= 2)     s[P + w - 1] <- s[P + w - 1] - gz[w] / pi_w[w]
+    I <- I + pi_w[w] * tcrossprod(s)
+  }
+  I
+}
+fisher_total <- function(design, beta, cut, model) {
+  n <- design$n_tasks; J <- design$J; K <- design$P + length(cut)
+  I <- matrix(0, K, K)
+  for (t in seq_len(n)) {
+    rows <- ((t - 1) * J + 1):(t * J)
+    I <- I + fisher_task(design$X[rows, , drop = FALSE], beta, cut, model)
+  }
+  I
+}
+# The scalar weight omega: how much the second response contributes per task.
+omega_weight <- function(mubar, cut, model) {
+  z <- outer(mubar, cut, function(m, c) c - m)
+  Gz <- cbind(0, link_cdf(z, model), 1); gz <- cbind(0, link_pdf(z, model), 0)
+  W <- length(cut) + 1L
+  om <- 0
+  for (w in seq_len(W)) om <- om + (gz[, w + 1] - gz[, w])^2 / (Gz[, w + 1] - Gz[, w])
+  om
+}
+```
+
+```{r}
+#| label: config
+MODEL <- "B"; N_TASKS <- 3600; J <- 4; W <- 5; P <- 5
+R_REPS <- 100; N_EVAL <- 200
+MC_SETS <- c("set1_moderate", "set4_skewed")
+
+param_sets <- list(
+  set1_moderate = list(beta = c(a2=0.8,a3=-0.5,b2=0.4,b3=1.0,price=-0.9),
+                       cut = c(-1.0, 0.2, 1.2, 2.2)),
+  set2_negative = list(beta = c(a2=-1.2,a3=0.3,b2=-0.6,b3=0.7,price=-1.5),
+                       cut = c(-2.5, -1.2, 0.5, 1.0)),
+  set3_stress   = list(beta = c(a2=2.0,a3=-1.8,b2=1.2,b3=-0.7,price=-2.2),
+                       cut = c(-3.5, -2.2, 0.8, 3.0)),
+  set4_skewed   = list(beta = c(a2=0.8,a3=-0.5,b2=0.4,b3=1.0,price=-0.9),
+                       cut = c(0.2, 1.2, 2.4, 3.6))
+)
+
+design      <- make_design(N_TASKS, J, seed = 3001)
+eval_design <- make_design(N_EVAL, J, seed = 777)
+stopifnot(id_rank_check(design$X)$pass)
+```
+
+`set4_skewed` is the configuration that matters most for practice. Its cut points
+push the response distribution downward, producing the bottom-heavy purchase
+intent that fielded scales actually show, and leaving the top-2-box convention
+badly placed.
+
+```{r}
+#| label: helpers
+mubar_of <- function(des, beta) {
+  V <- matrix(des$X %*% beta, nrow = des$n_tasks, ncol = des$J, byrow = TRUE)
+  m <- row_max(V); m + log(rowSums(exp(V - m)))
+}
+xbar_of <- function(des, beta) {
+  V <- matrix(des$X %*% beta, nrow = des$n_tasks, ncol = des$J, byrow = TRUE)
+  m <- row_max(V); pr <- exp(V - m) / rowSums(exp(V - m))
+  out <- matrix(0, des$n_tasks, ncol(des$X))
+  for (j in seq_len(des$J))
+    out <- out + pr[, j] * des$X[seq(j, by = des$J, length.out = des$n_tasks), , drop = FALSE]
+  out
+}
+exceed_pred <- function(des, beta, cut_scalar)
+  1 - link_cdf(cut_scalar - mubar_of(des, beta), MODEL)
+
+# Which position in each estimator's cut vector can predict P(y >= k); NA = it cannot.
+cutpos <- function(est, k) switch(est,
+  ord5 = k - 1, ord3 = if (k %in% 3:4) k - 2 else NA,
+  bin2 = if (k == 2) 1 else NA, bin3 = if (k == 3) 1 else NA,
+  bin4 = if (k == 4) 1 else NA, bin5 = if (k == 5) 1 else NA)
+est_cut <- function(est, cut_true) switch(est,
+  ord5 = cut_true, ord3 = cut_true[2:3], bin2 = cut_true[1],
+  bin3 = cut_true[2], bin4 = cut_true[3], bin5 = cut_true[4])
+EST <- c("ord5", "ord3", "bin2", "bin3", "bin4", "bin5")
+
+grad_exceed <- function(Xt, beta, cut, pos, npar) {
+  V <- as.numeric(Xt %*% beta); m <- max(V)
+  mubar <- m + log(sum(exp(V - m))); p <- exp(V - mubar)
+  g <- link_pdf(cut[pos] - mubar, MODEL)
+  gr <- numeric(npar); gr[1:P] <- g * as.numeric(t(p) %*% Xt); gr[P + pos] <- -g
+  gr
+}
+```
+
+Note what `cutpos` encodes: a binary estimator cut at $k$ can answer questions
+about threshold $k$ and no other. A top-box model cannot tell you about top-2-box
+demand. This is not an efficiency loss, it is an inability, and it returns in the
+pricing counterfactual of notebook 08.
+
+## 3. Exact efficiency, from the Fisher information
+
+```{r}
+#| label: analytic
+analytic <- list()
+for (sn in names(param_sets)) {
+  ps <- param_sets[[sn]]
+  mu_est_design <- mubar_of(design, ps$beta)
+  catprob <- diff(c(0, colMeans(link_cdf(outer(mu_est_design, ps$cut,
+                                               function(m, c) c - m), MODEL)), 1))
+  u <- colMeans(xbar_of(design, ps$beta)); u <- u / sqrt(sum(u^2))
+
+  Vcov <- list(); sdtab <- list()
+  for (e in EST) {
+    ct <- est_cut(e, ps$cut)
+    Vc <- solve(fisher_total(design, ps$beta, ct, MODEL))
+    Vcov[[e]] <- Vc
+    Vb <- Vc[1:P, 1:P]
+    row <- data.frame(estimator = e, mean_sd_beta = mean(sqrt(diag(Vb))),
+                      sd_u_beta = sqrt(t(u) %*% Vb %*% u),
+                      mean_omega = mean(omega_weight(mu_est_design, ct, MODEL)))
+    for (k in 2:W) {
+      pos <- cutpos(e, k)
+      if (!is.na(pos)) {
+        grads <- vapply(seq_len(N_EVAL), function(t) {
+          rows <- ((t - 1) * J + 1):(t * J)
+          grad_exceed(eval_design$X[rows, , drop = FALSE], ps$beta, ct, pos, nrow(Vc))
+        }, numeric(nrow(Vc)))
+        pv <- colSums(grads * (Vc %*% grads))
+        gbar <- rowMeans(grads)
+        row[[paste0("sd_pred_k", k)]]   <- sqrt(mean(pv))
+        row[[paste0("sd_demand_k", k)]] <- sqrt(t(gbar) %*% Vc %*% gbar)
+        row[[paste0("sd_c", k - 1)]]    <- sqrt(Vc[P + pos, P + pos])
+      } else {
+        row[[paste0("sd_pred_k", k)]] <- NA
+        row[[paste0("sd_demand_k", k)]] <- NA
+        row[[paste0("sd_c", k - 1)]] <- NA
+      }
+    }
+    sdtab[[e]] <- row
+  }
+  sdtab <- do.call(rbind, sdtab); rownames(sdtab) <- NULL
+  analytic[[sn]] <- list(sd = sdtab, u = u, catprob = catprob)
+}
+```
+
+### Implied response distributions
+
+```{r}
+#| label: catprobs
+knitr::kable(
+  do.call(rbind, lapply(names(param_sets), function(sn) {
+    cp <- analytic[[sn]]$catprob
+    data.frame(configuration = sn, `1` = cp[1], `2` = cp[2], `3` = cp[3],
+               `4` = cp[4], `5` = cp[5], `top-2-box` = sum(cp[4:5]),
+               check.names = FALSE)})),
+  row.names = FALSE, digits = 3)
+```
+
+### What each coarsening costs
+
+```{r}
+#| label: analytic-table
+eff_tab <- do.call(rbind, lapply(names(param_sets), function(sn) {
+  a <- analytic[[sn]]$sd
+  data.frame(configuration = sn,
+             `top-2-box, beta` = round((a$mean_sd_beta[5] / a$mean_sd_beta[1])^2, 3),
+             `worst cut, beta` = round(max((a$mean_sd_beta / a$mean_sd_beta[1])^2, na.rm = TRUE), 3),
+             `omega share, top-2-box` = round(a$mean_omega[5] / a$mean_omega[1], 2),
+             `omega share, worst` = round(min(a$mean_omega[-1] / a$mean_omega[1], na.rm = TRUE), 2),
+             check.names = FALSE)}))
+knitr::kable(eff_tab, row.names = FALSE)
+```
+
+Two columns, two different things. The **beta** columns are variance ratios: a
+value of 1.05 means the binary analyst needs five percent more sample for the
+same precision on preference parameters. The **omega share** columns say what
+fraction of the second response's *own* information survives the coarsening,
+and those numbers are much worse. The gap between them exists because $\bfbeta$
+is mostly identified by the forced choice, which both estimators keep intact.
+
+The analyst must commit to the cut before seeing the data, so the "worst cut"
+column is the relevant risk, not the best case.
+
+### Full detail, per configuration
+
+```{r}
+#| label: analytic-detail
+for (sn in names(param_sets)) {
+  cat("\n###", sn, "\n")
+  a <- analytic[[sn]]$sd
+  ratio <- function(col) round((a[[col]] / a[[col]][1])^2, 3)
+  print(knitr::kable(
+    data.frame(estimator = a$estimator,
+               beta_avg = round((a$mean_sd_beta / a$mean_sd_beta[1])^2, 3),
+               beta_u_dir = ratio("sd_u_beta"),
+               omega_share = round(a$mean_omega / a$mean_omega[1], 3),
+               pred_k4 = ratio("sd_pred_k4"),
+               demand_k4 = ratio("sd_demand_k4")),
+    row.names = FALSE))
+}
+```
+
+`beta_u_dir` is the variance in the "average attractiveness" direction, the
+rank-one direction the ordinal stage informs and the forced choice identifies
+worst. It is consistently the most damaged, which is exactly what the theory
+predicts: that is where the second response carries information the first does
+not.
+
+## 4. Monte Carlo validation
+
+The analytic numbers are asymptotic. Do they describe finite samples? Fit every
+estimator to the same simulated datasets and compare empirical spread to the
+predicted spread.
+
+```{r}
+#| label: monte-carlo
+collapse3 <- function(y) 1L + (y >= 3L) + (y >= 4L)
+mc <- list()
+for (sn in MC_SETS) {
+  ps <- param_sets[[sn]]
+  mubar_eval_true <- mubar_of(eval_design, ps$beta)
+  true_ex <- sapply(2:W, function(k) 1 - link_cdf(ps$cut[k - 1] - mubar_eval_true, MODEL))
+
+  beta_est <- array(NA_real_, c(R_REPS, P, length(EST)),
+                    dimnames = list(NULL, names(ps$beta), EST))
+  c_own <- array(NA_real_, c(R_REPS, 4, length(EST)),
+                 dimnames = list(NULL, paste0("c", 1:4), EST))
+  demand <- array(NA_real_, c(R_REPS, W - 1, length(EST)),
+                  dimnames = list(NULL, paste0("k", 2:W), EST))
+  pred_sse <- matrix(0, length(EST), W - 1, dimnames = list(EST, paste0("k", 2:W)))
+  pred_n <- pred_sse
+
+  for (r in seq_len(R_REPS)) {
+    dat5 <- simulate_dual(design, ps$beta, ps$cut, model = MODEL, seed = 60000 + r)
+    fits <- list()
+    fits$ord5 <- fit_dual_mle(dat5)
+    dat3 <- dat5; dat3$y <- collapse3(dat5$y); dat3$W <- 3L
+    fits$ord3 <- fit_dual_mle(dat3)
+    for (k in 2:W) {
+      datb <- dat5; datb$y <- 1L + (dat5$y >= k); datb$W <- 2L
+      fits[[paste0("bin", k)]] <- fit_dual_mle(datb)
+    }
+    for (e in EST) {
+      beta_est[r, , e] <- fits[[e]]$beta
+      for (k in 2:W) {
+        pos <- cutpos(e, k); if (is.na(pos)) next
+        c_own[r, k - 1, e] <- fits[[e]]$cut[pos]
+        pr <- exceed_pred(eval_design, fits[[e]]$beta, fits[[e]]$cut[pos])
+        demand[r, k - 1, e] <- mean(pr)
+        pred_sse[e, k - 1] <- pred_sse[e, k - 1] + mean((pr - true_ex[, k - 1])^2)
+        pred_n[e, k - 1] <- pred_n[e, k - 1] + 1
+      }
+    }
+  }
+  pred_rmse <- sqrt(pred_sse / pmax(pred_n, 1)); pred_rmse[pred_n == 0] <- NA
+  vr <- sapply(2:W, function(k)
+    (pred_rmse[paste0("bin", k), k - 1] / pred_rmse["ord5", k - 1])^2)
+  names(vr) <- paste0("k", 2:W)
+  mc[[sn]] <- list(beta_est = beta_est, c_own = c_own, demand = demand,
+                   pred_rmse = pred_rmse, pred_var_ratio = vr, true_ex = true_ex)
+}
+```
+
+### Empirical versus analytic
+
+```{r}
+#| label: mc-validate
+for (sn in MC_SETS) {
+  cat("\n###", sn, "-- cut-point sd, empirical vs analytic\n")
+  rows <- list()
+  for (k in 2:W) for (e in EST) {
+    if (!is.na(cutpos(e, k))) {
+      rows[[length(rows) + 1]] <- data.frame(
+        cut = paste0("c", k - 1), estimator = e,
+        empirical = round(sd(mc[[sn]]$c_own[, k - 1, e]), 4),
+        analytic = round(analytic[[sn]]$sd[[paste0("sd_c", k - 1)]][match(e, EST)], 4))
+    }
+  }
+  print(knitr::kable(do.call(rbind, rows), row.names = FALSE))
+}
+```
+
+The two columns track each other closely, which validates both the Fisher
+calculation and the standard-error formulas.
+
+### Is anything biased?
+
+```{r}
+#| label: mc-bias
+bias_tab <- do.call(rbind, lapply(MC_SETS, function(sn) {
+  ps <- param_sets[[sn]]
+  data.frame(configuration = sn,
+    t(sapply(EST, function(e) {
+      b <- colMeans(mc[[sn]]$beta_est[, , e]) - ps$beta
+      max(abs(b / (apply(mc[[sn]]$beta_est[, , e], 2, sd) / sqrt(R_REPS))))
+    })))}))
+knitr::kable(bias_tab, row.names = FALSE, digits = 2)
+```
+
+Maximum $|t|$ statistics for bias, by estimator. Nothing systematic anywhere,
+confirming that dichotomization costs efficiency and not consistency. This is
+the claim that lets the rest of the comparison be about precision alone.
+
+## 5. The individual level, where it matters
+
+Everything above pools 3,600 tasks and estimates one parameter vector. That is
+not what practitioners do. They estimate a hierarchical model in which each
+respondent contributes twelve tasks, and their deliverable is individual-level
+part-worths and individual purchase probabilities.
+
+At twelve tasks per person, there is no pooling to rescue the coarsened second
+stage.
+
+```{r}
+#| label: hb-machinery
+#| code-fold: true
+#| code-summary: "Panel simulation and the hierarchical sampler"
+make_panel_design <- function(N, T_tasks, J, seed, intercept = FALSE) {
+  des <- make_design(N * T_tasks, J, seed = seed, intercept = intercept)
+  des$N <- N; des$T_tasks <- T_tasks
+  des$resp <- rep(seq_len(N), each = T_tasks)
+  des$resp_row <- rep(des$resp, each = J)
+  des
+}
+draw_betas <- function(N, beta_bar, Sigma, seed) {
+  set.seed(seed); P <- length(beta_bar)
+  sweep(matrix(rnorm(N * P), N, P) %*% chol(Sigma), 2, beta_bar, "+")
+}
+simulate_dual_hb <- function(design, Bmat, cut, model = c("A","B"), seed) {
+  model <- match.arg(model); set.seed(seed)
+  n <- design$n_tasks; J <- design$J; N <- design$N
+  cutmat <- if (is.matrix(cut)) cut else matrix(cut, N, length(cut), byrow = TRUE)
+  W <- ncol(cutmat) + 1L
+  Bx <- Bmat[design$resp_row, , drop = FALSE]
+  V <- matrix(rowSums(design$X * Bx), nrow = n, ncol = J, byrow = TRUE)
+  u <- V + matrix(rgumbel(n * J), n, J)
+  jstar <- max.col(u, ties.method = "first")
+  ustar <- u[cbind(seq_len(n), jstar)]
+  latent <- if (model == "A") ustar else ustar - rgumbel(n)
+  y <- 1L + rowSums(latent >= cutmat[design$resp, , drop = FALSE])
+  list(design = design, resp = design$resp, resp_row = design$resp_row, N = N,
+       jstar = jstar, y = as.integer(y), W = W, model = model,
+       Bmat_true = Bmat, cut_true = cut)
+}
+split_holdout <- function(dat, n_holdout) {
+  des <- dat$design; T_tasks <- des$T_tasks
+  keep_t <- rep(seq_len(T_tasks) <= T_tasks - n_holdout, times = des$N)
+  sub <- function(keep) {
+    rows <- rep(keep, each = des$J); d <- des
+    d$X <- des$X[rows, , drop = FALSE]; d$n_tasks <- sum(keep)
+    d$T_tasks <- d$n_tasks / des$N; d$resp <- des$resp[keep]
+    d$resp_row <- rep(d$resp, each = des$J)
+    out <- dat; out$design <- d; out$resp <- d$resp; out$resp_row <- d$resp_row
+    out$jstar <- dat$jstar[keep]; out$y <- dat$y[keep]; out
+  }
+  list(est = sub(keep_t), holdout = sub(!keep_t))
+}
+phi_to_cutmat <- function(Phi, P, W) {
+  c1 <- Phi[, P + 1]
+  if (W == 2) return(matrix(c1, ncol = 1))
+  D <- exp(Phi[, (P + 2):(P + W - 1), drop = FALSE])
+  cm <- matrix(0, nrow(Phi), W - 1); cm[, 1] <- c1
+  for (w in 2:(W - 1)) cm[, w] <- cm[, w - 1] + D[, w - 1]
+  cm
+}
+resp_loglik_all <- function(dat, Bmat, cutmat, choice_only = FALSE) {
+  des <- dat$design; n <- des$n_tasks; J <- des$J
+  Bx <- Bmat[dat$resp_row, , drop = FALSE]
+  V <- matrix(rowSums(des$X * Bx), nrow = n, ncol = J, byrow = TRUE)
+  m <- row_max(V); logS <- m + log(rowSums(exp(V - m)))
+  ll <- V[cbind(seq_len(n), dat$jstar)] - logS
+  if (!choice_only) {
+    ca <- cbind(-Inf, cutmat, Inf)
+    ll <- ll + log(pmax(ord_prob_z(ca[cbind(dat$resp, dat$y)] - logS,
+                                   ca[cbind(dat$resp, dat$y + 1L)] - logS,
+                                   dat$model), 1e-312))
+  }
+  as.numeric(rowsum(ll, dat$resp, reorder = TRUE))
+}
+default_hb_priors <- function(d) list(phibar0 = rep(0, d), A = 1/100,
+  nu = d + 3, V0 = (d + 3) * diag(d), zeta_prec = 1/100)
+draw_phibar <- function(Phi, Sigma, pr) {
+  N <- nrow(Phi); Si <- chol2inv(chol(Sigma))
+  Vb <- chol2inv(chol(N * Si + pr$A * diag(ncol(Phi))))
+  m <- Vb %*% (Si %*% (N * colMeans(Phi)) + pr$A * pr$phibar0)
+  as.numeric(m + t(chol(Vb)) %*% rnorm(ncol(Phi)))
+}
+draw_sigma <- function(Phi, phibar, pr) {
+  Vn <- pr$V0 + crossprod(sweep(Phi, 2, phibar))
+  chol2inv(chol(rWishart(1, pr$nu + nrow(Phi), chol2inv(chol(Vn)))[,,1]))
+}
+fit_dual_hb <- function(dat, mcmc = list(R=30000, burn=10000, thin=10),
+                        het_cut = FALSE, choice_only = FALSE, priors = NULL,
+                        keep_phi = TRUE, seed = NULL, verbose = TRUE) {
+  if (!is.null(seed)) set.seed(seed)
+  des <- dat$design; N <- dat$N; P <- des$P; W <- dat$W
+  dim_phi <- if (het_cut) P + W - 1 else P
+  if (is.null(priors)) priors <- default_hb_priors(dim_phi)
+  R_iter <- mcmc$R; burn <- mcmc$burn; thin <- mcmc$thin
+  nkeep <- floor((R_iter - burn) / thin)
+  Phi <- matrix(0, N, dim_phi)
+  freq <- tabulate(dat$y, nbins = W)
+  cumq <- pmin(pmax(cumsum(freq)[1:(W-1)]/sum(freq), 1e-4), 1-1e-4)
+  ginv <- if (dat$model == "B") qlogis else function(q) -log(-log(q))
+  cut0 <- log(des$J) + ginv(cumq)
+  if (W > 2) for (k in 2:(W-1)) cut0[k] <- max(cut0[k], cut0[k-1] + 1e-3)
+  zeta <- cut_to_par(cut0)
+  if (het_cut) Phi[, (P+1):(P+W-1)] <- matrix(zeta, N, W-1, byrow = TRUE)
+  phibar <- colMeans(Phi); Sigma <- diag(dim_phi)
+  cur_cutmat <- if (het_cut) phi_to_cutmat(Phi, P, W) else
+    matrix(par_to_cut(zeta, 0, W), N, W-1, byrow = TRUE)
+  cur_ll <- resp_loglik_all(dat, Phi[, 1:P, drop=FALSE], cur_cutmat, choice_only)
+  s_phi <- rep(2.93/sqrt(dim_phi), N); acc_phi <- rep(0, N)
+  s_zeta <- 0.05; acc_zeta <- 0; window <- 100
+  keep_betabar <- matrix(NA_real_, nkeep, dim_phi)
+  keep_Sigma <- array(NA_real_, c(nkeep, dim_phi, dim_phi))
+  keep_cut <- if (!het_cut && !choice_only) matrix(NA_real_, nkeep, W-1) else NULL
+  keep_ll <- numeric(nkeep); keep_ll_resp <- matrix(NA_real_, nkeep, N)
+  keep_Phi <- if (keep_phi) array(NA_real_, c(nkeep, N, dim_phi)) else NULL
+  t0 <- Sys.time(); ki <- 0
+  for (it in seq_len(R_iter)) {
+    U <- chol(Sigma)
+    Prop <- Phi + (matrix(rnorm(N*dim_phi), N, dim_phi) %*% U) * s_phi
+    prop_cutmat <- if (het_cut) phi_to_cutmat(Prop, P, W) else cur_cutmat
+    prop_ll <- resp_loglik_all(dat, Prop[, 1:P, drop=FALSE], prop_cutmat, choice_only)
+    Si <- chol2inv(chol(Sigma))
+    dcur <- sweep(Phi, 2, phibar); dprop <- sweep(Prop, 2, phibar)
+    la <- (prop_ll - 0.5*rowSums((dprop %*% Si)*dprop)) -
+          (cur_ll  - 0.5*rowSums((dcur  %*% Si)*dcur))
+    acc <- log(runif(N)) < la
+    Phi[acc, ] <- Prop[acc, ]; cur_ll[acc] <- prop_ll[acc]
+    if (het_cut && any(acc)) cur_cutmat[acc, ] <- prop_cutmat[acc, , drop=FALSE]
+    acc_phi <- acc_phi + acc
+    if (!het_cut && !choice_only) {
+      zp <- zeta + rnorm(W-1, sd = s_zeta)
+      cp <- matrix(par_to_cut(zp, 0, W), N, W-1, byrow = TRUE)
+      lp_ll <- resp_loglik_all(dat, Phi[, 1:P, drop=FALSE], cp, choice_only)
+      if (log(runif(1)) < (sum(lp_ll) - 0.5*priors$zeta_prec*sum(zp^2)) -
+                          (sum(cur_ll) - 0.5*priors$zeta_prec*sum(zeta^2))) {
+        zeta <- zp; cur_cutmat <- cp; cur_ll <- lp_ll; acc_zeta <- acc_zeta + 1
+      }
+    }
+    phibar <- draw_phibar(Phi, Sigma, priors)
+    Sigma <- draw_sigma(Phi, phibar, priors)
+    if (it <= burn && it %% window == 0) {
+      s_phi <- pmin(pmax(s_phi*exp(1.5*(acc_phi/window - 0.23)), 0.01), 10)
+      acc_phi <- rep(0, N)
+      if (!het_cut && !choice_only) {
+        s_zeta <- min(max(s_zeta*exp(1.5*(acc_zeta/window - 0.30)), 1e-3), 2)
+        acc_zeta <- 0
+      }
+    }
+    if (it == burn) { acc_phi <- rep(0, N); acc_zeta <- 0 }
+    if (it > burn && (it - burn) %% thin == 0) {
+      ki <- ki + 1
+      keep_betabar[ki, ] <- phibar; keep_Sigma[ki, , ] <- Sigma
+      if (!is.null(keep_cut)) keep_cut[ki, ] <- par_to_cut(zeta, 0, W)
+      keep_ll[ki] <- sum(cur_ll); keep_ll_resp[ki, ] <- cur_ll
+      if (keep_phi) keep_Phi[ki, , ] <- Phi
+    }
+  }
+  post <- R_iter - burn
+  structure(list(draws = list(phibar = keep_betabar, Sigma = keep_Sigma,
+                              cut = keep_cut, Phi = keep_Phi),
+                 ll = keep_ll, ll_resp = keep_ll_resp,
+                 accept = list(phi = mean(acc_phi/post),
+                               zeta = if (het_cut || choice_only) NA else acc_zeta/post),
+                 settings = list(mcmc = mcmc, het_cut = het_cut,
+                                 choice_only = choice_only, P = P, W = W, N = N,
+                                 model = dat$model, priors = priors),
+                 runtime_min = as.numeric(difftime(Sys.time(), t0, units="mins"))),
+            class = "dr_hb_fit")
+}
+hb_beta_i <- function(fit)
+  apply(fit$draws$Phi[, , 1:fit$settings$P, drop = FALSE], c(2,3), mean)
+```
+
+```{r}
+#| label: hb-config
+N <- 300; T_EST <- 12; T_HOLD <- 2
+beta_bar <- c(a2=0.8, a3=-0.5, b2=0.4, b3=1.0, price=-0.9)
+Sigma_true <- diag(c(0.6, 0.6, 0.6, 0.6, 0.3))
+cut_true <- c(-1.0, 0.2, 1.2, 2.2)
+KBUY <- 4              # "purchase" means top-2-box throughout
+REPS <- 20
+ITER <- 20000
+MCMC <- list(R = ITER, burn = floor(ITER * 0.4), thin = 10)
+
+gen_panel <- function(seed, model = "B") {
+  des <- make_panel_design(N, T_EST + T_HOLD, J, seed = seed)
+  B <- draw_betas(N, beta_bar, Sigma_true, seed = seed + 1)
+  split_holdout(simulate_dual_hb(des, B, cut_true, model = model, seed = seed + 2), T_HOLD)
+}
+task_mubar <- function(design, Bmat) {
+  Bx <- Bmat[design$resp_row, , drop = FALSE]
+  V <- matrix(rowSums(design$X * Bx), ncol = design$J, byrow = TRUE)
+  m <- row_max(V); m + log(rowSums(exp(V - m)))
+}
+true_exceed_panel <- function(sp) {
+  d <- sp$holdout$design
+  mu <- task_mubar(d, sp$holdout$Bmat_true)
+  cutm <- matrix(sp$holdout$cut_true, N, W - 1, byrow = TRUE)
+  1 - plogis(cutm[d$resp, KBUY - 1] - mu)
+}
+pred_exceed_panel <- function(fit, sp, k = KBUY) {
+  d <- sp$holdout$design
+  mu <- task_mubar(d, hb_beta_i(fit))
+  cutvec <- colMeans(fit$draws$cut)
+  cc <- rep(cutvec[min(k - 1, length(cutvec))], length(mu))
+  G <- if (fit$settings$model == "B") plogis else function(z) exp(-exp(-z))
+  1 - G(cc - mu)
+}
+hit_rate <- function(fit, sp) {
+  d <- sp$holdout$design
+  Bx <- hb_beta_i(fit)[d$resp_row, , drop = FALSE]
+  V <- matrix(rowSums(d$X * Bx), ncol = d$J, byrow = TRUE)
+  mean(max.col(V, ties.method = "first") == sp$holdout$jstar)
+}
+dichotomize <- function(dat, k = KBUY) { dat$y <- 1L + (dat$y >= k); dat$W <- 2L; dat }
+```
+
+Twenty paired replications. Each generates one panel, then fits the ordinal
+model and the top-2-box binary model to **the same** forced-choice data, so
+every difference is attributable to the coarsened second response.
+
+```{r}
+#| label: hb-dichot
+m <- matrix(NA_real_, REPS, 8, dimnames = list(NULL, c(
+  "rmse_bi_ord","rmse_bi_bin","hit_ord","hit_bin",
+  "rmse_ex_ord","rmse_ex_bin","sd_c3_ord","sd_c3_bin")))
+for (r in seq_len(REPS)) {
+  sp <- gen_panel(seed = 60000 + 10 * r)
+  f_ord <- fit_dual_hb(sp$est, mcmc = MCMC, seed = 61000 + r, verbose = FALSE)
+  f_bin <- fit_dual_hb(dichotomize(sp$est), mcmc = MCMC, seed = 62000 + r, verbose = FALSE)
+  tex <- true_exceed_panel(sp)
+  m[r, ] <- c(
+    sqrt(mean((hb_beta_i(f_ord) - sp$est$Bmat_true)^2)),
+    sqrt(mean((hb_beta_i(f_bin) - sp$est$Bmat_true)^2)),
+    hit_rate(f_ord, sp), hit_rate(f_bin, sp),
+    sqrt(mean((pred_exceed_panel(f_ord, sp) - tex)^2)),
+    sqrt(mean((pred_exceed_panel(f_bin, sp, k = 2) - tex)^2)),
+    sd(f_ord$draws$cut[, KBUY - 1]), sd(f_bin$draws$cut[, 1]))
+}
+res_dichot <- list(metrics = m, mean = colMeans(m), se = apply(m, 2, sd)/sqrt(REPS))
+knitr::kable(rbind(mean = res_dichot$mean, mc_se = res_dichot$se), digits = 4)
+```
+
+```{r}
+#| label: hb-ratios
+rm_ <- res_dichot$mean
+knitr::kable(data.frame(
+  quantity = c("individual part-worth RMSE", "individual purchase-probability RMSE",
+               "posterior sd of the shared cut point", "holdout hit rate"),
+  ordinal = c(rm_["rmse_bi_ord"], rm_["rmse_ex_ord"], rm_["sd_c3_ord"], rm_["hit_ord"]),
+  binary  = c(rm_["rmse_bi_bin"], rm_["rmse_ex_bin"], rm_["sd_c3_bin"], rm_["hit_bin"]),
+  `variance ratio` = c((rm_["rmse_bi_bin"]/rm_["rmse_bi_ord"])^2,
+                       (rm_["rmse_ex_bin"]/rm_["rmse_ex_ord"])^2,
+                       (rm_["sd_c3_bin"]/rm_["sd_c3_ord"])^2, NA),
+  check.names = FALSE), row.names = FALSE, digits = 4)
+```
+
+Read the last column. The cut point and the individual purchase probabilities,
+which are what the dual response exists to measure, degrade substantially. The
+holdout hit rate does not move at all, and should not: the first response
+carries the ranking information and dichotomization leaves it untouched.
+
+That is the finding. Dichotomization does no harm to what the forced choice
+already tells you, and real harm to the one thing the second question was added
+to measure.
+
+## 6. Results written
+
+```{r}
+#| label: save
+# Quarto executes some passes from the project root and others from this
+# file's directory, so anchor the output path on the project marker rather
+# than trusting the working directory.
+PROJ <- if (file.exists("_quarto.yml")) "." else ".."
+OUT  <- file.path(PROJ, "R", "output")
+dir.create(OUT, showWarnings = FALSE, recursive = TRUE)
+saveRDS(list(analytic = analytic, mc = mc,
+             settings = list(MODEL = MODEL, N_TASKS = N_TASKS, J = J, W = W,
+                             R_REPS = R_REPS, param_sets = param_sets)),
+        file.path(OUT, "dichotomization_study.rds"))
+saveRDS(list(cell = "dichot", res = res_dichot,
+             settings = list(N = N, T_EST = T_EST, T_HOLD = T_HOLD, J = J, W = W,
+                             REPS = REPS, ITER = ITER, KBUY = KBUY)),
+        file.path(OUT, "hb_simstudy_dichot.rds"))
+cat("wrote dichotomization_study.rds and hb_simstudy_dichot.rds\n")
+```
+
+## 7. Related material
+
+| where | what |
+|---|---|
+| notebook 07 | how many scale points to field, and where to place the labels |
+| notebook 08 | what these precision losses cost in a pricing decision |
+| `R/homogeneous/fisher.R` | the production Fisher information code |
