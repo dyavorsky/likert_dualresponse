@@ -174,9 +174,9 @@
     <div id="quarto-embed-header" class="headroom fixed-top bg-primary">
       
       <a onclick="window.quartoBackToArticle(); return false;" class="btn btn-primary quarto-back-link" href=""><i class="bi bi-caret-left"></i> Back to Article</a>
-      <h6><i class="bi bi-journal-code"></i> 03. The Cost of Dichotomization</h6>
+      <h6><i class="bi bi-journal-code"></i> 04. The Cost of Dichotomization</h6>
 
-            <a href="../notebooks/03-dichotomization-cost.qmd" class="btn btn-primary quarto-download-embed" download="03-dichotomization-cost.qmd">Download Source</a>
+            <a href="../notebooks/04-dichotomization-cost.qmd" class="btn btn-primary quarto-download-embed" download="04-dichotomization-cost.qmd">Download Source</a>
           </div>
 
      <header id="title-block-header" class="quarto-title-block default toc-left page-columns page-full">
@@ -248,7 +248,15 @@
 </div>
 <main class="content quarto-banner-title-block" id="quarto-document-content" tabindex="-1">      
 
-       <section id="what-this-notebook-does" class="level2">
+       <p><span class="math display">\[
+  \newcommand{\x}{\mathbf{x}}
+  \newcommand{\bfbeta}{\boldsymbol{\beta}}
+  \newcommand{\betabar}{\bar{\bfbeta}}
+  \newcommand{\bftheta}{\boldsymbol{\theta}}
+  \newcommand{\iid}{\stackrel{iid}{\sim}}
+  \newcommand{\coloneqq}{\mathrel{:=}}
+\]</span></p>
+<section id="what-this-notebook-does" class="level2">
 <h2 class="anchored" data-anchor-id="what-this-notebook-does">What this notebook does</h2>
 <p>The binary dual-response model is the incumbent. If a practitioner fields a five-point purchase-likelihood scale and then collapses it (“top-2-box counts as a buy”), the resulting binary model is <strong>correctly specified</strong>: collapsing a cumulative-link model at one of its own cut points gives back a cumulative-link model with one cut point. So dichotomization costs no consistency. What it costs is precision, and this notebook measures how much, three ways:</p>
 <ol type="1">
@@ -459,7 +467,7 @@
 <span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>  gr</span>
 <span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div></div>
-<p>Note what <code>cutpos</code> encodes: a binary estimator cut at <span class="math inline">\(k\)</span> can answer questions about threshold <span class="math inline">\(k\)</span> and no other. A top-box model cannot tell you about top-2-box demand. This is not an efficiency loss, it is an inability, and it returns in the pricing counterfactual of notebook 07.</p>
+<p>Note what <code>cutpos</code> encodes: a binary estimator cut at <span class="math inline">\(k\)</span> can answer questions about threshold <span class="math inline">\(k\)</span> and no other. A top-box model cannot tell you about top-2-box demand. This is not an efficiency loss, it is an inability, and it returns in the pricing counterfactual of notebook 08.</p>
 </section>
 <section id="exact-efficiency-from-the-fisher-information" class="level2">
 <h2 class="anchored" data-anchor-id="exact-efficiency-from-the-fisher-information">3. Exact efficiency, from the Fisher information</h2>
@@ -1232,11 +1240,11 @@
 </thead>
 <tbody>
 <tr class="odd">
-<td>notebook 06</td>
+<td>notebook 07</td>
 <td>how many scale points to field, and where to place the labels</td>
 </tr>
 <tr class="even">
-<td>notebook 07</td>
+<td>notebook 08</td>
 <td>what these precision losses cost in a pricing decision</td>
 </tr>
 <tr class="odd">

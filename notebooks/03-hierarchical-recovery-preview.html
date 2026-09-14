@@ -174,9 +174,9 @@
     <div id="quarto-embed-header" class="headroom fixed-top bg-primary">
       
       <a onclick="window.quartoBackToArticle(); return false;" class="btn btn-primary quarto-back-link" href=""><i class="bi bi-caret-left"></i> Back to Article</a>
-      <h6><i class="bi bi-journal-code"></i> 02. The Hierarchical Sampler</h6>
+      <h6><i class="bi bi-journal-code"></i> 03. The Hierarchical Sampler</h6>
 
-            <a href="../notebooks/02-hierarchical-recovery.qmd" class="btn btn-primary quarto-download-embed" download="02-hierarchical-recovery.qmd">Download Source</a>
+            <a href="../notebooks/03-hierarchical-recovery.qmd" class="btn btn-primary quarto-download-embed" download="03-hierarchical-recovery.qmd">Download Source</a>
           </div>
 
      <header id="title-block-header" class="quarto-title-block default toc-left page-columns page-full">
@@ -241,9 +241,17 @@
 </div>
 <main class="content quarto-banner-title-block" id="quarto-document-content" tabindex="-1">      
 
-       <section id="what-this-notebook-does" class="level2">
+       <p><span class="math display">\[
+  \newcommand{\x}{\mathbf{x}}
+  \newcommand{\bfbeta}{\boldsymbol{\beta}}
+  \newcommand{\betabar}{\bar{\bfbeta}}
+  \newcommand{\bftheta}{\boldsymbol{\theta}}
+  \newcommand{\iid}{\stackrel{iid}{\sim}}
+  \newcommand{\coloneqq}{\mathrel{:=}}
+\]</span></p>
+<section id="what-this-notebook-does" class="level2">
 <h2 class="anchored" data-anchor-id="what-this-notebook-does">What this notebook does</h2>
-<p>Notebook 01 established that the aggregate estimator works. This one does the same for the hierarchical Bayesian estimator, which is the one a practitioner actually runs, and which has more ways to go quietly wrong.</p>
+<p>Notebook 02 established that the aggregate estimator works. This one does the same for the hierarchical Bayesian estimator, which is the one a practitioner actually runs, and which has more ways to go quietly wrong.</p>
 <p>Five checks, in increasing order of how much they would embarrass us:</p>
 <ol type="1">
 <li><strong>Recovery.</strong> Do population means, covariances, and cut points come back on synthetic panels, for both links?</li>
@@ -279,7 +287,7 @@
 <p><span class="math display">\[
 \bfbeta_i \sim \mathcal{N}\left( \betabar, \Sigma \right).
 \]</span></p>
-<p>Conditional on <span class="math inline">\(\bfbeta_i\)</span>, each of her <span class="math inline">\(T\)</span> tasks generates the same two responses as before: a forced choice among <span class="math inline">\(J\)</span> profiles, and an ordinal purchase report read off the task’s inclusive value. The cut points are common across respondents here; the heterogeneous-cut extension is exercised in notebook 05.</p>
+<p>Conditional on <span class="math inline">\(\bfbeta_i\)</span>, each of her <span class="math inline">\(T\)</span> tasks generates the same two responses as before: a forced choice among <span class="math inline">\(J\)</span> profiles, and an ordinal purchase report read off the task’s inclusive value. The cut points are common across respondents here; the heterogeneous-cut extension is exercised in notebook 06.</p>
 <p>The sampler is random-walk Metropolis within Gibbs, three blocks per iteration:</p>
 <ol type="1">
 <li>every respondent’s <span class="math inline">\(\bfbeta_i\)</span> proposed at once, with covariance <span class="math inline">\(s_i^2 \Sigma\)</span>, accepted or rejected individually;</li>
@@ -646,7 +654,7 @@ category shares: 0.058 0.169 0.226 0.214 0.332
 |c3      |     1.208|   0.062|   1.2|  0.133|
 |c4      |     2.167|   0.065|   2.2| -0.517|
 posterior mean diag(Sigma): 0.677 0.523 0.82 0.813 0.403 | truth: 0.6 0.6 0.6 0.6 0.3 
-acceptance: phi 0.23, cut block 0.27 | runtime 0.9 min
+acceptance: phi 0.23, cut block 0.27 | runtime 0.8 min
 individual beta_i posterior-mean RMSE: 0.498 (sd of true beta_i: 0.735)</code></pre>
 </div>
 </div></div>
@@ -1183,15 +1191,15 @@ largest disagreement on any population mean: 0.0070</code></pre>
 </thead>
 <tbody>
 <tr class="odd">
-<td>notebook 01</td>
+<td>notebook 02</td>
 <td>the aggregate estimator, identification, and the factorization check</td>
 </tr>
 <tr class="even">
-<td>notebook 03</td>
+<td>notebook 04</td>
 <td>what dichotomizing the scale costs, at the individual level</td>
 </tr>
 <tr class="odd">
-<td>notebook 05</td>
+<td>notebook 06</td>
 <td>five misspecifications, including heterogeneous cut points</td>
 </tr>
 <tr class="even">

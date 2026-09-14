@@ -15,6 +15,8 @@ execute:
   message: false
 ---
 
+{{< include ../latex_commands.qmd >}}
+
 ## What this notebook does
 
 The information results in the paper are abstract. This notebook turns them into
@@ -437,7 +439,7 @@ of data recovers it.
 
 The practical rule follows directly. A study that wants to test the behavioral
 story must engineer high- and low-attractiveness tasks. A study that only needs
-demand estimates can ignore the distinction, because notebook 05 shows the two
+demand estimates can ignore the distinction, because notebook 06 shows the two
 links give nearly the same demand predictions over the range a normal design
 produces.
 
@@ -471,6 +473,6 @@ cat("wrote link_discrimination.rds, link_discrimination_squashed.rds,\n",
 
 | where | what |
 |---|---|
-| notebook 03 | what a coarse scale costs once the study is already fielded |
-| notebook 05 | why link misspecification is second-order for demand |
-| notebook 04 | the tests that use attractiveness variation to check the model |
+| notebook 04 | what a coarse scale costs once the study is already fielded |
+| notebook 06 | why link misspecification is second-order for demand |
+| notebook 05 | the tests that use attractiveness variation to check the model |

@@ -177,9 +177,9 @@
     <div id="quarto-embed-header" class="headroom fixed-top bg-primary">
       
       <a onclick="window.quartoBackToArticle(); return false;" class="btn btn-primary quarto-back-link" href=""><i class="bi bi-caret-left"></i> Back to Article</a>
-      <h6><i class="bi bi-journal-code"></i> 06. Designing the Scale</h6>
+      <h6><i class="bi bi-journal-code"></i> 07. Designing the Scale</h6>
 
-            <a href="../notebooks/06-scale-design.qmd" class="btn btn-primary quarto-download-embed" download="06-scale-design.qmd">Download Source</a>
+            <a href="../notebooks/07-scale-design.qmd" class="btn btn-primary quarto-download-embed" download="07-scale-design.qmd">Download Source</a>
           </div>
 
      <header id="title-block-header" class="quarto-title-block default toc-left page-columns page-full">
@@ -242,7 +242,15 @@
 </div>
 <main class="content quarto-banner-title-block" id="quarto-document-content" tabindex="-1">      
 
-       <section id="what-this-notebook-does" class="level2">
+       <p><span class="math display">\[
+  \newcommand{\x}{\mathbf{x}}
+  \newcommand{\bfbeta}{\boldsymbol{\beta}}
+  \newcommand{\betabar}{\bar{\bfbeta}}
+  \newcommand{\bftheta}{\boldsymbol{\theta}}
+  \newcommand{\iid}{\stackrel{iid}{\sim}}
+  \newcommand{\coloneqq}{\mathrel{:=}}
+\]</span></p>
+<section id="what-this-notebook-does" class="level2">
 <h2 class="anchored" data-anchor-id="what-this-notebook-does">What this notebook does</h2>
 <p>The information results in the paper are abstract. This notebook turns them into three concrete decisions a researcher has to make before fielding a study.</p>
 <ol type="1">
@@ -504,7 +512,7 @@
 <div id="fig-infoW" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-infoW-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca" class="">
-<a href="06-scale-design_files/figure-html/fig-infoW-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-1" title="Share of the continuous-report information captured by a W-point second response, cut points at equal expected shares."><img src="06-scale-design_files/figure-html/fig-infoW-1.png" class="img-fluid figure-img" width="672"></a>
+<a href="07-scale-design_files/figure-html/fig-infoW-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-1" title="Share of the continuous-report information captured by a W-point second response, cut points at equal expected shares."><img src="07-scale-design_files/figure-html/fig-infoW-1.png" class="img-fluid figure-img" width="672"></a>
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-infoW-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Share of the continuous-report information captured by a W-point second response, cut points at equal expected shares.
@@ -605,7 +613,7 @@ Share of the continuous-report information captured by a W-point second response
 <div id="fig-placement" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-placement-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca" class="">
-<a href="06-scale-design_files/figure-html/fig-placement-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-2" title="Cut placement and the cost of conventional labels at W = 5."><img src="06-scale-design_files/figure-html/fig-placement-1.png" class="img-fluid figure-img" width="672"></a>
+<a href="07-scale-design_files/figure-html/fig-placement-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-2" title="Cut placement and the cost of conventional labels at W = 5."><img src="07-scale-design_files/figure-html/fig-placement-1.png" class="img-fluid figure-img" width="672"></a>
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-placement-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Cut placement and the cost of conventional labels at W = 5.
@@ -864,7 +872,7 @@ Cut placement and the cost of conventional labels at W = 5.
 </div></div>
 <p>This is the result worth pausing on. The two probabilities do not both sit near 0.5, which is what “no information” might naively look like. Instead selection <strong>degenerates</strong>: the same link gets chosen almost regardless of the truth, so one row is near one and the other near zero. With no information in the data, the comparison is decided by the curvature correction in the marginal likelihood rather than by fit, and that correction does not care which model generated the data.</p>
 <p>Doubling the sample from 3,600 to 7,200 does not help, because the problem is not sampling noise. The information is absent from the design, and no quantity of data recovers it.</p>
-<p>The practical rule follows directly. A study that wants to test the behavioral story must engineer high- and low-attractiveness tasks. A study that only needs demand estimates can ignore the distinction, because notebook 05 shows the two links give nearly the same demand predictions over the range a normal design produces.</p>
+<p>The practical rule follows directly. A study that wants to test the behavioral story must engineer high- and low-attractiveness tasks. A study that only needs demand estimates can ignore the distinction, because notebook 06 shows the two links give nearly the same demand predictions over the range a normal design produces.</p>
 </section>
 <section id="results-written" class="level2">
 <h2 class="anchored" data-anchor-id="results-written">6. Results written</h2>
@@ -910,15 +918,15 @@ Cut placement and the cost of conventional labels at W = 5.
 </thead>
 <tbody>
 <tr class="odd">
-<td>notebook 03</td>
+<td>notebook 04</td>
 <td>what a coarse scale costs once the study is already fielded</td>
 </tr>
 <tr class="even">
-<td>notebook 05</td>
+<td>notebook 06</td>
 <td>why link misspecification is second-order for demand</td>
 </tr>
 <tr class="odd">
-<td>notebook 04</td>
+<td>notebook 05</td>
 <td>the tests that use attractiveness variation to check the model</td>
 </tr>
 </tbody>

@@ -1,0 +1,454 @@
+---
+title: "Aggregate Recovery"
+subtitle: "Both links, three configurations, and forty independent datasets"
+author:
+  - name: Dan Yavorsky
+  - name: Geoffery Zheng
+date: last-modified
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    code-fold: false
+execute:
+  warning: false
+  message: false
+---
+
+{{< include ../latex_commands.qmd >}}
+
+## What this notebook does
+
+Notebook 01 worked one configuration of Model A end to end. This one asks
+whether that was luck.
+
+Three questions, in increasing order of what they would catch:
+
+1. **Does recovery hold across configurations and both links?** One cell showing
+   recovery is an anecdote; six is a pattern.
+2. **Is the estimator unbiased, and are its standard errors honest?** Recovery on
+   a single dataset says nothing about repeated sampling. Forty independent
+   datasets per link do.
+3. **Is the residual bias the ordinary finite-sample kind?** One parameter comes
+   in near the conventional threshold. Ordinary maximum-likelihood bias shrinks
+   like $O(1/n)$; a structural problem does not.
+
+The machinery below is the general form of what notebook 01 built: it carries
+both links rather than Model A alone, and it is defined once here rather than
+twice.
+
+This notebook is the source of `aggregate_recovery.rds`,
+`replication_study.rds` and `bias_scaling_check.rds`.
+
+```{r}
+#| label: setup
+set.seed(1)
+options(digits = 5)
+```
+
+## 1. The machinery
+
+The general form of what notebook 01 built. Two differences: these carry both
+links rather than Model A alone, and they are defined once rather than twice.
+
+```{r}
+#| label: machinery-base
+#| code-fold: true
+#| code-summary: "Designs, the scale maps, and the cut-point parameterization"
+
+# Standard Gumbel quantile function and CDF. Exact inverses; used in both
+# directions. rgumbel draws by inverse transform.
+alpha_to_cut <- function(a) -log(-log(a))   # probability -> utility,  F^{-1}
+cut_to_alpha <- function(c) exp(-exp(-c))   # utility -> probability,  F
+rgumbel      <- function(n) alpha_to_cut(runif(n))
+
+make_design <- function(n_tasks, J, seed, intercept = FALSE) {
+  set.seed(seed)
+  n_rows <- n_tasks * J
+  a <- sample(1:3, n_rows, replace = TRUE)
+  b <- sample(1:3, n_rows, replace = TRUE)
+  price <- runif(n_rows, 0.5, 2.5)
+  X <- cbind(a2 = as.numeric(a == 2), a3 = as.numeric(a == 3),
+             b2 = as.numeric(b == 2), b3 = as.numeric(b == 3), price = price)
+  if (intercept) X <- cbind(X, const = 1)
+  list(X = X, n_tasks = n_tasks, J = J, P = ncol(X))
+}
+
+# Unconstrained working parameters: (beta, c_1, log gaps). See notebook 01 for
+# the derivation and the Jacobian used for delta-method standard errors.
+par_to_cut <- function(par, P, W) {
+  if (W == 2) return(par[P + 1])
+  par[P + 1] + c(0, cumsum(exp(par[(P + 2):(P + W - 1)])))
+}
+cut_to_par <- function(cut) c(cut[1], log(diff(cut)))
+```
+
+## 2. Recovery across configurations and links
+
+
+The walkthrough above is one cell. The article's claim is broader: recovery
+holds across parameter configurations that put the response distribution in
+very different places, and for both links. Three configurations, two links, six
+fits.
+
+```{r}
+#| label: grid-setup
+W <- 5
+
+param_sets <- list(
+  set1_moderate = list(
+    beta   = c(a2 = 0.8, a3 = -0.5, b2 = 0.4, b3 = 1.0, price = -0.9),
+    cutB   = c(-1.0, 0.2, 1.2, 2.2),
+    alphaA = c(0.10, 0.30, 0.60, 0.85)
+  ),
+  set2_negative = list(
+    beta   = c(a2 = -1.2, a3 = 0.3, b2 = -0.6, b3 = 0.7, price = -1.5),
+    cutB   = c(-2.5, -1.2, 0.5, 1.0),
+    alphaA = c(0.05, 0.25, 0.55, 0.90)
+  ),
+  set3_stress = list(
+    beta   = c(a2 = 2.0, a3 = -1.8, b2 = 1.2, b3 = -0.7, price = -2.2),
+    cutB   = c(-3.5, -2.2, 0.8, 3.0),
+    alphaA = c(0.02, 0.10, 0.70, 0.97)
+  )
+)
+```
+
+The `set3_stress` configuration is the demanding one. Its $\alpha_1 = 0.02$ puts
+the bottom category at two percent of the probability scale, so only about one
+task in fifty lands there and the corresponding cut point has to be pinned down
+from little data.
+
+Model B needs the general machinery: a logistic link rather than a Gumbel one.
+The only thing that changes is the interval probability.
+
+```{r}
+#| label: general-likelihood
+# Interval probability G(hi) - G(lo), tail-stable, for either link.
+# Model A: G = standard Gumbel CDF   (she reports the probability she holds)
+# Model B: G = standard logistic CDF (she resolves, then grades)
+ord_prob_z <- function(lo, hi, model) {
+  if (model == "B") {
+    plogis(hi) * plogis(-lo) * (-expm1(lo - hi))
+  } else {
+    ea <- exp(-lo); eb <- exp(-hi)
+    p <- exp(-eb) * (-expm1(-(ea - eb)))
+    p[!is.finite(eb)] <- 0
+    p
+  }
+}
+
+ord_prob <- function(mubar, cut, y, model) {
+  caug <- c(-Inf, cut, Inf)
+  ord_prob_z(caug[y] - mubar, caug[y + 1L] - mubar, model)
+}
+
+row_max <- function(M) do.call(pmax, as.data.frame(M))
+
+negloglik <- function(par, dat) {
+  design <- dat$design
+  P <- design$P; W <- dat$W
+  n <- design$n_tasks; J <- design$J
+  beta <- par[1:P]
+  cut  <- par_to_cut(par, P, W)
+
+  V    <- matrix(design$X %*% beta, nrow = n, ncol = J, byrow = TRUE)
+  m    <- row_max(V)
+  logS <- m + log(rowSums(exp(V - m)))
+
+  ll_choice <- V[cbind(seq_len(n), dat$jstar)] - logS
+  ll_ord    <- log(pmax(ord_prob(logS, cut, dat$y, dat$model), 1e-312))
+  -(sum(ll_choice) + sum(ll_ord))
+}
+
+num_grad <- function(f, x, eps = 1e-6) {
+  vapply(seq_along(x), function(k) {
+    h <- eps * max(1, abs(x[k]))
+    xp <- x; xp[k] <- xp[k] + h
+    xm <- x; xm[k] <- xm[k] - h
+    (f(xp) - f(xm)) / (2 * h)
+  }, numeric(1))
+}
+```
+
+The simulator likewise generalizes. Model B differs in one line: she resolves
+her uncertainty by drawing the outside good, and grades the comparison
+$u^* - \eta_0$ rather than reporting $F(u^*)$.
+
+```{r}
+#| label: general-sim
+simulate_dual <- function(design, beta, cut, model = c("A", "B"), seed) {
+  model <- match.arg(model)
+  set.seed(seed)
+  n <- design$n_tasks; J <- design$J
+  V <- matrix(design$X %*% beta, nrow = n, ncol = J, byrow = TRUE)
+  u <- V + matrix(rgumbel(n * J), n, J)
+  jstar <- max.col(u, ties.method = "first")
+  ustar <- u[cbind(seq_len(n), jstar)]
+  latent <- if (model == "A") ustar else ustar - rgumbel(n)
+  y <- findInterval(latent, cut) + 1L
+  list(design = design, jstar = jstar, y = y, W = length(cut) + 1L,
+       model = model, beta_true = beta, cut_true = cut)
+}
+
+fit_dual_mle <- function(dat, start = NULL) {
+  design <- dat$design; P <- design$P; W <- dat$W
+  if (is.null(start)) {
+    freq <- tabulate(dat$y, nbins = W)
+    cumq <- pmin(pmax(cumsum(freq)[1:(W - 1)] / sum(freq), 1e-4), 1 - 1e-4)
+    ginv <- if (dat$model == "B") qlogis else function(q) -log(-log(q))
+    cut0 <- log(design$J) + ginv(cumq)
+    if (W > 2) for (k in 2:(W - 1)) cut0[k] <- max(cut0[k], cut0[k - 1] + 1e-3)
+    start <- c(rep(0, P), cut_to_par(cut0))
+  }
+  fn  <- function(p) negloglik(p, dat)
+  opt <- optim(start, fn, method = "BFGS",
+               control = list(maxit = 1000, reltol = 1e-12))
+  H  <- optimHess(opt$par, fn)
+  g  <- num_grad(fn, opt$par)
+  ev <- eigen(H, symmetric = TRUE, only.values = TRUE)$values
+
+  cut_hat <- par_to_cut(opt$par, P, W)
+  Jc <- matrix(0, W - 1, length(opt$par)); Jc[, P + 1] <- 1
+  if (W > 2) {
+    d <- exp(opt$par[(P + 2):(P + W - 1)])
+    for (w in 2:(W - 1)) Jc[w, (P + 2):(P + w)] <- d[1:(w - 1)]
+  }
+  Vpar <- tryCatch(solve(H), error = function(e)
+    matrix(NA, length(opt$par), length(opt$par)))
+
+  out <- list(beta = opt$par[1:P], se_beta = sqrt(diag(Vpar)[1:P]),
+              cut = cut_hat, se_cut = sqrt(diag(Jc %*% Vpar %*% t(Jc))),
+              nll = opt$value, convergence = opt$convergence,
+              grad_max = max(abs(g)), eigen = ev, min_eig = min(ev),
+              cond = max(ev) / max(min(ev), .Machine$double.eps),
+              par = opt$par, counts = opt$counts)
+  if (dat$model == "A") {
+    a <- cut_to_alpha(cut_hat)
+    out$alpha <- a
+    out$se_alpha <- out$se_cut * a * (-log(a))
+  }
+  out
+}
+
+id_rank_check <- function(X) {
+  aug <- cbind(X, 1)
+  list(rank = qr(aug)$rank, required = ncol(aug), pass = qr(aug)$rank == ncol(aug))
+}
+```
+
+Now the grid. Seeds increment across the six cells exactly as the production
+script does, so cell `A / set1_moderate` reproduces the walkthrough above.
+
+```{r}
+#| label: grid-run
+N_TASKS <- 20000
+J <- 4
+
+recover_one <- function(model, set_name, pars, design_seed, sim_seed) {
+  design <- make_design(N_TASKS, J, seed = design_seed)
+  rc <- id_rank_check(design$X)
+  cut_true <- if (model == "A") alpha_to_cut(pars$alphaA) else pars$cutB
+  dat <- simulate_dual(design, pars$beta, cut_true, model = model, seed = sim_seed)
+  fit <- fit_dual_mle(dat)
+
+  truth <- c(pars$beta, cut_true)
+  est   <- c(fit$beta, fit$cut)
+  se    <- c(fit$se_beta, fit$se_cut)
+  tab <- data.frame(param = c(names(pars$beta), paste0("c", 1:(W - 1))),
+                    truth = truth, est = est, se = se, z = (est - truth) / se)
+  if (model == "A") {
+    tab <- rbind(tab, data.frame(
+      param = paste0("alpha", 1:(W - 1)),
+      truth = pars$alphaA, est = fit$alpha, se = fit$se_alpha,
+      z = (fit$alpha - pars$alphaA) / fit$se_alpha))
+  }
+  rownames(tab) <- NULL
+  list(model = model, set = set_name, rank_check = rc, table = tab,
+       y_freq = tabulate(dat$y, nbins = W) / N_TASKS,
+       nll = fit$nll, convergence = fit$convergence, grad_max = fit$grad_max,
+       min_eig = fit$min_eig, cond = fit$cond,
+       nll_truth = negloglik(c(pars$beta, cut_to_par(cut_true)), dat))
+}
+
+results <- list()
+seed_counter <- 0
+for (model in c("A", "B")) {
+  for (s in seq_along(param_sets)) {
+    seed_counter <- seed_counter + 1
+    nm <- names(param_sets)[s]
+    results[[paste(model, nm, sep = "_")]] <-
+      recover_one(model, nm, param_sets[[s]],
+                  design_seed = 100 + seed_counter, sim_seed = 500 + seed_counter)
+  }
+}
+```
+
+### Grid summary
+
+```{r}
+#| label: grid-summary
+grid_tab <- do.call(rbind, lapply(results, function(r) {
+  z_free <- r$table$z[!grepl("alpha", r$table$param)]
+  lr <- 2 * (r$nll_truth - r$nll)
+  data.frame(
+    cell          = paste(r$model, r$set),
+    `max |z|`     = round(max(abs(z_free)), 2),
+    `LR vs truth` = round(lr, 2),
+    `chi2 .95`    = round(qchisq(0.95, 9), 2),
+    `inside`      = lr < qchisq(0.95, 9),
+    `min eig(H)`  = signif(r$min_eig, 3),
+    check.names = FALSE)
+}))
+knitr::kable(grid_tab, row.names = FALSE)
+```
+
+Every cell puts the truth inside the 95% likelihood-ratio region, and every
+observed information matrix is strongly positive definite. Across all six fits:
+
+```{r}
+#| label: grid-z
+zs <- unlist(lapply(results, function(r) r$table$z[!grepl("alpha", r$table$param)]))
+cat(sprintf("%d free parameters over 6 fits: max|z| = %.2f, share |z| > 1.96 = %.3f (expect ~0.05)\n",
+            length(zs), max(abs(zs)), mean(abs(zs) > 1.96)))
+```
+
+The stress configuration is worth looking at directly, since it is the one the
+article quotes. A true $\alpha_1$ of 0.02 recovers to:
+
+```{r}
+#| label: stress-alpha
+st <- results$A_set3_stress$table
+knitr::kable(st[grepl("alpha", st$param), ], row.names = FALSE, digits = 4)
+```
+
+## 3. Repeated sampling: bias and standard-error calibration
+
+
+One dataset per cell shows recovery. Forty independent datasets per link show
+whether the estimator's *sampling* behavior matches the asymptotics: is it
+unbiased, and are the model-based standard errors the right size?
+
+```{r}
+#| label: replication
+R_REPS <- 40
+N_REP  <- 5000
+
+rep_pars <- list(
+  beta   = c(a2 = 0.8, a3 = -0.5, b2 = 0.4, b3 = 1.0, price = -0.9),
+  cutB   = c(-1.0, 0.2, 1.2, 2.2),
+  alphaA = c(0.10, 0.30, 0.60, 0.85)
+)
+
+run_model <- function(model) {
+  cut_true <- if (model == "A") alpha_to_cut(rep_pars$alphaA) else rep_pars$cutB
+  truth <- c(rep_pars$beta, cut_true)
+  est <- se <- matrix(NA_real_, R_REPS, length(truth))
+  conv <- integer(R_REPS)
+  for (r in seq_len(R_REPS)) {
+    design <- make_design(N_REP, J, seed = 10000 + r)
+    dat <- simulate_dual(design, rep_pars$beta, cut_true, model = model,
+                         seed = 20000 + r)
+    fit <- fit_dual_mle(dat)
+    est[r, ] <- c(fit$beta, fit$cut)
+    se[r, ]  <- c(fit$se_beta, fit$se_cut)
+    conv[r]  <- fit$convergence
+  }
+  bias   <- colMeans(est) - truth
+  emp_sd <- apply(est, 2, sd)
+  data.frame(
+    model = model,
+    param = c(names(rep_pars$beta), paste0("c", 1:(W - 1))),
+    truth = truth, mean_est = colMeans(est), bias = bias,
+    t_bias = bias / (emp_sd / sqrt(R_REPS)), emp_sd = emp_sd,
+    mean_se = colMeans(se), se_ratio = colMeans(se) / emp_sd,
+    n_nonconv = sum(conv != 0))
+}
+
+rep_res <- do.call(rbind, lapply(c("A", "B"), run_model))
+rownames(rep_res) <- NULL
+knitr::kable(rep_res, row.names = FALSE, digits = 4)
+```
+
+```{r}
+#| label: replication-summary
+cat(sprintf("max |t_bias| = %.2f over %d tests (5%% critical ~ 2.0; Bonferroni ~ 3.0)\n",
+            max(abs(rep_res$t_bias)), nrow(rep_res)))
+cat(sprintf("standard-error calibration: mean ratio = %.3f (1 = perfect)\n",
+            mean(rep_res$se_ratio)))
+```
+
+The calibration ratio compares the average model-based standard error to the
+empirical standard deviation of the estimates across the forty datasets. At one,
+the standard errors are telling the truth.
+
+## 4. Is the residual bias just $O(1/n)$?
+
+
+One parameter in the table above carries a $t$ statistic near the conventional
+threshold. Two explanations compete: ordinary finite-sample MLE bias, which
+shrinks like $1/n$, or something structural, which would not shrink. The test is
+to quadruple $n$ on fresh seeds and see whether the bias falls by about four.
+
+```{r}
+#| label: bias-scaling
+N_BIG <- 20000
+cut_A <- alpha_to_cut(rep_pars$alphaA)
+truth_A <- c(rep_pars$beta, cut_A)
+
+est_big <- matrix(NA_real_, R_REPS, length(truth_A))
+for (r in seq_len(R_REPS)) {
+  design <- make_design(N_BIG, J, seed = 30000 + r)
+  dat <- simulate_dual(design, rep_pars$beta, cut_A, model = "A", seed = 40000 + r)
+  fit <- fit_dual_mle(dat)
+  est_big[r, ] <- c(fit$beta, fit$cut)
+}
+
+bias_big   <- colMeans(est_big) - truth_A
+emp_sd_big <- apply(est_big, 2, sd)
+bias_res <- data.frame(
+  param = c(names(rep_pars$beta), paste0("c", 1:(W - 1))),
+  truth = truth_A, mean_est = colMeans(est_big), bias = bias_big,
+  t_bias = bias_big / (emp_sd_big / sqrt(R_REPS)), emp_sd = emp_sd_big)
+rownames(bias_res) <- NULL
+knitr::kable(bias_res, row.names = FALSE, digits = 4)
+```
+
+```{r}
+#| label: bias-scaling-verdict
+b2_small <- rep_res$bias[rep_res$model == "A" & rep_res$param == "b2"]
+b2_big   <- bias_res$bias[bias_res$param == "b2"]
+cat(sprintf("b2 bias at n = 5,000:  %+.4f\n", b2_small))
+cat(sprintf("b2 bias at n = 20,000: %+.4f\n", b2_big))
+cat(sprintf("ratio %.1fx (O(1/n) predicts ~4x); max |t_bias| now %.2f\n",
+            b2_small / b2_big, max(abs(bias_res$t_bias))))
+```
+
+The bias shrinks in proportion to $n$, which is what the finite-sample
+explanation predicts and what a structural problem would not do.
+
+## 5. Results written
+
+```{r}
+#| label: save
+PROJ <- if (file.exists("_quarto.yml")) "." else ".."
+OUT  <- file.path(PROJ, "R", "output")
+dir.create(OUT, showWarnings = FALSE, recursive = TRUE)
+
+saveRDS(list(recovery = results,
+             settings = list(N_TASKS = N_TASKS, J = J, W = W,
+                             param_sets = param_sets)),
+        file.path(OUT, "aggregate_recovery.rds"))
+saveRDS(rep_res,  file.path(OUT, "replication_study.rds"))
+saveRDS(bias_res, file.path(OUT, "bias_scaling_check.rds"))
+
+cat("wrote aggregate_recovery.rds, replication_study.rds, bias_scaling_check.rds\n")
+```
+
+## 6. Related material
+
+| where | what |
+|---|---|
+| notebook 01 | the same model worked end to end on one configuration, with the simplest code that works |
+| notebook 03 | the hierarchical estimator: recovery, posterior calibration, and two cross-checks |
+| `R/lib/likelihood.R` | the production likelihood and MLE fitter this copies |

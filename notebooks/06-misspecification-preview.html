@@ -174,9 +174,9 @@
     <div id="quarto-embed-header" class="headroom fixed-top bg-primary">
       
       <a onclick="window.quartoBackToArticle(); return false;" class="btn btn-primary quarto-back-link" href=""><i class="bi bi-caret-left"></i> Back to Article</a>
-      <h6><i class="bi bi-journal-code"></i> 05. Misspecification Robustness</h6>
+      <h6><i class="bi bi-journal-code"></i> 06. Misspecification Robustness</h6>
 
-            <a href="../notebooks/05-misspecification.qmd" class="btn btn-primary quarto-download-embed" download="05-misspecification.qmd">Download Source</a>
+            <a href="../notebooks/06-misspecification.qmd" class="btn btn-primary quarto-download-embed" download="06-misspecification.qmd">Download Source</a>
           </div>
 
      <header id="title-block-header" class="quarto-title-block default toc-left page-columns page-full">
@@ -241,7 +241,15 @@
 </div>
 <main class="content quarto-banner-title-block" id="quarto-document-content" tabindex="-1">      
 
-       <section id="what-this-notebook-does" class="level2">
+       <p><span class="math display">\[
+  \newcommand{\x}{\mathbf{x}}
+  \newcommand{\bfbeta}{\boldsymbol{\beta}}
+  \newcommand{\betabar}{\bar{\bfbeta}}
+  \newcommand{\bftheta}{\boldsymbol{\theta}}
+  \newcommand{\iid}{\stackrel{iid}{\sim}}
+  \newcommand{\coloneqq}{\mathrel{:=}}
+\]</span></p>
+<section id="what-this-notebook-does" class="level2">
 <h2 class="anchored" data-anchor-id="what-this-notebook-does">What this notebook does</h2>
 <p>Every result so far assumes the model is true. This notebook breaks that assumption five times, in the five ways a sceptical reader would break it, and measures the damage. In each case the data are generated from something the model does not describe, and then fit with the model anyway.</p>
 <table class="caption-top table">
@@ -672,7 +680,7 @@
 <pre><code>WAIC selects the true link in 100% of replications</code></pre>
 </div>
 </div></div>
-<p>Link misspecification is a second-order concern <em>for demand</em>. The two links agree closely over the range of inclusive values this design produces, and diverge only in the tails, which is where extrapolation lives. Notebook 06 shows that the ability to tell the links apart is governed by how much the design varies task attractiveness, not by sample size.</p>
+<p>Link misspecification is a second-order concern <em>for demand</em>. The two links agree closely over the range of inclusive values this design produces, and diverge only in the tails, which is where extrapolation lives. Notebook 07 shows that the ability to tell the links apart is governed by how much the design varies task attractiveness, not by sample size.</p>
 </section>
 <section id="ignored-scale-usage-heterogeneity" class="level2">
 <h2 class="anchored" data-anchor-id="ignored-scale-usage-heterogeneity">3. Ignored scale-usage heterogeneity</h2>
@@ -1038,11 +1046,11 @@
 </thead>
 <tbody>
 <tr class="odd">
-<td>notebook 04</td>
+<td>notebook 05</td>
 <td>the tests that catch two of these before they do damage</td>
 </tr>
 <tr class="even">
-<td>notebook 06</td>
+<td>notebook 07</td>
 <td>why link discrimination depends on design, not sample size</td>
 </tr>
 <tr class="odd">

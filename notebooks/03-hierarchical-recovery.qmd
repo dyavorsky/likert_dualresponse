@@ -15,9 +15,11 @@ execute:
   message: false
 ---
 
+{{< include ../latex_commands.qmd >}}
+
 ## What this notebook does
 
-Notebook 01 established that the aggregate estimator works. This one does the
+Notebook 02 established that the aggregate estimator works. This one does the
 same for the hierarchical Bayesian estimator, which is the one a practitioner
 actually runs, and which has more ways to go quietly wrong.
 
@@ -69,7 +71,7 @@ $$
 Conditional on $\bfbeta_i$, each of her $T$ tasks generates the same two
 responses as before: a forced choice among $J$ profiles, and an ordinal purchase
 report read off the task's inclusive value. The cut points are common across
-respondents here; the heterogeneous-cut extension is exercised in notebook 05.
+respondents here; the heterogeneous-cut extension is exercised in notebook 06.
 
 The sampler is random-walk Metropolis within Gibbs, three blocks per iteration:
 
@@ -735,7 +737,7 @@ cat("wrote hb_coverage.rds and hb_validation.rds\n")
 
 | where | what |
 |---|---|
-| notebook 01 | the aggregate estimator, identification, and the factorization check |
-| notebook 03 | what dichotomizing the scale costs, at the individual level |
-| notebook 05 | five misspecifications, including heterogeneous cut points |
+| notebook 02 | the aggregate estimator, identification, and the factorization check |
+| notebook 04 | what dichotomizing the scale costs, at the individual level |
+| notebook 06 | five misspecifications, including heterogeneous cut points |
 | `R/hierarchical/hb.R` | the production sampler this notebook copies |

@@ -15,6 +15,8 @@ execute:
   message: false
 ---
 
+{{< include ../latex_commands.qmd >}}
+
 ## What this notebook does
 
 Every comparison so far has been statistical: variance ratios, RMSE, coverage.
@@ -398,7 +400,7 @@ knitr::kable(tab, row.names = FALSE)
 Three readings.
 
 **The full ordinal model prices the market almost exactly.** No surprise given
-notebook 03, but it is the benchmark the others are measured against.
+notebook 04, but it is the benchmark the others are measured against.
 
 **The well-placed binary dual response also prices well.** This is worth saying
 plainly because it cuts against the paper's thesis if read carelessly: when the
@@ -465,6 +467,6 @@ cat("wrote counterfactual.rds and figs/counterfactual_demand.png\n")
 
 | where | what |
 |---|---|
-| notebook 03 | the statistical version of this comparison |
-| notebook 06 | why the cut has to be chosen before fielding |
-| notebook 05 | robustness of the demand quantities used here |
+| notebook 04 | the statistical version of this comparison |
+| notebook 07 | why the cut has to be chosen before fielding |
+| notebook 06 | robustness of the demand quantities used here |

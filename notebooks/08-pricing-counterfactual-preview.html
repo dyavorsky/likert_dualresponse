@@ -177,9 +177,9 @@
     <div id="quarto-embed-header" class="headroom fixed-top bg-primary">
       
       <a onclick="window.quartoBackToArticle(); return false;" class="btn btn-primary quarto-back-link" href=""><i class="bi bi-caret-left"></i> Back to Article</a>
-      <h6><i class="bi bi-journal-code"></i> 07. Economic Stakes</h6>
+      <h6><i class="bi bi-journal-code"></i> 08. Economic Stakes</h6>
 
-            <a href="../notebooks/07-pricing-counterfactual.qmd" class="btn btn-primary quarto-download-embed" download="07-pricing-counterfactual.qmd">Download Source</a>
+            <a href="../notebooks/08-pricing-counterfactual.qmd" class="btn btn-primary quarto-download-embed" download="08-pricing-counterfactual.qmd">Download Source</a>
           </div>
 
      <header id="title-block-header" class="quarto-title-block default toc-left page-columns page-full">
@@ -243,7 +243,15 @@
 </div>
 <main class="content quarto-banner-title-block" id="quarto-document-content" tabindex="-1">      
 
-       <section id="what-this-notebook-does" class="level2">
+       <p><span class="math display">\[
+  \newcommand{\x}{\mathbf{x}}
+  \newcommand{\bfbeta}{\boldsymbol{\beta}}
+  \newcommand{\betabar}{\bar{\bfbeta}}
+  \newcommand{\bftheta}{\boldsymbol{\theta}}
+  \newcommand{\iid}{\stackrel{iid}{\sim}}
+  \newcommand{\coloneqq}{\mathrel{:=}}
+\]</span></p>
+<section id="what-this-notebook-does" class="level2">
 <h2 class="anchored" data-anchor-id="what-this-notebook-does">What this notebook does</h2>
 <p>Every comparison so far has been statistical: variance ratios, RMSE, coverage. Those are the right units for a methods argument and the wrong units for a decision. This notebook converts them.</p>
 <p>A synthetic market of five brands is simulated from the heterogeneous ordinal model. Four estimators are fit to the same data. Each estimator’s demand system is then pushed through the decision it exists to inform, a Nash pricing equilibrium, and we ask three questions of each:</p>
@@ -754,7 +762,7 @@ d_b(p) \;=\; \frac{1}{N}\sum_i \text{MNL}_{ib}(p) \times \Pr\!\left( y \ge 4 \mi
 </div>
 </div></div>
 <p>Three readings.</p>
-<p><strong>The full ordinal model prices the market almost exactly.</strong> No surprise given notebook 03, but it is the benchmark the others are measured against.</p>
+<p><strong>The full ordinal model prices the market almost exactly.</strong> No surprise given notebook 04, but it is the benchmark the others are measured against.</p>
 <p><strong>The well-placed binary dual response also prices well.</strong> This is worth saying plainly because it cuts against the paper’s thesis if read carelessly: when the analyst happens to dichotomize at the threshold the decision actually depends on, the binary model is nearly as good. The catch is in the next row.</p>
 <p><strong>A badly placed cut misprices, and cannot be rescued.</strong> <code>bin_top</code> models the top-box event, so <span class="math inline">\(c_3\)</span> is simply not identified from its data. Its error mixes estimation noise with a convention mismatch, which is precisely the cost of dichotomizing at the wrong cut. And the analyst must choose the cut <em>before</em> seeing the data.</p>
 <p><strong>The constant-probability heuristic fails structurally.</strong> Its purchase incidence cannot respond to price at all, so the extensive margin is flat by construction. Both calibrations fail the same way, which is the point: no choice of constant fixes a model in which the constant is the problem. Its equilibrium is the inside-good-only equilibrium, because a constant cancels from every best-response first-order condition. No amount of data repairs this.</p>
@@ -778,7 +786,7 @@ d_b(p) \;=\; \frac{1}{N}\sum_i \text{MNL}_{ib}(p) \times \Pr\!\left( y \ge 4 \mi
 <div id="fig-demand" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-demand-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca" class="">
-<a href="07-pricing-counterfactual_files/figure-html/fig-demand-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-1" title="Demand for brand 1 as its price varies, other brands held at the true equilibrium."><img src="07-pricing-counterfactual_files/figure-html/fig-demand-1.png" class="img-fluid figure-img" width="672"></a>
+<a href="08-pricing-counterfactual_files/figure-html/fig-demand-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-1" title="Demand for brand 1 as its price varies, other brands held at the true equilibrium."><img src="08-pricing-counterfactual_files/figure-html/fig-demand-1.png" class="img-fluid figure-img" width="672"></a>
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-demand-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Demand for brand 1 as its price varies, other brands held at the true equilibrium.
@@ -819,15 +827,15 @@ Demand for brand 1 as its price varies, other brands held at the true equilibriu
 </thead>
 <tbody>
 <tr class="odd">
-<td>notebook 03</td>
+<td>notebook 04</td>
 <td>the statistical version of this comparison</td>
 </tr>
 <tr class="even">
-<td>notebook 06</td>
+<td>notebook 07</td>
 <td>why the cut has to be chosen before fielding</td>
 </tr>
 <tr class="odd">
-<td>notebook 05</td>
+<td>notebook 06</td>
 <td>robustness of the demand quantities used here</td>
 </tr>
 </tbody>

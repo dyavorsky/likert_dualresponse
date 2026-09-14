@@ -178,9 +178,9 @@
 \newcommand*\listoflistings{\listof{codelisting}{List of Listings}}
 \usepackage{amsthm}
 \theoremstyle{plain}
-\newtheorem{lemma}{Lemma}[section]
-\theoremstyle{plain}
 \newtheorem{proposition}{Proposition}[section]
+\theoremstyle{plain}
+\newtheorem{lemma}{Lemma}[section]
 \theoremstyle{remark}
 \AtBeginDocument{\renewcommand*{\proofname}{Proof}}
 \newtheorem*{remark}{Remark}
@@ -321,9 +321,9 @@ implies the link. The two variants carry the same number of parameters,
 so we can estimate both and let the data indicate which model better
 describes respondent behavior. We report both models throughout, since
 the two links give nearly identical predictions except when the
-displayed alternatives are unusually attractive or unusually
-unattractive. The pricing counterfactuals in Section~\ref{sec-simstudy}
-emphasize those cases.
+displayed alternatives are unusually attractive or unattractive. The
+pricing counterfactuals in Section~\ref{sec-simstudy} emphasize those
+cases.
 
 We show that, with a two-point scale, Model B is the ``Unified Model''
 of Hung, Liu, et al. (2025), equivalently the DR-AnyMax model of Diener
@@ -344,7 +344,8 @@ box or top two boxes count as ``buy'') or by assigning each scale point
 a fixed purchase probability. The first discards the information the
 finer scale was meant to capture, and the second ignores that the
 meaning of ``somewhat likely'' depends on how attractive the displayed
-alternatives were.
+alternatives were. We demonstrate that each is suboptimal and quantify
+the associated costs.
 
 We make four contributions. First, we develop the behavioral model: a
 utility-theoretic account of dual-response conjoint in which
@@ -361,12 +362,19 @@ aggregate model and a custom Markov chain Monte Carlo sampler for the
 hierarchical Bayesian model with heterogeneous preferences, including an
 extension with respondent-specific cut points that accommodates
 individual differences in scale usage (Greene and Hensher 2010; Falco et
-al. 2015). We provide complete replication code in R. Fourth, we supply
-evidence: a simulation study demonstrating parameter recovery and
-quantifying the losses from dichotomization and constant-probability
-weighting, and an empirical application to a commercial choice-based
-conjoint study with an ordinal dual response conducted in partnership
-with a consumer insights consultancy.
+al. 2015). We also express the model in Apollo (Hess and Palma 2019), a
+choice-modeling toolkit, both as an independent check on our own
+implementation and as a route for readers already working in that
+framework. Model B assembles from standard Apollo components, while
+Model A requires a user-defined component for the complementary log-log
+link. Fourth, we supply evidence, including simulation studies that
+demonstrate parameter recovery and quantify the losses from
+dichotomization and constant-probability weighting, as well as an
+empirical application to a commercial choice-based conjoint study with
+an ordinal dual response, conducted in partnership with a consumer
+insights consultancy. Complete replication code accompanies the paper,
+with each study in the simulation program laid out as an executable
+notebook.
 
 Several literatures stand behind the model. Marketing work on
 dual-response and no-choice designs established why asking two questions
@@ -1222,8 +1230,8 @@ heterogeneity, and the same attribute scheme.
 
 \subsection{Parameter Recovery and Identification}\label{sec-sim-agg}
 
-\textbf{Aggregate.} \href{notebooks/01-aggregate-recovery.qmd}{Notebook
-1} runs three parameter configurations per link at 20,000 tasks each. In
+\textbf{Aggregate.} \href{notebooks/02-aggregate-recovery.qmd}{Notebook
+2} runs three parameter configurations per link at 20,000 tasks each. In
 every case the true parameter vector lies inside the 95\%
 likelihood-ratio confidence region, the observed information is strongly
 positive definite, and the probability-scale cut points of Model A
@@ -1251,7 +1259,7 @@ product form of Equation~\ref{eq-joint} for both links, confirming the
 factorization that makes the likelihood tractable.
 
 \textbf{Hierarchical.}
-\href{notebooks/02-hierarchical-recovery.qmd}{Notebook 2} establishes
+\href{notebooks/03-hierarchical-recovery.qmd}{Notebook 3} establishes
 that the sampler of Section~\ref{sec-estimation} recovers population
 means, covariances, and cut points on synthetic panels for both links,
 and that its posterior uncertainty is calibrated: across 20 replications
@@ -1269,7 +1277,7 @@ parameter.
 Collapsing the \(W\)-point response at a cut point yields a correctly
 specified binary dual-response model, so dichotomization costs
 efficiency and never consistency;
-\href{notebooks/03-dichotomization-cost.qmd}{notebook 3} confirms this
+\href{notebooks/04-dichotomization-cost.qmd}{notebook 4} confirms this
 with bias tests in every cell. The comparison is therefore about
 precision, and it is computed two ways: exactly, from the Fisher
 information, and by paired Monte Carlo, fitting the ordinal model and
@@ -1300,7 +1308,7 @@ that the individual-level results overturn.
 full 5-point model (extra sample required for equal precision), and the
 share of the second response's information each coarsening retains.
 Top-2-box=the literature's default dichotomization. Full study in
-notebook 3.}
+notebook 4.}
 
 \tabularnewline
 
@@ -1347,7 +1355,7 @@ exists to measure.
 \subsection{Specification Tests: Size and
 Power}\label{sec-sim-spectests}
 
-\href{notebooks/04-specification-tests.qmd}{Notebook 4} turns the two
+\href{notebooks/05-specification-tests.qmd}{Notebook 5} turns the two
 behavioral claims of Section~\ref{sec-spectests} into one-parameter
 extensions of the likelihood and establishes their operating
 characteristics over 300 (size) and 150 (power) replications per cell.
@@ -1375,7 +1383,7 @@ intended to test the unit-slope claim.
 specification tests. Under the null (top rows), the lambda and delta
 tests hold size while `delta=1' shows power against DR-2Max; under the
 alternatives (bottom rows), the targeted test rejects while the others
-stay quiet. Full study in notebook 4.}
+stay quiet. Full study in notebook 5.}
 
 \tabularnewline
 
@@ -1412,7 +1420,7 @@ Notebook}}
 
 \subsection{Misspecification Robustness}\label{sec-sim-robust}
 
-\href{notebooks/05-misspecification.qmd}{Notebook 5} breaks the model
+\href{notebooks/06-misspecification.qmd}{Notebook 6} breaks the model
 five ways, each time generating data from something the model does not
 describe and fitting the model anyway on hierarchical panels.
 
@@ -1474,7 +1482,7 @@ quantitative meaning, is the fragile part.
 
 \subsection{Designing the Scale}\label{sec-sim-design}
 
-\href{notebooks/06-scale-design.qmd}{Notebook 6} turns the information
+\href{notebooks/07-scale-design.qmd}{Notebook 7} turns the information
 results of Section~\ref{sec-information} into design guidance
 (Figure~\ref{fig-infoW}). With cut points at equal expected shares, a
 binary follow-up captures 71\% (logistic link) or 46\% (Gumbel link) of
@@ -1517,7 +1525,7 @@ tasks; studies that only need demand can ignore the distinction.
 \caption{\label{fig-infoW}Share of the continuous-report information
 captured by a W-point second response (cut points at equal expected
 shares). The binary response is the least informative member of the
-family; most of the gap closes by five points. From notebook 6.}
+family; most of the gap closes by five points. From notebook 7.}
 
 \end{figure}%
 
@@ -1528,7 +1536,7 @@ Notebook}}
 \subsection{Economic Stakes: A Pricing
 Counterfactual}\label{sec-sim-counterfactual}
 
-Finally, \href{notebooks/07-pricing-counterfactual.qmd}{notebook 7}
+Finally, \href{notebooks/08-pricing-counterfactual.qmd}{notebook 8}
 pushes each estimator through the decision it exists to inform. A
 synthetic market of five brands with a quality attribute, wide price
 variation, and heterogeneous preferences calibrated to own-price
@@ -1551,7 +1559,7 @@ draws rather than posterior means, which would flatten heterogeneity.
 estimator: mean and max absolute equilibrium-price error versus the true
 equilibrium; error in the system's own profit forecast at its
 equilibrium; and realized profit forgone relative to pricing at the true
-equilibrium. Full study in notebook 7.}
+equilibrium. Full study in notebook 8.}
 
 \tabularnewline
 
@@ -1992,7 +2000,7 @@ rather than closes the gap:
 \begin{longtable}[]{@{}lrr@{}}
 
 \caption{\label{tbl-lmd-check}Aggregate-model log marginal density by
-estimator (simulated data, n = 3,600 tasks; from notebook 2).}
+estimator (simulated data, n = 3,600 tasks; from notebook 03).}
 
 \tabularnewline
 

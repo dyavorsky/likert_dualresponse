@@ -15,6 +15,8 @@ execute:
   message: false
 ---
 
+{{< include ../latex_commands.qmd >}}
+
 ## What this notebook does
 
 Every result so far assumes the model is true. This notebook breaks that
@@ -385,7 +387,7 @@ cat(sprintf("WAIC selects the true link in %.0f%% of replications\n",
 
 Link misspecification is a second-order concern *for demand*. The two links
 agree closely over the range of inclusive values this design produces, and
-diverge only in the tails, which is where extrapolation lives. Notebook 06 shows
+diverge only in the tails, which is where extrapolation lives. Notebook 07 shows
 that the ability to tell the links apart is governed by how much the design
 varies task attractiveness, not by sample size.
 
@@ -606,6 +608,6 @@ cat("wrote five hb_simstudy_*.rds files\n")
 
 | where | what |
 |---|---|
-| notebook 04 | the tests that catch two of these before they do damage |
-| notebook 06 | why link discrimination depends on design, not sample size |
+| notebook 05 | the tests that catch two of these before they do damage |
+| notebook 07 | why link discrimination depends on design, not sample size |
 | Appendix D | the GEV result behind the correlated-alternatives cell |
