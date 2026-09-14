@@ -1,0 +1,30 @@
+## Empirical Application {#sec-analysis}
+
+We illustrate the model with data from a commercial choice-based conjoint study conducted in partnership with a consumer insights consultancy, in which each choice task was followed by an ordinal purchase-likelihood question.
+
+<!-- TODO [DATA — Dan to locate]: this section is fully structured but awaits the GBK study data. Fill in: product category, sample size and recruitment/screening, number of tasks and alternatives per task, attribute list and levels, the exact wording and number of points (W) of the purchase-likelihood question, and fielding dates. -->
+
+### Data {#sec-data}
+
+<!-- TODO: describe the study. Include (1) a table of attributes and levels; (2) descriptive statistics: distribution of the ordinal responses overall and by task order (any drift across tasks connects to @Hung_2025_nochoice); (3) model-free evidence that the ordinal response co-moves with task attractiveness — e.g., mean response plotted against the estimated inclusive value or against simple proxies like number of low-priced options — which is the reduced-form signature of @eq-cumlink and motivates the structural model. -->
+
+### Model Specifications and Estimation {#sec-empirical-spec}
+
+We estimate six specifications on the same data: Model A and Model B (@sec-model), each in aggregate and hierarchical form; the binary dual-response benchmark applied to the dichotomized scale (top-two-box); and the constant-probability heuristic. Hierarchical specifications use the sampler of @sec-estimation.
+
+**Pre-specified test battery.** Before any model comparison, we commit to the three specification tests of @sec-spectests on the aggregate fit: the unit-slope test ($\lambda = 1$), the conditioning test ($\delta = 0$), and the DR-2Max test ($\delta = 1$) — whose operating characteristics are established in @sec-sim-spectests — together with the A-versus-B link comparison by holdout likelihood and WAIC. We also pre-commit to re-running the pricing counterfactual of @sec-sim-counterfactual on the empirical posteriors, replacing the synthetic market with the study's own category structure.
+
+<!-- TODO: report MCMC settings (iterations, burn-in, thinning), convergence diagnostics (appendix), and holdout design (withheld tasks per respondent). -->
+
+### Results {#sec-empirical-results}
+
+<!-- TODO: results, mirroring the simulation-study structure so the reader can map findings across sections:
+(1) Model comparison: LMD for all specifications — headline question: which link (A vs. B) fits real respondents better, and how much does the ordinal model improve on the dichotomized binary model?
+(2) Parameter estimates: part-worths across specifications (expect: attribute part-worths broadly stable, in line with Brazell_2006 and Hung_2025_dual; differences concentrated in the outside-good/cut-point structure); estimated cut points with interpretation — what purchase probability does each scale label correspond to (Model A's alphas are directly interpretable here and are a selling point of the framework).
+(3) Predictive validity: holdout hit rates and predicted vs. actual ordinal response distributions.
+(4) Managerial quantities: purchase-incidence/share predictions across methods — show how much the dichotomization choice (top-box vs. top-two-box) moves the answer vs. the model-based estimate.
+(5) If task-order drift appears in the descriptives, a robustness fit with task-number effects, connecting to Hung_2025_nochoice. -->
+
+### Scale-Usage Heterogeneity {#sec-empirical-hetcut}
+
+<!-- TODO: estimate the heterogeneous-cut-point extension (@sec-hetcut) on the empirical data; report the estimated dispersion of theta_i (how differently do real respondents use the scale?), the correlation between scale usage and preferences, and the effect on managerial quantities of accounting for it. -->

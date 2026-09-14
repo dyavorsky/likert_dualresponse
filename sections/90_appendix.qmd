@@ -1,0 +1,171 @@
+## Appendix A: Proofs {#sec-appendix-proofs .unnumbered}
+
+### A.1 Proof of @lem-gumbel {.unnumbered}
+
+Let $u_j = V_j + \eta_j$ with $\eta_j \iid \text{Gumbel}(0,1)$ for $j \in \mathcal{J}^+$, so $u_j$ has CDF $F_j(t) = \exp\left( -e^{-(t - V_j)} \right)$ and density $f_j(t) = e^{-(t-V_j)} \exp\left( -e^{-(t-V_j)} \right)$. For any $j$ and any $u$,
+$$
+\Pr \left( j^* = j, \; u^* \le u \right)
+= \int_{-\infty}^{u} f_j(t) \prod_{k \ne j} F_k(t) \, dt
+= \int_{-\infty}^{u} e^{V_j} e^{-t} \exp \left( -e^{-t} S \right) dt,
+$$
+using $\prod_{k \ne j} F_k(t) = \exp\left( -e^{-t} \left( S - e^{V_j} \right) \right)$ with $S = \sum_{k} e^{V_k}$, and collecting terms. Substituting $s = e^{-t} S$ (so $ds = -e^{-t} S \, dt$) gives
+$$
+\Pr \left( j^* = j, \; u^* \le u \right)
+= \frac{e^{V_j}}{S} \int_{e^{-u} S}^{\infty} e^{-s} \, ds
+= \underbrace{\frac{e^{V_j}}{S}}_{\Pr\left(j^*=j\right)} \; \times \; \underbrace{\exp \left( -S e^{-u} \right)}_{F_{\text{Gumbel}\left(\overline{\mu},1\right)}(u)}.
+$$
+Letting $u \to \infty$ delivers the MNL choice probability; summing over $j$ delivers $u^* \sim \text{Gumbel}(\overline{\mu}, 1)$ with $\overline{\mu} = \ln S$; and the factorization of the joint law for every $(j, u)$ is precisely the independence of $j^*$ and $u^*$. $\square$
+
+The calculation above is short but gives little sense of why the two quantities separate. The following change of variable makes it transparent, and it is the same argument that generalizes to correlated alternatives in Appendix D.
+
+Write $y_j = e^{V_j}$ and set $T_j = e^{-u_j}$. The map is decreasing, so it exchanges maxima for minima: the best good is the one with the smallest $T_j$, and $u^* = -\ln \min_j T_j$. Under the Gumbel assumption,
+$$
+\Pr \left( T_j > t \right) = \Pr \left( u_j < -\ln t \right) = e^{-y_j t},
+$$
+so each good becomes an independent waiting time that arrives at the constant rate $y_j$, and the consumer's chosen good is whichever arrives first.
+
+For independent waiting times of this kind, the identity of the first arrival and the time of that arrival are independent, and the reason is that the rates do not change as time passes. At any instant, given that nothing has yet arrived, the chance that the next arrival is good $j$ is $y_j / S$, the same at the start as at any later point. Which good arrives first is therefore settled entirely by the rates relative to one another, while how long the wait lasts is settled entirely by their sum $S$. Waiting longer says nothing about who will win. Transforming back, the shares $y_j / S$ are the multinomial logit probabilities and the total $S$ fixes the location of $u^*$, which is the content of @lem-gumbel. This is the division of labor between the two responses. The rates relative to one another are the utility differences that the forced choice reveals, and their sum is the inclusive value that the ordinal report reads, so the two responses read separate features of the same draw.
+
+The same statement in utility terms is that the relative odds of being the maximizer are the same at every level of the maximum, because Gumbel upper tails decay exponentially and are therefore shift-invariant: $\Pr(u_1 > m) / \Pr(u_2 > m) = e^{V_1 - V_2}$ for every $m$.
+
+This is a property of the extreme-value family and not of random utility models in general. Under normal shocks with $V_1 > V_2$, the ratio of upper tails diverges as $m$ grows, so a high realized maximum is disproportionately likely to have come from the better alternative. The level of the maximum then carries information about which alternative attained it, the joint law of $\left( j^*, u^* \right)$ does not factor, and the counterpart of @eq-joint is unavailable. What Appendix D shows is that the factorization survives correlation among the inside goods, because the waiting times may be dependent and still arrive at rates whose ratios are constant over time; what fails outside the extreme-value family is the constancy of those ratios.
+
+### A.2 Derivation of the information increment (@eq-fisher) {.unnumbered}
+
+The second response contributes the multinomial log-likelihood $\ell = \sum_w \mathbb{1}\lbrace y = w \rbrace \ln \pi_w$ with $\pi_w = G(c_w - \overline{\mu}) - G(c_{w-1} - \overline{\mu})$. Since $\partial \overline{\mu} / \partial \bfbeta = \sum_j \Pr(j^* = j) \, \x_j = \overline{\x}$, the score with respect to $\bfbeta$ in category $w$ is $- \left[ g_w - g_{w-1} \right] / \pi_w \cdot \overline{\x}$, writing $g_w = g \left( c_w - \overline{\mu} \right)$ and $g = G'$ (with $g_0 = g_W = 0$). The information is the expected outer product of the score:
+$$
+\mathcal{I}^{(2)} = \sum_{w=1}^{W} \pi_w \left( \frac{g_w - g_{w-1}}{\pi_w} \right)^2 \overline{\x} \, \overline{\x}'
+= \left[ \sum_{w=1}^{W} \frac{ \left( g_w - g_{w-1} \right)^2 }{ \pi_w } \right] \overline{\x} \, \overline{\x}'
+= \omega \left( \overline{\mu}; \mathbf{c} \right) \overline{\x} \, \overline{\x}'. \qquad \square
+$$
+The joint information over $\left( \bfbeta, \mathbf{c} \right)$, including the cut-point blocks used by the estimation code, follows from the same score with $\partial \pi_w / \partial c_m = g_w \mathbb{1}\lbrace m = w \rbrace - g_{w-1} \mathbb{1}\lbrace m = w-1 \rbrace$.
+
+### A.3 Monotonicity of $\omega$ under refinement {.unnumbered}
+
+Let $\mathcal{C}'$ be a coarsening of the partition $\mathcal{C}$ obtained by merging adjacent categories $w$ and $w+1$. The merged cell contributes $\left( g_{w+1} - g_{w-1} \right)^2 / \left( \pi_w + \pi_{w+1} \right)$ to $\omega'$, while the two original cells contribute $\left( g_w - g_{w-1} \right)^2 / \pi_w + \left( g_{w+1} - g_w \right)^2 / \pi_{w+1}$ to $\omega$. Writing $a = g_w - g_{w-1}$, $b = g_{w+1} - g_w$, $u = \pi_w$, $v = \pi_{w+1}$, the Cauchy–Schwarz inequality in Engel form gives
+$$
+\frac{(a + b)^2}{u + v} \;\le\; \frac{a^2}{u} + \frac{b^2}{v},
+$$
+so each merge weakly decreases $\omega$, and any coarsening — being a finite sequence of adjacent merges — does the same. The binary response is the coarsest member of the family and hence the least informative; conversely, as the mesh of the partition goes to zero the interval score converges to the exact-observation score and $\omega \to \int \left( g' \right)^2 / g \, dz$, the Fisher information of the latent's location (equal to $1$ for the standard Gumbel and $1/3$ for the standard logistic). $\square$
+
+## Appendix B: Estimation Details {#sec-appendix-estimation .unnumbered}
+
+**Aggregate model.** The likelihood is maximized over the working parameters $\left( \bfbeta, c_1, \ln(c_2 - c_1), \ldots, \ln(c_{W-1} - c_{W-2}) \right)$, which enforce cut-point monotonicity without constraints; standard errors for the cut points follow by the delta method. Interval probabilities are computed with tail-stable expressions ($\Lambda(h)\Lambda(-l)(1 - e^{l-h})$ for the logistic link and $e^{-e^{-h}}\left(1 - e^{-(e^{-l} - e^{-h})}\right)$ for the Gumbel link) so that extreme cut points do not lose precision to cancellation.
+
+**Hierarchical model.** The sampler is a random-walk Metropolis-within-Gibbs in the style of @Rossi_2005 with three blocks per iteration: (1) all respondents' $\bfbeta_i$ (and, in the heterogeneous-cut-point extension, $\bftheta_i$) are updated simultaneously by independent normal random-walk proposals with covariance $s_i^2 \Sigma$; (2) the common cut-point block is updated by a random-walk proposal on the unconstrained scale; (3) the population moments $\left( \betabar, \Sigma \right)$ are drawn from their conjugate normal and inverse-Wishart conditionals. Priors: $\betabar \sim \mathcal{N}\left( \mathbf{0}, 100 I \right)$, $\Sigma \sim \text{IW}\left( \dim + 3, (\dim + 3) I \right)$, and $\mathcal{N}(0, 100 I)$ on the transformed cut points. Step sizes are initialized at $2.93/\sqrt{\dim}$ and adapted only during burn-in toward acceptance rates of $0.23$ (individual blocks) and $0.30$ (cut-point block). Unless noted, we run 30,000 iterations, discard 10,000, and keep every 10th draw.
+
+The sampler was validated four ways (replication code accompanies the paper): parameter recovery on synthetic panels for both links; repeated-sampling coverage of 50% and 90% posterior intervals at nominal rates; agreement of the forced-choice-only special case with an independent hierarchical-MNL implementation (posterior means matching to less than 0.01 on all hyperparameters on common data); and convergence of the posterior toward the aggregate MLE when the data are generated without heterogeneity.
+
+## Appendix C: Marginal-Likelihood Estimation {#sec-appendix-lmd .unnumbered}
+
+Model comparisons in the paper report the log marginal density (LMD). For hierarchical models we follow the standard practice in this literature [@Hung_2025_dual] and use the harmonic-mean estimator of @Newton_1994, complemented by two quantities that do not rely on it: the WAIC computed from pointwise per-respondent likelihoods [@Watanabe_2010; @Vehtari_2017] and the log posterior-predictive density of held-out tasks. The reason for the complements is that the harmonic-mean estimator is optimistic. In the aggregate model — where the parameter space is small enough for exact methods — we can quantify this directly: bridge sampling [@Meng_1996; @Gronau_2020] and a Laplace approximation agree with each other to well under one log point, while the Newton–Raftery estimate exceeds them by dozens of log points, and trimming the smallest-likelihood draws widens rather than closes the gap:
+
+```{r}
+#| label: tbl-lmd-check
+#| tbl-cap: "Aggregate-model log marginal density by estimator (simulated data, n = 3,600 tasks; from notebook 2)."
+#| echo: false
+hv <- readRDS(file.path("R", "output", "hb_validation.rds"))
+knitr::kable(transform(hv$lmd_check, lmd = round(lmd, 2)), row.names = FALSE,
+             col.names = c("estimator", "log marginal density", "vs. bridge"))
+```
+
+Because the bias is similar for models of similar dimension, Newton–Raftery *rankings* between the ordinal and binary dual-response models are typically preserved — but we treat the WAIC and holdout comparisons as primary whenever the two disagree.
+
+## Appendix D: Correlated Alternatives {#sec-appendix-gev .unnumbered}
+
+@lem-gumbel is stated for independent Gumbel shocks, and the whole of @sec-model rests on it. This appendix shows that both of its properties hold for the entire generalized extreme value (GEV) family of @Mcfadden_1981, so that correlation among the inside goods costs the framework nothing beyond a redefinition of the inclusive value.
+
+Let the inside-good shocks have the GEV joint distribution
+$$
+\Pr \left( \eta_1 \le e_1, \ldots, \eta_J \le e_J \right)
+= \exp \left( - G \left( e^{-e_1}, \ldots, e^{-e_J} \right) \right),
+$$ {#eq-gevcdf}
+where the generator $G : \mathbb{R}^J_{+} \to \mathbb{R}_{+}$ is homogeneous of degree one, tends to infinity in each argument, and has mixed partial derivatives that alternate in sign. Independent Gumbel shocks are the special case $G(y) = \sum_j y_j$. Write $y_j = \exp(V_j)$, $G_j = \partial G / \partial y_j$, and
+$$
+S^{G} \coloneqq G \left( y_1, \ldots, y_J \right),
+\qquad
+\overline{\mu} \coloneqq \ln S^{G}.
+$$ {#eq-gevmu}
+
+::: {#lem-gev}
+Under @eq-gevcdf, with $u_j = V_j + \eta_j$ and $u^* = \max_{j} u_j$:
+
+(i) $u^* \sim \text{Gumbel} \left( \overline{\mu}, 1 \right)$ with $\overline{\mu} = \ln S^{G}$;
+
+(ii) $j^*$ and $u^*$ are statistically independent, with $\Pr(j^* = j) = y_j G_j(y) / S^{G}$.
+:::
+
+::: {.proof}
+The joint CDF of the utilities is
+$$
+H \left( m_1, \ldots, m_J \right)
+= \exp \left( - G \left( y_1 e^{-m_1}, \ldots, y_J e^{-m_J} \right) \right).
+$$
+For (i), set every $m_j = m$ and use homogeneity of degree one: $G(y e^{-m}) = e^{-m} G(y)$, so $H(m, \ldots, m) = \exp \left( - e^{-m} S^{G} \right)$, which is the $\text{Gumbel}\left(\ln S^{G}, 1\right)$ CDF.
+
+For (ii), write $t_k = y_k e^{-m_k}$ and differentiate:
+$$
+\frac{\partial H}{\partial m_j}
+= \exp \left( -G(t) \right) \, G_j(t) \, y_j e^{-m_j}.
+$$
+Because $G$ is homogeneous of degree one, $G_j$ is homogeneous of degree zero, so evaluating at $m_k = s$ for every $k$ gives $G_j(t) = G_j(y)$ and $G(t) = e^{-s} S^{G}$. Hence
+$$
+\left. \frac{\partial H}{\partial m_j} \right|_{m_k = s \ \forall k}
+= \exp \left( - e^{-s} S^{G} \right) G_j(y) \, y_j e^{-s}
+= \frac{y_j G_j(y)}{S^{G}} \cdot \frac{d}{ds} \exp \left( - e^{-s} S^{G} \right),
+$$
+and integrating from $-\infty$ to $u$,
+$$
+\Pr \left( j^* = j, \ u^* \le u \right)
+= \underbrace{\frac{y_j G_j(y)}{S^{G}}}_{\Pr \left( j^* = j \right)}
+\; \times \;
+\underbrace{\exp \left( - e^{-u} S^{G} \right)}_{\Pr \left( u^* \le u \right)}
+$$
+for every $j$ and every $u$, which is the claimed independence. Letting $u \to \infty$ recovers the GEV choice probability. $\square$
+:::
+
+Everything in @sec-model follows with $S_{it}$ replaced by $S^{G}_{it}$. The first response becomes the GEV choice probability rather than the multinomial logit; the second response is unchanged in form, since @eq-modelA, @eq-modelB, and the cumulative-link representation @eq-cumlink depend on the choice set only through $\overline{\mu}_{it}$; and the factorization @eq-joint holds for the same reason as before. The location invariance behind @prp-ident also survives: shifting every $V_{itj}$ by $\delta$ multiplies $S^{G}_{it}$ by $e^{\delta}$ and so shifts $\overline{\mu}_{it}$ by exactly $\delta$, which the cut points absorb. The rank condition must then be read against the design as it enters $G$ rather than a simple sum, and the nesting result of @sec-nesting becomes $\Pr(\text{buy}) = S^{G}_{it} / \left( e^{\gamma} + S^{G}_{it} \right)$.
+
+The leading application is nested logit, $G(y) = \sum_{n} \left( \sum_{j \in n} y_j^{1/\lambda_n} \right)^{\lambda_n}$, in which alternatives within a nest are correlated whenever $\lambda_n < 1$. We confirm @lem-gev numerically for a five-alternative, two-nest design with $\lambda = (0.5, 0.8)$ using the positive-stable mixture representation of the nested logit (`R/homogeneous/gev_check.R`). Across two million draws the simulated distribution of $u^*$ matches $\text{Gumbel}(\ln S^{G}, 1)$ (location $1.845$ against $1.846$ analytically; Kolmogorov-Smirnov $p = 0.17$), the simulated choice shares match $y_j G_j / S^{G}$ to four decimal places, and the conditional distribution of $u^*$ given $j^*$ is indistinguishable from its unconditional counterpart at every quartile (chi-square test of independence, $p = 0.70$).
+
+Two limits of the result are worth stating. It covers correlation among the *inside* goods only: the outside-good shock $\eta_{it0}$ is assumed independent of them throughout, and Model B's logistic link uses that independence to obtain $d_{it} \sim \text{Logistic}(\overline{\mu}_{it}, 1)$. And it does not extend to error structures outside the GEV class, such as multinomial probit or a mixed logit with correlated kernel errors, for which $u^*$ has no closed-form distribution and the factorization that makes @eq-joint tractable is unavailable.
+
+## Appendix E: Implementation in Apollo {#sec-appendix-apollo .unnumbered}
+
+```{r}
+#| label: apollo-load
+#| echo: false
+#| warning: false
+ap <- readRDS(file.path("R", "output", "apollo_compare.rds"))
+```
+
+The replication archive implements the model twice: once directly, in the routines described in Appendix B, and once in Apollo [@Hess_2019], the freeware choice-modelling package for R. The second implementation serves two purposes. It cross-validates our code against an independently developed and widely used toolkit, and it shows how the model fits into an estimation framework readers are likely to already have installed.
+
+**The model as a two-component structure.** Apollo builds a likelihood by multiplying components. Our joint likelihood @eq-joint is exactly of that form, so the forced choice is an `apollo_mnl` component and the ordinal follow-up is a second component over the same tasks. This is the architecture of the hybrid choice models for which the package is often used, in which a multinomial logit for the choice is combined with ordered-response components for attitudinal indicators [@Daly_2012]. The resemblance is worth being precise about, because the difference is the content of @sec-model. In a hybrid choice model the ordinal component is driven by a latent attitude that is exogenous to the choice, and it is connected to the choice utilities through freely estimated loading parameters. Here the ordinal component is driven by the inclusive value of the same choice set, and its loading is fixed at one rather than estimated. Our model is the restricted case, and @lem-gumbel is what licenses the restriction.
+
+**Model B is native; Model A is not.** With the second stage a cumulative logit in $\overline{\mu}_{it}$, Model B is assembled from stock parts: `apollo_mnl` for the choice, `apollo_ol` for the follow-up with the task's inclusive value passed as its single explanatory variable and the cut points as its thresholds, and `apollo_combineModels` to join them. Model A has no stock part. Apollo supplies ordered components for the logistic and normal links and no others, so the complementary-log-log form @eq-modelA must be written out and passed through `apollo_ownModel`, the hook for user-defined likelihoods. This is a small piece of code, and once supplied it inherits the rest of the package. The asymmetry is worth noting for its own sake: the standard toolkit anticipates the behavior in which the respondent resolves her uncertainty before answering, and not the behavior in which she reports the probability she still holds.
+
+**Agreement.** @tbl-apollo reports the largest discrepancy between the two implementations over `r ap$settings$R_REPS` independent datasets of `r format(ap$settings$N_TASKS, big.mark = ",")` tasks in each of three configurations, with both implementations started from the same values.
+
+```{r}
+#| label: tbl-apollo
+#| tbl-cap: "Largest absolute discrepancy between our maximum-likelihood routine and the same model estimated in Apollo, over five independent datasets per configuration (from R/apollo/compare_apollo.R)."
+#| echo: false
+tb <- ap$res
+tb$configuration <- c("Model B, W = 5", "Model A, W = 5", "Model B, W = 2 (binary)")
+sci <- function(x) sprintf("%.0e", x)
+knitr::kable(
+  data.frame(
+    configuration = tb$configuration,
+    `ordinal component` = tb$component,
+    `beta` = sci(tb$max_d_beta),
+    `cut points` = sci(tb$max_d_cut),
+    `standard errors` = sci(pmax(tb$max_d_se_beta, tb$max_d_se_cut)),
+    `log-likelihood` = sci(tb$max_d_ll),
+    check.names = FALSE),
+  row.names = FALSE)
+```
+
+Point estimates agree to `r sprintf("%.0e", max(ap$res$max_d_beta, ap$res$max_d_cut))` or better, standard errors to `r sprintf("%.0e", max(ap$res$max_d_se_beta, ap$res$max_d_se_cut))`, and the maximized log-likelihood to `r sprintf("%.0e", max(ap$res$max_d_ll))`, which is convergence tolerance rather than disagreement. The two implementations share no code: Apollo computes the ordinal probabilities for Model A from the direct expression $e^{-e^{-(c_w - \overline{\mu})}} - e^{-e^{-(c_{w-1} - \overline{\mu})}}$, while ours uses the tail-stable rearrangement of Appendix B, and the cut points enter Apollo's likelihood as free parameters rather than through the monotone increment parameterization. The binary row is the incumbent dual-response model of @Diener_2006 and @Hung_2025_dual, recovered as the two-point special case of @sec-nesting.
+
+**Why the hierarchical model is not estimated in Apollo.** Apollo reaches Bayesian estimation by wrapping `RSGHB`, which requires each random parameter to be assigned one of a fixed menu of marginal distributions: normal, log-normal, censored normal, or Johnson SB. None of them can express an ordered vector. The heterogeneous-cut-point extension of @sec-hetcut gives each respondent her own thresholds $\bftheta_i$, which must stay ordered for the likelihood to be defined, and we impose that through a transformation to an unconstrained scale inside a random-walk block. That is expressible in a purpose-written sampler and not in the `RSGHB` menu. The restriction is specific to the Bayesian path: `apollo_ol` accepts thresholds that vary across observations, so classical mixed-threshold specifications are available. This is the reason the hierarchical results in @sec-simstudy come from the sampler of Appendix B rather than from Apollo.

@@ -1,0 +1,238 @@
+---
+title: "The 2024 ordered-regression puzzle, and what it was"
+subtitle: "Follow-up on Geoff's note in `_OrderedLogisticRegression.ipynb` (commit ff7d416, 2024-08-19)"
+author: "Dan Yavorsky"
+date: 2026-09-13
+format:
+  html:
+    toc: true
+    embed-resources: true
+    code-fold: false
+execute:
+  warning: false
+  message: false
+---
+
+::: {.callout-note}
+## Purpose
+
+Geoff raised "our identification problem" and neither of us could reconstruct
+what it referred to. This note traces it to a specific finding from August 2024,
+reproduces it, diagnoses it, and checks whether it affects the model as it now
+stands. Short version: the finding was real and correctly described, the cause
+is a reverse regression rather than an identification failure, and the paper's
+current second stage does not inherit it. The concern survives in a useful form
+as one of the paper's specification tests.
+
+Not part of the manuscript. Written for discussion.
+:::
+
+## 1. What was observed
+
+Commit `ff7d416`, 19 August 2024, titled *"observed strange phenomenon in
+estimation of ordered regression"*, added `_OrderedLogisticRegression.ipynb`.
+Its one markdown cell reads:
+
+> Strange result. Here's Stata gode that replicates these phenomena. The bias is
+> downwards on the $\beta$ coefficient and upwards on the magnitude of the
+> estimated cutpoints.
+
+followed by this, included so the result could not be blamed on PyMC:
+
+```stata
+clear
+local N = 999999
+set obs `=`N'*3'
+
+gen grp = 1 in 1/`=`N''
+replace grp = 2 in `=`N'+1'/`=2*`N''
+replace grp = 3 in `=2*`N'+1'/`=3*`N''
+
+gen mu = .
+replace mu = -1 if grp == 1
+replace mu = +0 if grp == 2
+replace mu = +2 if grp == 3
+
+gen x = mu + rnormal()
+
+reg x ibn.grp, noconstant // Just to make sure it's generated correctly
+estimates clear
+eststo: oprobit grp x
+eststo: oprobit grp, offset(x)
+esttab *
+```
+
+Read the DGP carefully, because the direction matters and it is the whole
+answer: the group is assigned **first**, and `x` is generated **from** the
+group. The ordered probit then runs the other way, predicting the group from
+`x`.
+
+## 2. Reproduction
+
+```{r}
+#| label: repro
+suppressMessages({library(MASS); library(nnet)})
+set.seed(42)
+
+N   <- 300000
+grp <- rep(1:3, each = N)
+mu  <- c(-1, 0, 2)[grp]
+x   <- mu + rnorm(3 * N)          # x generated FROM grp
+
+# Geoff's first specification: free coefficient on x
+f1 <- polr(factor(grp) ~ x, method = "probit")
+cat("free coefficient:  beta_hat =", round(coef(f1), 4),
+    " (the model implies 1)\n")
+cat("                   cutpoints =", round(f1$zeta, 4), "\n\n")
+
+# His second: coefficient forced to 1, cutpoints only
+f2 <- polr(factor(grp) ~ 1 + offset(x), method = "probit")
+cat("offset (beta = 1): cutpoints =", round(f2$zeta, 4), "\n")
+```
+
+The finding replicates. $\hat\beta$ comes in below one, and it is not a small-
+sample artifact: this is 900,000 observations.
+
+## 3. The diagnosis
+
+The ordered probit is misspecified for this data-generating process.
+
+Work out what the conditional law of the group given $x$ actually is. The three
+groups are equally likely, and $x \mid \text{grp} = g \sim \mathcal{N}(\mu_g, 1)$,
+so by Bayes' rule
+
+$$
+\Pr(\text{grp} = g \mid x)
+\;\propto\;
+\tfrac{1}{3} \, \phi(x - \mu_g)
+\;\propto\;
+\exp\left( -\tfrac{(x - \mu_g)^2}{2} \right)
+\;\propto\;
+\exp\left( \mu_g x - \tfrac{\mu_g^2}{2} \right).
+$$
+
+That is a **multinomial logit in $x$ whose slope is category-specific**, equal to
+$\mu_g$. An ordered probit imposes a single common slope across categories (the
+parallel-lines assumption). Forcing one $\beta$ to stand in for three different
+slopes attenuates it. Nothing is unidentified; the wrong model is being fit.
+
+The prediction is checkable. If the true conditional law is multinomial logit
+with slopes $\mu_g = (-1, 0, 2)$, then a multinomial logit with group 1 as
+baseline should recover slope differences of $0 - (-1) = 1$ and $2 - (-1) = 3$.
+
+```{r}
+#| label: diagnosis
+mn <- multinom(factor(grp) ~ x, trace = FALSE)
+cat("multinomial logit slopes vs group 1:", round(coef(mn)[, "x"], 3), "\n")
+cat("theory  (mu_g - mu_1)              :", c(0, 2) - (-1), "\n")
+```
+
+That settles it. The "bias" is misspecification bias from a reverse regression,
+not a flat likelihood, not a normalization problem, and not an identification
+failure.
+
+## 4. Why the paper's second stage does not inherit this
+
+Our ordinal stage generates the latent variable **first** and then bins it,
+which is the ordered model's own data-generating process rather than its
+reverse. Concretely: the consumer draws utilities, takes the maximum $u^*$,
+and reports which interval her purchase probability falls into. The inclusive
+value $\overline{\mu} = \ln S$ enters with a coefficient of exactly one, by
+Lemma 1, and the same coefficient applies to every category.
+
+```{r}
+#| label: our-dgp
+set.seed(7)
+n <- 300000
+
+mubar    <- rnorm(n, 0, 1.2)                 # stands in for the inclusive value
+cut_true <- c(-1.0, 0.2, 1.2, 2.2)
+latent   <- mubar + rlogis(n)                # Model B's second stage
+y        <- findInterval(latent, cut_true) + 1L
+
+fit <- polr(factor(y) ~ mubar, method = "logistic")
+cat("slope on the inclusive value:", round(coef(fit), 4), " (theory: 1)\n")
+cat("cutpoints estimated:", round(fit$zeta, 4), "\n")
+cat("cutpoints true     :", cut_true, "\n")
+```
+
+No attenuation, and the cut points land on the truth. The difference between
+this and §2 is entirely the direction in which the data were generated.
+
+## 5. Where the concern survives, in a useful form
+
+The worth of the 2024 finding is that it identified the right parameter to be
+nervous about. Our model *imposes* a slope of one on the inclusive value; Geoff's
+example is a case where estimating that slope freely would return something
+else. Rather than assume it, the paper tests it.
+
+The specification battery estimates
+
+$$
+\text{second-stage latent} \;=\; \lambda \, \overline{\mu}_{it} + \text{noise}
+$$
+
+and tests $\lambda = 1$ by likelihood ratio. Current results:
+
+```{r}
+#| label: lambda-test
+#| echo: false
+# robust to whether chunks run from archive/ or from the project root
+p <- file.path("R", "output", "spec_tests.rds")
+if (!file.exists(p)) p <- file.path("..", "R", "output", "spec_tests.rds")
+s <- readRDS(p)
+knitr::kable(
+  do.call(rbind, lapply(s$cells, function(cl) data.frame(
+    cell = cl$label, n = cl$n,
+    `lambda hat` = round(cl$est_mean["lambda_hat"], 3),
+    `reject lambda=1` = round(cl$reject["lambda=1"], 3),
+    check.names = FALSE))),
+  row.names = FALSE)
+```
+
+Under the null the estimate sits on one and the test holds its nominal 5% size.
+Against genuine alternatives at $\lambda = 0.7$ and $1.3$ it recovers those
+values and rejects with power 0.99. In Geoff's vocabulary: his `offset(x)`
+specification is our model, his free-coefficient specification is the
+alternative, and we report the comparison rather than assuming the answer.
+
+Appendix E makes the same point structurally. Our model has the architecture of
+a hybrid choice model, in which an ordinal measurement equation is driven by a
+latent variable, except that there the loading is freely estimated and here it
+is pinned at one by Lemma 1. That restriction is the theory's content, and it is
+exactly the restriction Geoff's example says one should not impose casually.
+
+## 6. A likely source of the confusion
+
+There is now a proposition in §2 with "identification" in its name, and it is
+about something else. It concerns **location**, not slope: it says $[X, \iota]$
+must have full column rank $P + 1$, because an intercept common to every inside
+good shifts the inclusive value one-for-one and is absorbed by the cut points.
+Adding an intercept produces a genuinely flat ridge, with different starting
+values giving different raw parameters at identical likelihood.
+
+That result was added in July 2026, well after the 2024 note, and has nothing to
+do with the attenuation phenomenon. If "our identification problem" is a memory
+of the 2024 finding, the two are easy to run together and are unrelated. Both
+are settled:
+
+| concern | status |
+|---|---|
+| slope on the latent driver attenuated (2024) | reverse-regression artifact; does not arise in our DGP; tested anyway via $\lambda = 1$ |
+| location not separable from cut points (2026) | real, proved in §2, demonstrated in notebook 01's negative control |
+
+## 7. For discussion
+
+Two things worth deciding together.
+
+First, whether any of this belongs in the paper. My view is no: the $\lambda$
+test already covers the substance, and explaining a reverse-regression artifact
+that does not arise in our setting would cost a paragraph and buy confusion. But
+it is a reasonable thing to disagree about, and the $\lambda$ test's motivation
+would read more naturally if it said out loud *why* one might doubt that the
+slope is one.
+
+Second, whether the $\lambda$ test deserves more prominence than it currently
+gets. It is reported in the specification-test table alongside the DR-2Max test
+and is easy to skim past, yet it is the one result that directly answers the
+question Geoff raised.

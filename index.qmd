@@ -12,11 +12,6 @@ affiliations:
     name: GBK Collective
     
 author:
-  - name: Prachi Bhalerao
-    corresponding: false
-    email: prachipbhalerao@gmail.com
-    affiliations: 
-      - ref: gbk
   - name: Dan Yavorsky
     orcid: 0000-0003-4095-6405
     corresponding: true
@@ -30,10 +25,10 @@ author:
     affiliations: 
       - ref: nyu
 
-keywords: choice-based conjoint analysis, stated preference elicitation, discrete choice methods, ordered choice
+keywords: choice-based conjoint analysis, dual response, stated preference elicitation, discrete choice methods, ordered choice, outside good
 
 abstract: |
-  We provide a behavioral model in which consumers are able to identify their most-preferred option among a set of alternatives, but face uncertainty in their evalulation of the outside good. The model rationalizes the use of a dual-response framework in choice-based conjoint analysis and extends the evaluation of the purchase decision from binary to ordinal.  A simulation study provides estimation routines for aggregate and Hierarhical Bayesian versions of the model, and demonstrates the model's superior performance compared with the binary and heuristic approaches currently used by practioners. We also provide an empirical example from a choice-based conjoint analysis conducted in partnership with a consumer insights consultancy.
+  We present a behavioral model in which consumers identify their most-preferred option among a set of alternatives but face uncertainty in their evaluation of the outside good. The model rationalizes the dual-response format used in choice-based conjoint analysis and extends the follow-up purchase question from binary to ordinal. The resulting likelihood function combines a multinomial logit for the forced choice with a cumulative-link ordinal model driven by the task's inclusive value. The link is logistic or Gumbel, depending on whether the respondent resolves her uncertainty before answering, and the binary dual-response model is a special case. We derive how much information a finer response scale adds, provide estimation routines for both aggregate and hierarchical Bayesian versions of the model, and show that the model outperforms both dichotomizing the scale into a binary response and assigning fixed purchase probabilities to each scale point. We apply the model to a choice-based conjoint study conducted in partnership with a consumer insights consultancy.
   
 bibliography: references.bib
 citation: true
@@ -45,17 +40,21 @@ citation: true
 
 
 <!-- Sections -->
-{{< include sections/intro.qmd >}}
+{{< include sections/01_intro.qmd >}}
 
-{{< include sections/model.qmd >}}
+{{< include sections/02_model.qmd >}}
 
-{{< include sections/simstudy.qmd >}}
+{{< include sections/03_simstudy.qmd >}}
 
-{{< include sections/analysis.qmd >}}
+{{< include sections/04_analysis.qmd >}}
 
-{{< include sections/discussion.qmd >}}
+{{< include sections/05_discussion.qmd >}}
 
-{{< include sections/conclusion.qmd >}}
+{{< include sections/06_conclusion.qmd >}}
+
+{{< include sections/90_appendix.qmd >}}
+
+{{< include sections/95_ai_declaration.qmd >}}
 
 
 

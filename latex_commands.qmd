@@ -2,7 +2,10 @@
 $$
   \newcommand{\x}{\mathbf{x}}
   \newcommand{\bfbeta}{\boldsymbol{\beta}}
+  \newcommand{\betabar}{\bar{\bfbeta}}
+  \newcommand{\bftheta}{\boldsymbol{\theta}}
   \newcommand{\iid}{\stackrel{iid}{\sim}}
+  \newcommand{\coloneqq}{\mathrel{:=}}
 $$
 :::
 
@@ -10,6 +13,8 @@ $$
 ```{=latex}
   \newcommand{\x}{\mathbf{x}}
   \newcommand{\bfbeta}{\boldsymbol{\beta}}
+  \newcommand{\betabar}{\bar{\bfbeta}}
+  \newcommand{\bftheta}{\boldsymbol{\theta}}
   \newcommand{\iid}{\stackrel{iid}{\sim}}
 ```
 :::

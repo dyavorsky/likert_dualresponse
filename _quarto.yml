@@ -1,5 +1,51 @@
 project:
   type: manuscript
+  # Chunks execute from the project root, not from each file's own directory.
+  # Load-bearing now that notebooks write R/output/*.rds: without it a notebook
+  # under notebooks/ resolves file.path("R","output",...) to notebooks/R/output
+  # and the article never sees the results it is supposed to read.
+  execute-dir: project
+  # Both keys below are load-bearing. A manuscript project with no explicit
+  # `manuscript.notebooks` list auto-discovers every .qmd and .ipynb in the
+  # tree and treats each as a manuscript notebook, which sweeps in all seven
+  # sections/*.qmd (they are {{< include >}}s, so the whole paper would be
+  # published a second time as standalone pages), plus latex_commands.qmd,
+  # archive/*.ipynb, and design/format_experiment.qmd -- the last of which
+  # fails the render outright, since it needs the ordinalDualresponse package
+  # installed. Naming the notebooks explicitly replaces that sweep; the render
+  # list then pins exactly what gets built.
+  # Verify with: quarto inspect | grep -A3 project.render
+  # Order matters: the notebooks GENERATE the R/output/*.rds files that
+  # index.qmd reads, so the article must render last. (Note 06 must also
+  # precede nothing in particular, but 06 writes link_discrimination.rds
+  # which its own design-guidance section consumes, so keep it whole.)
+  render:
+    - notebooks/01-aggregate-recovery.qmd
+    - notebooks/02-hierarchical-recovery.qmd
+    - notebooks/03-dichotomization-cost.qmd
+    - notebooks/04-specification-tests.qmd
+    - notebooks/05-misspecification.qmd
+    - notebooks/06-scale-design.qmd
+    - notebooks/07-pricing-counterfactual.qmd
+    - index.qmd
+
+manuscript:
+  article: index.qmd
+  notebooks:
+    - notebook: notebooks/01-aggregate-recovery.qmd
+      title: "01. Parameter Recovery and Identification"
+    - notebook: notebooks/02-hierarchical-recovery.qmd
+      title: "02. The Hierarchical Sampler"
+    - notebook: notebooks/03-dichotomization-cost.qmd
+      title: "03. The Cost of Dichotomization"
+    - notebook: notebooks/04-specification-tests.qmd
+      title: "04. Specification Tests"
+    - notebook: notebooks/05-misspecification.qmd
+      title: "05. Misspecification Robustness"
+    - notebook: notebooks/06-scale-design.qmd
+      title: "06. Designing the Scale"
+    - notebook: notebooks/07-pricing-counterfactual.qmd
+      title: "07. Economic Stakes"
 
 execute:
   freeze: auto
@@ -12,13 +58,4 @@ format:
     include-in-header: 
       - text: |
           \usepackage{mathtools}
-
-manuscript:
-  notebooks:
-    - notebook: notebooks/example_discretechoice.ipynb
-      title: Discrete Choice 
-    - notebook: notebooks/example_likert.ipynb
-      title: Likert Scale Dual Response 
-#    - notebook: notebooks/likert_dualresponse.ipynb
-#      title: Binary Dual Response 
 

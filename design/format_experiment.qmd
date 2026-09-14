@@ -1,0 +1,228 @@
+---
+title: "Dual-Response Format Experiment: Design Document"
+subtitle: "Binary vs. 5-point vs. 7-point purchase-likelihood follow-ups in CBC"
+author: "Yavorsky / Zheng — for fielding on an upcoming GBK study"
+date: last-modified
+format:
+  html:
+    toc: true
+    number-sections: true
+execute:
+  echo: false
+  warning: false
+---
+
+```{r setup}
+library(ordinalDualresponse)
+```
+
+<!-- OPEN DECISIONS (moved here from TODO.md, which was retired):
+     1. Which upcoming GBK project fits the category criteria below.
+     2. Whether to keep the optional 4-week recontact add-on (Section on
+        fielding) -- it is what unlocks the alpha-calibration extension. -->
+
+## Purpose
+
+This document specifies a between-subjects experiment comparing the **format
+of the dual-response follow-up question** in a choice-based conjoint study:
+the standard binary buy/no-buy (W = 2) versus 5-point and 7-point ordinal
+purchase-likelihood scales. It is designed to be embedded in an upcoming
+commercial GBK study at modest incremental cost, and it doubles as the
+empirical centerpiece of the accompanying methods paper: every hypothesis
+below is a *prediction of the model*, derived before seeing the data.
+
+**Category selection criteria** (for choosing the host project): short
+purchase cycle (intent meaningful within weeks); salient price attribute with
+real variation; 3–5 alternatives per task; no single dominant brand; expected
+purchase incidence between roughly 20% and 60%; respondents screened for
+category involvement.
+
+## Experimental design
+
+- **Three cells, randomized between subjects, identical in every other
+  respect** (same screener, same CBC design, same task order randomization,
+  same attribute grid):
+  - **Cell B2** — binary follow-up (the Sawtooth/Diener "2Max" wording).
+  - **Cell L5** — 5-point purchase-likelihood follow-up.
+  - **Cell L7** — 7-point purchase-likelihood follow-up.
+- **CBC block**: J = 4 alternatives per task; **12 estimation tasks + 3
+  holdout tasks** per respondent (15 total), order-randomized within block.
+- **Engineered holdout tasks** (identical across respondents and cells, fixed
+  positions 5/10/15): one *typical* set, one *high-attractiveness* set
+  (strong options at low prices), one *low-attractiveness* set (weak options
+  at high prices). The attractiveness spread powers the link-discrimination
+  and unit-slope tests — the model implies these tests are informative only
+  when the inclusive value varies (paper, Identification section).
+- One instructed-response attention check outside the CBC block.
+
+### Question wording
+
+- **Cell B2**: *"Would you actually buy the option you selected above?"* —
+  Yes / No.
+- **Cell L5**: *"How likely are you to actually buy the option you selected
+  above?"* — Definitely would not buy / Probably would not buy / Might or
+  might not buy / Probably would buy / Definitely would buy.
+- **Cell L7**: same stem — Definitely would not buy / Very probably would not
+  / Probably would not / Might or might not / Probably would / Very probably
+  would / Definitely would buy.
+
+All points fully labeled (no endpoint-only labeling). The stem matches the
+binary wording exactly except for the response scale, so any cross-cell
+difference is attributable to the scale, not the framing.
+
+## Hypotheses (pre-specified)
+
+**Primary (confirmatory; Holm-adjusted within this family):**
+
+- **H1 — Preference invariance.** Attribute part-worths are equal across
+  cells up to a scale factor (Swait–Louviere test), as in Brazell et al.
+  (2006). *Prediction: not rejected; equivalence band ±10% on rescaled
+  part-worths.*
+- **H2 — Information gains match theory.** The ratio of estimated
+  standard errors (binary vs. 5-point vs. 7-point cells) matches the Fisher
+  predictions computed below. *Prediction: SE ratios within the simulation
+  envelope of the predicted values.*
+- **H3 — None-inflation attenuation.** The binary cell's "No" share exceeds
+  the model-implied no-purchase share at the matched threshold in the ordinal
+  cells (respondents forced to resolve uncertainty disproportionately answer
+  "no"; cf. Brazell et al.'s 14%→58% none-share inflation under binary DR).
+  *Prediction: implied no-purchase margin lower (less inflated) under ordinal
+  formats.*
+
+**Secondary:**
+
+- **H4 — Unit slope.** Within ordinal cells, the free slope on the inclusive
+  value satisfies λ = 1 (overidentification test of the shared-utility
+  account).
+- **H5 — Inclusive-value conditioning.** δ = 0 (our model) against the
+  DR-2Max alternative δ = 1, in every cell.
+- **H6 — Link.** Model A (Gumbel) vs. Model B (logistic) by holdout
+  likelihood and marginal density, powered by the engineered
+  attractiveness-spread holdouts.
+- **H7 — Respondent burden and data quality.** Completion time, dropout,
+  straight-lining (identical report on ≥ 10 of 12 tasks), and scale-use
+  entropy by cell. *Prediction: no material burden penalty for W = 5; scale
+  points beyond 7 were excluded ex ante based on the information analysis
+  below.*
+
+## Power analysis
+
+Computed from the exact Fisher information of the dual-response design
+(`ordinalDualresponse::dr_fisher`), under two preference scenarios spanning the cases
+observed in our simulation program: a *moderate* scenario (category shares
+spread across the scale) and a *skewed* scenario (bottom-heavy purchase
+intent, top-2-box ≈ 18%).
+
+```{r power}
+#| results: asis
+scenarios <- list(
+  moderate = list(beta = c(a2 = 0.8, a3 = -0.5, b2 = 0.4, b3 = 1.0, price = -0.9),
+                  cut5 = c(-1.0, 0.2, 1.2, 2.2)),
+  skewed = list(beta = c(a2 = 0.8, a3 = -0.5, b2 = 0.4, b3 = 1.0, price = -0.9),
+                cut5 = c(0.2, 1.2, 2.4, 3.6))
+)
+N_RESP <- 400; T_TASKS <- 12
+des <- dr_design(N_RESP * T_TASKS, J = 4, seed = 7)
+
+rows <- list()
+for (sn in names(scenarios)) {
+  sc <- scenarios[[sn]]
+  cut7 <- approx(seq_along(sc$cut5), sc$cut5, n = 6)$y   # interpolated 7-pt cuts
+  for (cell in c("B2 (binary, top-2-box cut)", "L5 (5-point)", "L7 (7-point)")) {
+    cut <- switch(substr(cell, 1, 2),
+                  B2 = sc$cut5[3], L5 = sc$cut5, L7 = cut7)
+    I <- dr_fisher(des, sc$beta, cut, "B")
+    Vc <- solve(I)
+    rows[[paste(sn, cell)]] <- data.frame(
+      scenario = sn, cell = cell,
+      se_price = sqrt(Vc[5, 5]),
+      se_avg_beta = mean(sqrt(diag(Vc)[1:5])))
+  }
+}
+tab <- do.call(rbind, rows)
+tab$respondents_for_B2_precision <-
+  round(N_RESP * (tab$se_avg_beta / tab$se_avg_beta[c(1, 1, 1, 4, 4, 4)])^2)
+knitr::kable(transform(tab, se_price = round(se_price, 4),
+                       se_avg_beta = round(se_avg_beta, 4)),
+             row.names = FALSE,
+             caption = paste("Asymptotic part-worth precision by cell at",
+                             N_RESP, "respondents x", T_TASKS, "tasks.",
+                             "Final column: respondents needed to match the",
+                             "binary cell's precision."))
+```
+
+```{r h3-power}
+# H3: two-proportion comparison of no-purchase margins across cells, at the
+# task level with a respondent design effect (m tasks, intraclass rho).
+p0 <- 0.30; delta <- 0.05; m <- 12; rho <- 0.30
+deff <- 1 + (m - 1) * rho
+n_eff_needed <- (qnorm(0.975) + qnorm(0.80))^2 *
+  (p0 * (1 - p0) + (p0 + delta) * (1 - p0 - delta)) / delta^2
+n_resp_needed <- ceiling(n_eff_needed * deff / m)
+```
+
+For **H3**, detecting a `r sprintf('%.0f', 100*delta)`-point difference in
+no-purchase margins (base ≈ `r sprintf('%.0f', 100*p0)`%) at 80% power with a
+task-level design effect of `r sprintf('%.1f', deff)` (12 tasks, ICC 0.30)
+requires about **`r n_resp_needed` respondents per cell**. This is the
+binding constraint.
+
+**Recommendation: n = 500 per cell (1,500 total).** This delivers H3 at
+80% power with margin, makes the H2 standard-error comparisons sharp (the
+Fisher-predicted SE ratios are of the order of 2–8% between cells, verified
+against the simulation envelope rather than pairwise-tested), and gives the
+λ and δ tests power comparable to the n = 3,600-task cells of our simulation
+study, where the δ test attains full power against DR-2Max and the λ test
+rejects slopes of 0.7 or 1.3 essentially always.
+
+## Analysis plan (pre-specified)
+
+1. **Estimators.** Per cell: aggregate MLE (`dr_mle`) and hierarchical Bayes
+   (`dr_hb`, 30,000 iterations) under both links; binary cell uses the same
+   code at W = 2.
+2. **H1**: Swait–Louviere scale-adjusted equality of part-worths, all pairs
+   of cells; report rescale constants.
+3. **H2**: cell-by-cell SEs vs. Fisher predictions computed at the pooled
+   part-worth estimates.
+4. **H3**: model-implied no-purchase margin at the typical holdout task, by
+   cell, with cluster-robust intervals.
+5. **H4/H5**: `dr_spec_tests` within each cell (LR versions primary).
+6. **H6**: link comparison by holdout log-likelihood on the three engineered
+   holdouts plus WAIC; direction of divergence checked against the
+   high-attractiveness holdout specifically.
+7. **H7**: completion-time and data-quality comparisons (Kruskal–Wallis /
+   chi-square as appropriate).
+8. **Deliverables to the paper**: the H1–H6 table, the estimated cut points
+   with their purchase-probability interpretation (Model A), and the
+   individual-level holdout hit rates by cell.
+
+## Operations appendix
+
+- **LOI impact**: the follow-up question adds one click per task (~2–4
+  seconds); expected LOI increase ≤ 1 minute in every cell.
+- **Soft launch**: n = 50 per cell; checks — cell balance, category shares by
+  cell (no empty scale points in L7), completion time distribution,
+  straight-line rate, holdout-task response sanity.
+- **Data spec** (long format, one row per respondent × task × alternative):
+  `resp_id, cell, task_index, task_position, alt_index, [attribute columns],
+  price, chosen (0/1), y_report (1..W, task level, repeated across alt rows),
+  rt_msec (task level), holdout_flag`. Plus a respondent file with
+  screener/quota fields, start/end timestamps, attention-check pass.
+- **Optional add-on (recommended, cheap)**: a 4-week recontact wave asking
+  category purchase since the survey (yes/no + what). This enables
+  calibration of the estimated probability-scale cut points against realized
+  behavior — the ordinal analogue of the Juster/Morrison purchase-intent
+  validation literature — and would extend the paper's contribution
+  substantially. Requires only panel recontact consent at the main wave.
+
+## What each cell buys us
+
+| Question | B2 | L5 | L7 |
+|---|---|---|---|
+| Preference part-worths | yes | yes | yes |
+| Demand at one threshold | yes (its cut only) | yes | yes |
+| Full purchase-likelihood distribution | no | yes | yes |
+| λ (unit-slope) test | no (needs ≥ 3 categories for power) | yes | yes |
+| δ (conditioning) test | yes | yes | yes |
+| Link discrimination (A vs. B) | weak | yes | yes |
+| Information-by-W curve point | anchor | mid | upper |

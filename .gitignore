@@ -3,7 +3,13 @@
 
 /.quarto/
 /_manuscript
-/_freeze/
+# stray copy of the site assets that a project-level `quarto render` drops in
+# the repo root; the real one lives in _manuscript/site_libs
+/site_libs/
+
+# _freeze IS tracked: it holds the frozen R execution results so that
+# `quarto render` (locally or in CI) needs no R installation. Re-render and
+# commit _freeze alongside any edit to a .qmd that feeds index.qmd.
 
 /agujournal2019.cls
 /trackchanges.sty
@@ -79,3 +85,27 @@ rubber.cache
 
 # Etc
 .idea
+
+# Claude Code
+CLAUDE.md
+
+# rendered design docs (regenerate with quarto render design/*.qmd)
+design/*.html
+design/*_files/
+
+**/*.quarto_ipynb
+
+# Quarto build leftovers from single-file renders
+/index.html
+**/*.knit.md
+**/*.rmarkdown
+notebooks/R/
+
+# Client data and documents for the empirical application. Never commit.
+# Raw, un-anonymized material lives here; anonymized extracts go elsewhere.
+empirical application/
+empirical_application/
+
+# Literature PDFs. Publisher copyright: fine to hold locally for research,
+# not to redistribute from a public repo. Kept on disk, out of git.
+lit/

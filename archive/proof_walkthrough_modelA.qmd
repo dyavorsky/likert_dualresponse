@@ -1,0 +1,223 @@
+---
+title: "Walkthrough: why $\\Pr(y=w) = \\alpha_w^{S} - \\alpha_{w-1}^{S}$"
+subtitle: "Step-by-step derivation of eq-modelA in sections/02_model.qmd"
+format:
+  html:
+    toc: true
+    embed-resources: true
+---
+
+::: {.callout-warning}
+Scratch document. Not part of the manuscript. Delete when done.
+:::
+
+## What the one-liner in the paper is doing
+
+Line 84 of `sections/02_model.qmd` compresses the whole derivation into a single
+clause:
+
+> using $F_{\text{Gumbel}(\overline{\mu},1)}(c) = \exp(-e^{-(c-\overline{\mu})}) = \exp(e^{\overline{\mu}} \ln \alpha) = \alpha^{S}$ when $c = F^{-1}(\alpha) = -\ln(-\ln\alpha)$.
+
+The claim being supported is
+
+$$
+\Pr(y_{it} = w) \;=\; \alpha_w^{\,S_{it}} \;-\; \alpha_{w-1}^{\,S_{it}}.
+$$
+
+Below it is unpacked into four steps. Subscripts $i,t$ are dropped throughout.
+
+## Step 0. The ingredients
+
+Three facts are already established before this point in the paper.
+
+**(a) The standard Gumbel CDF.**
+$$
+F(z) = \exp\left(-e^{-z}\right).
+$$
+
+**(b) The consumer's purchase probability.** She knows $u^*$ but not $\eta_0$, so
+from her seat
+$$
+p = \Pr(\eta_0 < u^* \mid u^*) = F(u^*),
+$$
+because $\eta_0 \sim \text{Gumbel}(0,1)$. This is `eq-purchprob`.
+
+**(c) The researcher's view of $u^*$.** By Lemma 1(i),
+$$
+u^* \sim \text{Gumbel}(\overline{\mu}, 1),
+\qquad
+\overline{\mu} = \ln S,
+\qquad
+S = \sum_{j} e^{V_j},
+$$
+so the CDF of $u^*$ is $\exp\left(-e^{-(c-\overline{\mu})}\right)$. Note the
+relation we will use repeatedly:
+$$
+e^{\overline{\mu}} = e^{\ln S} = S .
+$$
+
+The asymmetry is the whole point: **she** conditions on $u^*$ and is uncertain
+only about $\eta_0$; **we** do not observe $u^*$ and treat it as random.
+
+## Step 1. Invert $F$ to get the utility-scale cut points
+
+The reporting rule is stated on the probability scale, $p \in [\alpha_{w-1}, \alpha_w)$,
+but the distribution we know is the one for $u^*$. So we need the utility value
+$c$ at which $p$ crosses $\alpha$. Set $\alpha = F(c)$ and solve:
+
+$$
+\begin{aligned}
+\alpha &= \exp\left(-e^{-c}\right) \\
+\ln \alpha &= -e^{-c} \\
+-\ln \alpha &= e^{-c} \\
+\ln(-\ln \alpha) &= -c \\
+c &= -\ln(-\ln \alpha).
+\end{aligned}
+$$
+
+So $F^{-1}(\alpha) = -\ln(-\ln\alpha)$, which is the second half of the paper's
+clause. It is well defined for $\alpha \in (0,1)$: there $\ln\alpha < 0$, so
+$-\ln\alpha > 0$ and its log exists.
+
+Keep the third line. It is the substitution that does the work in Step 2:
+$$
+e^{-c} = -\ln \alpha .
+$$
+
+## Step 2. The key identity
+
+Evaluate the **researcher's** CDF for $u^*$ at that cut point.
+
+$$
+\begin{aligned}
+F_{\text{Gumbel}(\overline{\mu},1)}(c)
+&= \exp\left(-e^{-(c-\overline{\mu})}\right)
+&&\text{(c) above} \\[4pt]
+&= \exp\left(-e^{\overline{\mu}} \, e^{-c}\right)
+&&\text{split the exponent: } e^{-(c-\overline{\mu})} = e^{-c}e^{\overline{\mu}} \\[4pt]
+&= \exp\left(-e^{\overline{\mu}} \cdot (-\ln\alpha)\right)
+&&\text{substitute } e^{-c} = -\ln\alpha \text{ from Step 1} \\[4pt]
+&= \exp\left(e^{\overline{\mu}} \ln \alpha\right)
+&&\text{two minus signs cancel} \\[4pt]
+&= \exp\left(S \ln \alpha\right)
+&&e^{\overline{\mu}} = S \\[4pt]
+&= \alpha^{S}.
+&&\exp(S\ln\alpha) = \left(e^{\ln\alpha}\right)^{S}
+\end{aligned}
+$$
+
+That is the entire trick. A Gumbel CDF evaluated at another Gumbel's inverse CDF
+collapses to a power, and the exponent is the inclusive value.
+
+The reason it works is that the Gumbel CDF is a double exponential. Shifting the
+location by $\overline{\mu}$ multiplies the inner exponential by
+$e^{\overline{\mu}}$, and multiplying the inside of $\exp(-e^{-z})$ by a constant
+is the same as raising the whole CDF to that power.
+
+## Step 3. From the interval to the probability
+
+The reporting rule says $y = w$ exactly when $p \in [\alpha_{w-1}, \alpha_w)$.
+Since $p = F(u^*)$ and $F$ is strictly increasing, we can pull the event back to
+the utility scale without changing it:
+
+$$
+p \in [\alpha_{w-1}, \alpha_w)
+\quad\Longleftrightarrow\quad
+u^* \in \left[\,F^{-1}(\alpha_{w-1}),\; F^{-1}(\alpha_w)\,\right).
+$$
+
+An interval probability is a difference of CDFs, so
+
+$$
+\begin{aligned}
+\Pr(y = w)
+&= \Pr\left(u^* < F^{-1}(\alpha_w)\right) - \Pr\left(u^* < F^{-1}(\alpha_{w-1})\right) \\[4pt]
+&= F_{\text{Gumbel}(\overline{\mu},1)}\!\left(F^{-1}(\alpha_w)\right)
+ - F_{\text{Gumbel}(\overline{\mu},1)}\!\left(F^{-1}(\alpha_{w-1})\right) \\[4pt]
+&= \alpha_w^{\,S} - \alpha_{w-1}^{\,S}
+&&\text{by Step 2, applied twice.}
+\end{aligned}
+$$
+
+## Step 4. Sanity checks
+
+**The ends behave.** $\alpha_0 = 0$ gives $\Pr(y=1) = \alpha_1^S$, and
+$\alpha_W = 1$ gives $\Pr(y=W) = 1 - \alpha_{W-1}^{S}$.
+
+**The probabilities sum to one.** The sum telescopes:
+$$
+\sum_{w=1}^{W}\left(\alpha_w^S - \alpha_{w-1}^S\right)
+= \alpha_W^S - \alpha_0^S = 1 - 0 = 1 .
+$$
+
+**The comparative static is the one claimed in the text.** For any
+$\alpha \in (0,1)$, $\alpha^S \to 0$ as $S \to \infty$. So an attractive set
+drives the cumulative probabilities of every low category to zero and pushes mass
+to the top. As $S \to 0$, $\alpha^S \to 1$ and the mass collects at the bottom.
+
+## A reframing that makes the result obvious
+
+Step 2 says more than the paper uses. Read it as a statement about $p$ itself:
+
+$$
+\Pr(p \le a) \;=\; \Pr\left(u^* \le F^{-1}(a)\right) \;=\; a^{S}
+\qquad \text{for } a \in (0,1).
+$$
+
+But $a^{S}$ on $[0,1]$ is the CDF of a $\text{Beta}(S, 1)$ random variable. So
+from the researcher's perspective:
+
+> **The consumer's purchase probability is $\text{Beta}(S,1)$ distributed, with the
+> inclusive value as the single shape parameter.**
+
+Everything in `eq-modelA` is then just that Beta CDF differenced across the cut
+points, and the model's behavior falls out of a familiar distribution. Two
+consequences:
+
+- $\operatorname{E}[p] = \dfrac{S}{S+1}$, the mean of a $\text{Beta}(S,1)$. This is
+  the $\frac{S}{S+1}$ factor that appears in the footnote `[^toy-ep]`.
+- That mean equals $\dfrac{S}{S+1} = \Lambda(\overline{\mu})$, which is exactly
+  Model B's purchase probability at $\gamma = 0$ (see `eq-collapseB`). So the two
+  models agree on *average* demand even though they distribute the ordinal mass
+  differently. I have not checked whether the paper states this anywhere; it may
+  be worth a sentence.
+
+## Numerical verification
+
+```{r}
+#| message: false
+set.seed(1)
+
+F_gum  <- function(z) exp(-exp(-z))          # standard Gumbel CDF
+Finv   <- function(a) -log(-log(a))          # its inverse
+rgumbel <- function(n, mu = 0) mu - log(-log(runif(n)))
+
+V     <- c(1.2, 0.4, -0.3)                   # deterministic utilities
+S     <- sum(exp(V))
+mubar <- log(S)
+alpha <- c(0, 0.37, 0.87, 1)                 # cut points, W = 3
+
+## Step 2 identity: Gumbel(mubar,1) CDF at Finv(alpha) equals alpha^S
+lhs <- F_gum(Finv(alpha[2:3]) - mubar)
+rhs <- alpha[2:3]^S
+cat("Step 2 identity:\n"); print(rbind(lhs, rhs))
+
+## Step 3 formula, and that it sums to one
+pw <- diff(alpha^S)
+cat("\nPr(y = w):", round(pw, 5), " sum =", sum(pw), "\n")
+
+## Monte Carlo from the behavioral process, not the formula
+N     <- 2e6
+ustar <- rgumbel(N, mubar)
+p     <- F_gum(ustar)
+y     <- cut(p, breaks = alpha, right = FALSE, labels = FALSE)
+cat("simulated  :", round(as.numeric(table(y)) / N, 5), "\n")
+cat("analytic   :", round(pw, 5), "\n")
+
+## The Beta(S, 1) reframing
+cat("\nKS test of p against Beta(S,1): p-value =",
+    round(ks.test(sample(p, 5000), "pbeta", S, 1)$p.value, 3), "\n")
+cat("E[p] simulated:", round(mean(p), 5),
+    " | S/(S+1):", round(S / (S + 1), 5),
+    " | plogis(mubar):", round(plogis(mubar), 5), "\n")
+```

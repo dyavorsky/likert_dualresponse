@@ -1,0 +1,4 @@
+## Declaration of generative AI and AI-assisted technologies in the manuscript preparation process {.unnumbered}
+
+During the preparation of this work the authors used Claude (Anthropic), accessed through Claude Code, iteratively in the drafting and editing of manuscript text and select coding tasks. After using this tool, the authors reviewed and edited the content as needed and take full responsibility for the content of the published article.
+
